@@ -67,6 +67,8 @@
 
   /* Cảnh 2: phụ đề dưới đám hạt */
   #s2 { justify-content:flex-end; padding-bottom:11vh; cursor:pointer; }
+  #s2.mid { justify-content:center; padding-bottom:0; }
+  #s2.mid .sub { font-size:clamp(38px, 11vw, 68px); line-height:1.25; text-wrap:balance; }
   .sub.big { font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(46px, 13vw, 84px); line-height:1.15; }
   .sub { min-height:3.2em; max-width:720px; margin:0; font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8.6vw, 50px); line-height:1.3; }
   /* chữ thật vẫn nằm đó để giữ bố cục, nhưng trong suốt: thứ mắt thấy là hạt vẽ trên #ptx */
@@ -86,7 +88,7 @@
   .sub { transition:opacity .6s, filter .6s; }
   .sub.bye { opacity:0; filter:blur(8px); }
   #s3 h1, #omg { transition:color .9s ease, text-shadow .9s ease; }
-  .ghost, .ghost * { color:transparent !important; text-shadow:none !important; }
+  .ghost, .ghost * { color:transparent !important; text-shadow:none !important; transition:none !important; }   /* tắt ngay, không mờ dần lộ chữ cũ */
   #ptx { position:fixed; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; }
   #omg { position:fixed; left:0; right:0; bottom:16vh; margin:0; padding:0 24px; text-align:center; pointer-events:none; visibility:hidden;
     font:700 clamp(40px, 11vw, 76px)/1.1 "Quicksand", sans-serif; color:var(--cream); text-shadow:var(--glow); }
@@ -175,13 +177,13 @@
   <span class="small" id="mlabel"></span>
   <img id="mimg" alt="">
   <div class="count" id="count"></div>
-  <span class="small hint">chạm để tiếp tục</span>
+  <span class="small hint">LÊN THUYỀN</span>
 </section>
 
 <section class="scene" id="s2"><p class="sub" id="sub"></p></section>
 
 <section class="scene" id="s3">
-  <h1 class="serif" id="headline"></h1>
+  <h1 class="serif ghost" id="headline"></h1>
   <div class="answers" id="answers">
     <button class="btn" id="yes"></button>
     <button class="btn" id="no"></button>
@@ -211,7 +213,7 @@ const CONFIG = {
   startLabel: "Open message",
   // mỗi bước: hạt xếp thành "shape" ("cloud", "moon" hoặc "heart"), bên dưới hiện câu "text"; big: true là chữ to
   steps: [
-    { shape: "moon", text: "Dear phù thủy ma cà rồng xink iu siu ngầu" },
+    { shape: "cloud", text: "Dear phù thủy ma cà rồng xink iu siu ngầu", mid: true },
     { shape: "heart", text: "Em thích chị.", big: true }
   ],
   headline: "Will you be my girlfriend?",
@@ -787,30 +789,34 @@ function launch(e) {
   const now = performance.now() / 1000, W = innerWidth, H = innerHeight, x = pr.left + pr.width / 2, y = pr.top + pr.height / 2;
   // lao ra một đoạn, nhào lộn đúng một vòng tròn gọn, rồi tăng tốc vút thẳng ra khỏi màn
   const R = Math.min(W, H) * .13, h = -.4, L1 = 46, L2 = 2 * Math.PI * R, L3 = Math.hypot(W, H), Lt = L1 + L2 + L3;
-  const ax = x + Math.cos(h) * L1, ay = y + Math.sin(h) * L1;
-  flyers.push({ k: "plane", t0: now, dur: 4.4, s: 34, fn: u => {
+  const ax = x + Math.cos(h) * L1, ay = y + Math.sin(h) * L1, dur = 4.4;
+  const path = u => {
     let q = Lt * Math.pow(u, 1.25);                          // chậm lúc đầu, nhanh dần nhẹ khi thoát
     if (q < L1) return [x + Math.cos(h) * q, y + Math.sin(h) * q];
     q -= L1;
     if (q < L2) { const f = q / R; return [ax + R * (Math.sin(h) - Math.sin(h - f)), ay + R * (Math.cos(h - f) - Math.cos(h))]; }
     q -= L2; return [ax + Math.cos(h) * q, ay + Math.sin(h) * q];
-  } });
+  };
+  flyers.push({ k: "plane", t0: now, dur, s: 34, fn: path });
   for (let i = 0; i < 70; i++) {    // viền nút vỡ ra thành bụi sáng
     const a = Math.random() * 6.2832, ex = br.left + br.width / 2 + Math.cos(a) * br.width / 2, ey = br.top + br.height / 2 + Math.sin(a) * br.height / 2;
     glints.push({ x: ex, y: ey, t: now, life: .8 + Math.random() * .8, r: 1.4 + Math.random() * 2.4,
       c: Math.floor(Math.random() * dotSprites.length), vx: Math.cos(a) * (30 + Math.random() * 90), vy: Math.sin(a) * (20 + Math.random() * 60) - 20 });
   }
+  const uLoop = Math.pow((L1 + L2) / Lt, 1 / 1.25);   // trả về số giây tới lúc máy bay khuất hẳn khỏi màn
+  for (let u = uLoop; u < 1; u += .005) { const [px, py] = path(u); if (px < -40 || px > W + 40 || py < -40 || py > H + 40) return u * dur; }
+  return dur;
 }
 $("start").addEventListener("click", async event => {
   enableSensors();
   if (controller && !playing) controller.play();   // chạm là nhạc lên
   for (let i = 0; i < CONFIG.memes; i++) new Image().src = "assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
-  launch(event); await wait(900); show(""); await wait(3500);   // trang đầu mờ đi, máy bay bay khuất hẳn rồi mới sang cảnh sau
+  const gone = launch(event) * 1000; await wait(900); show(""); await wait(Math.max(0, gone + 1000 - 900 - 350));   // trang đầu mờ đi, máy bay khuất hẳn ~1s thì ảnh hiện (ảnh có .35s trễ sẵn)
   if (CONFIG.firstMessage) { show("sm"); await hold(16000); }
   show("s2");
   for (const step of CONFIG.steps) {
     morph(step.shape);
-    $("sub").classList.toggle("big", !!step.big);
+    $("sub").classList.toggle("big", !!step.big); $("s2").classList.toggle("mid", !!step.mid);
     subtitle(step.text);
     await hold(8500);
   }
