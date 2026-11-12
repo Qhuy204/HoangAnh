@@ -85,7 +85,7 @@
   /* căn giữa theo nét chữ thật (cap → chân chữ) chứ không theo khung font, để số nằm đúng giữa thanh hồng trên mọi máy */
   .wheel .track div { height:48px; display:flex; align-items:center; justify-content:center; white-space:nowrap; font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif;
     color:var(--cream); opacity:.4; }
-  .wheel .track span { display:block; line-height:1; text-box:trim-both cap alphabetic; }
+  .wheel .track span { display:block; padding:16px 12px; margin:-16px -12px; line-height:1; text-box:trim-both cap alphabetic; }
   .wheel .track div.on { text-shadow:var(--glow); }
   .pick { border:0; border-radius:999px; padding:13px 40px; background:var(--accent); color:#fff; font:700 18px "Quicksand", sans-serif; letter-spacing:.06em;
     box-shadow:0 8px 34px rgba(255,77,109,.55); transition:opacity .4s, transform .4s; }
@@ -95,7 +95,7 @@
   /* 1...2...3... */
   #sc { justify-content:center; }
   .cnt { margin:0; font:700 clamp(46px, 14vw, 90px)/1 "Quicksand", sans-serif; color:var(--cream); text-shadow:var(--glow); }
-  .cnt span { display:inline-block; opacity:0; animation:pop .7s cubic-bezier(.3,1.7,.5,1) forwards; animation-delay:calc(.7s + var(--n) * 1s); }
+  .cnt span { display:inline-block; padding:.4em; margin:-.4em; opacity:0; animation:pop .7s cubic-bezier(.3,1.7,.5,1) forwards; animation-delay:calc(.7s + var(--n) * 1s); }
   @keyframes pop { from { opacity:0; transform:scale(2.4); filter:blur(10px); } to { opacity:1; transform:none; filter:none; } }
   /* gợi ý chạm để sang trang */
   #tap { position:fixed; left:0; right:0; bottom:3.5vh; z-index:5; text-align:center; pointer-events:none; opacity:0; transition:opacity .8s;
@@ -117,7 +117,8 @@
   .w { display:inline-block; white-space:nowrap; }
   .ch { display:inline-block; opacity:0; color:var(--cream); transform:translateY(-.9em) scale(1.8) rotate(-14deg); filter:blur(10px);
     animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chWave 2.8s ease-in-out infinite, chHue 3.6s linear infinite;
-    animation-delay:calc(.9s + var(--i) * 55ms), calc(2.4s + var(--i) * 90ms), calc(var(--i) * -.12s); }
+    animation-delay:calc(.9s + var(--i) * 55ms), calc(2.4s + var(--i) * 90ms), calc(var(--i) * -.12s);
+    padding:.5em .45em; margin:-.5em -.45em; }   /* iPhone cắt quầng sáng theo khung của chữ đang chạy hiệu ứng: nới khung ra cho đủ chỗ, margin âm để không lệch chữ */
   @keyframes chIn { 60% { opacity:1; filter:blur(0); } to { opacity:1; transform:none; filter:none; } }
   @keyframes chWave { 0%, 100% { translate:0 0; } 50% { translate:0 -.16em; } }
   @keyframes chHue {
