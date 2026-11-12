@@ -887,17 +887,6 @@ function drawFx(nowMs) {
   flyers = flyers.filter(f => t - f.t0 < f.dur);
   for (const f of flyers) {
     const u = (t - f.t0) / f.dur, [x, y] = bez(f.p, u), [x2, y2] = bez(f.p, Math.min(1, u + .01));
-    if (Math.random() < .8) glints.push({ x: x + rnd(f.s * .25), y: y + rnd(f.s * .25), t, life: .7 + Math.random() * .7, r: 1.6 + Math.random() * 2.6,
-      c: Math.floor(Math.random() * dotSprites.length), vx: rnd(18), vy: rnd(18) });
-    if (f.k === "plane") {          // đường bay chấm chấm mờ dần phía sau
-      fg.fillStyle = "#fff";
-      for (let i = 1; i <= 26; i++) {
-        const v = u - i * .009; if (v < 0) break;
-        const [tx, ty] = bez(f.p, v); fg.globalAlpha = (1 - i / 26) * .8;
-        fg.beginPath(); fg.arc(tx, ty, 1.8 * (1 - i / 40), 0, 6.283); fg.fill();
-      }
-      fg.globalAlpha = 1;
-    }
     fg.save(); fg.translate(x, y);
     if (f.k === "heart") {
       const beat = 1 + Math.pow(Math.max(0, Math.sin(t * 6 + f.ph)), 8) * .16, k = f.s / 64 * beat;
