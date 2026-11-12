@@ -112,18 +112,18 @@
   #memes > img { position:absolute; object-fit:cover; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.5); will-change:transform, opacity;
     opacity:0; transform:translate(var(--dx, 0), var(--dy, 0)) scale(.06) rotate(var(--r0)); filter:brightness(1.8);
     transition:transform 1.5s cubic-bezier(.16,.9,.3,1.06), opacity .5s ease, filter 1.5s ease; }
-  /* ảnh chính: hạt từ quả cầu bay ra ghép thành ảnh (vẽ trên canvas), ghép xong ảnh thật hiện nhẹ lên thay chỗ */
-  #memes .hero { position:absolute; left:50%; top:47%; width:min(72vw, 46vh, 380px); aspect-ratio:2/3; z-index:2; border-radius:18px; overflow:hidden;
-    translate:calc(-50% + var(--lx, 0) * 26px) calc(-50% + var(--ly, 0) * 26px);
-    box-shadow:0 24px 70px rgba(0,0,0,.75); opacity:0; transition:opacity 1.2s ease; }
-  #memes .hero.up { opacity:1; }
-  #memes .hero img { display:block; width:100%; height:100%; object-fit:cover; }
-  #memes .cap { position:absolute; left:50%; top:calc(47% + min(72vw, 46vh, 380px) * .75 + 14px); translate:calc(-50% + var(--lx, 0) * 38px) calc(var(--ly, 0) * 38px); z-index:3; white-space:nowrap;
-    font-family:"Quicksand", "Be Vietnam Pro", sans-serif; font-weight:700; font-size:clamp(32px, 9vw, 52px); text-shadow:0 2px 24px rgba(0,0,0,.9); }
+  #memes > img.hero { left:50%; top:50%; width:min(72vw, 48vh, 380px); aspect-ratio:2/3; margin:0; translate:calc(-50% + var(--lx, 0) * 26px) calc(-50% + var(--ly, 0) * 26px); z-index:2; border-radius:28px;
+    box-shadow:0 0 0 4px rgba(255,255,255,.9), 0 24px 70px rgba(0,0,0,.7), 0 0 60px rgba(255,77,109,.45);
+    transition:transform 2.6s cubic-bezier(.16,.84,.3,1), opacity 1.8s ease, filter 2.6s ease; }
+  #memes > img.hero.up { transform:translate(0, 0) scale(1) rotate(-2deg); }
+  #memes .cap { position:absolute; left:50%; top:calc(50% + min(72vw, 48vh, 380px) * .75 + 10px); translate:calc(-50% + var(--lx, 0) * 38px) calc(var(--ly, 0) * 38px); z-index:3; white-space:nowrap;
+    font-family:"Quicksand", "Be Vietnam Pro", sans-serif; font-weight:700; font-size:clamp(28px, 8vw, 46px); color:#fff; padding:2px 22px 6px; border-radius:999px;
+    background:var(--accent); box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 12px 34px rgba(0,0,0,.55);
+    opacity:0; transform:translateY(24px) scale(.6) rotate(-3deg); transition:transform .9s cubic-bezier(.3,1.6,.5,1), opacity .6s ease; }
+  #memes .cap.up { opacity:1; transform:rotate(-3deg); }
   #memes .cap { pointer-events:auto; cursor:pointer; touch-action:manipulation; }
   #fx { position:fixed; inset:0; width:100%; height:100%; z-index:6; pointer-events:none; }
   #memes > img.up { opacity:1; transform:translate(0, 0) scale(1.1) rotate(var(--r)); filter:none; }
-  #memes.focus > img.up { filter:brightness(.4); transition:filter 1.6s ease; }   /* tường meme lùi vào bóng tối cho ảnh chính nổi bật */
 
 
   /* đĩa nhạc */
@@ -849,35 +849,6 @@ const HEART = new Path2D("M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 
 const PLANE = [new Path2D("M4 30 60 6 30 38Z"), new Path2D("M30 38 60 6 44 58Z"), new Path2D("M30 38 60 6 24 34 28 52Z")];
 let flyers = [], glints = [];
 const bez = (p, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * p[0][i] + 3 * u * u * t * p[1][i] + 3 * u * t * t * p[2][i] + t * t * t * p[3][i]); };
-let photoPts = null;
-function assemble(img, R) {          // lấy mẫu màu ảnh thành lưới hạt; hạt phụt ra từ quả cầu, xoáy nhẹ rồi về đúng chỗ
-  const step = Math.max(4, Math.round(Math.sqrt(R.width * R.height / 5200))), cols = Math.floor(R.width / step), rows = Math.floor(R.height / step);
-  const cv = document.createElement("canvas"); cv.width = cols; cv.height = rows; const g = cv.getContext("2d");
-  const ir = img.naturalWidth / img.naturalHeight, cr = cols / rows;   // giống object-fit: cover
-  let sw = img.naturalWidth, sh = img.naturalHeight, sx = 0, sy = 0;
-  if (ir > cr) { sw = sh * cr; sx = (img.naturalWidth - sw) / 2; } else { sh = sw / cr; sy = (img.naturalHeight - sh) / 2; }
-  g.drawImage(img, sx, sy, sw, sh, 0, 0, cols, rows);
-  const d = g.getImageData(0, 0, cols, rows).data, now = performance.now() / 1000, pts = [];
-  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
-    const k = (j * cols + i) * 4, a = Math.random() * 6.2832, rr = Math.random() * 30;
-    pts.push({ x: R.left + (i + .5) * step, y: R.top + (j + .5) * step, c: "rgb(" + d[k] + "," + d[k + 1] + "," + d[k + 2] + ")",
-      sx: secretXY[0] + Math.cos(a) * rr, sy: secretXY[1] + Math.sin(a) * rr, sw: rnd(1), dl: (j / rows) * .9 + Math.random() * .6 });
-  }
-  photoPts = { pts, t0: now, step, dur: 3.2 };
-  return photoPts.dur;
-}
-function drawPhoto(t) {
-  const P = photoPts, lt = t - P.t0; if (lt > P.dur + .8) { photoPts = null; return; }
-  const fade = Math.min(1, Math.max(0, (P.dur + .8 - lt) / .8));
-  for (const q of P.pts) {
-    let g = Math.min(1, Math.max(0, (lt - q.dl) / 1.4)); if (g <= 0) continue;
-    g = 1 - Math.pow(1 - g, 3);
-    const sw = Math.sin(g * 3.1416) * q.sw * 90, x = q.sx + (q.x - q.sx) * g + sw, y = q.sy + (q.y - q.sy) * g - Math.abs(sw) * .5;
-    const r = P.step * (.35 + .65 * g);
-    fg.globalAlpha = fade * (.4 + .6 * g); fg.fillStyle = q.c; fg.fillRect(x - r / 2, y - r / 2, r, r);
-  }
-  fg.globalAlpha = 1;
-}
 function burst(x, y) {           // pháo hoa bụi sáng nhỏ: toả tròn ra rồi rơi nhẹ, tắt dần
   const now = performance.now() / 1000;
   for (let i = 0; i < 90; i++) {
@@ -889,7 +860,6 @@ function burst(x, y) {           // pháo hoa bụi sáng nhỏ: toả tròn ra 
 function drawFx(nowMs) {
   const t = nowMs / 1000;
   fg.setTransform(ptDpr, 0, 0, ptDpr, 0, 0); fg.clearRect(0, 0, innerWidth, innerHeight);
-  if (photoPts) drawPhoto(t);
   if (!flyers.length && !glints.length) return;
   glints = glints.filter(q => t - q.t < q.life);
   for (const q of glints) {         // bụi lấp lánh rơi lại phía sau
@@ -944,22 +914,20 @@ function memeWall() {              // ảnh từ sâu trong nền nổi dần l�
     if (n >= total) {
       clearInterval(timer);
       if (CONFIG.photo) setTimeout(() => {           // tường meme kín rồi thì ảnh chị nổi lên chính giữa
-        const hero = document.createElement("div"), img = new Image(); hero.className = "hero"; img.alt = "";
-        hero.append(img);
-        img.onload = () => { $("memes").classList.add("focus"); $("memes").append(hero);
-          const dur = assemble(img, hero.getBoundingClientRect());
-          setTimeout(() => hero.classList.add("up"), dur * 1000 - 500);
+        const hero = new Image(); hero.className = "hero"; hero.alt = "";
+        hero.style.setProperty("--r0", "-30deg");
+        hero.style.setProperty("--dx", secretXY[0] - innerWidth / 2 + "px"); hero.style.setProperty("--dy", secretXY[1] - innerHeight / 2 + "px");
+        hero.onload = () => { $("memes").append(hero); hero.getBoundingClientRect(); hero.classList.add("up");
           if (CONFIG.caption) setTimeout(() => {
-            const cap = document.createElement("div"); cap.className = "cap";
-            [...CONFIG.caption].forEach((ch, i) => { const c = document.createElement("span"); c.className = "ch"; c.style.setProperty("--i", i); c.textContent = ch === " " ? " " : ch; cap.append(c); });
+            const cap = document.createElement("div"); cap.className = "cap"; cap.textContent = CONFIG.caption;
             cap.addEventListener("click", e => {   // bấm là bụi sáng nổ ra từ chỗ chạm
-              cap.animate([{ scale: 1 }, { scale: 1.08 }, { scale: 1 }], { duration: 240 });
+              cap.animate([{ scale: 1 }, { scale: 1.18 }, { scale: 1 }], { duration: 260 });
               burst(e.clientX, e.clientY);
             });
-            $("memes").append(cap);
-          }, 3600);
+            $("memes").append(cap); cap.getBoundingClientRect(); cap.classList.add("up");
+          }, 2200);
         };
-        img.src = CONFIG.photo;
+        hero.src = CONFIG.photo;
       }, 900);
       return;
     }
