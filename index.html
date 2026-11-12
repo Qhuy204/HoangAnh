@@ -222,7 +222,7 @@ const CONFIG = {
   spotifyTrackId: "3Ids3RXurYBgySph53qWnB", // Từng Ngày Yêu Em - buitruonglinh
   trackName: "Từng Ngày Yêu Em",
   // muốn chắc chắn phát cả bài từ giây đầu: bỏ file nhạc vào assets rồi điền tên, vd "assets/song.mp3" (khi đó không dùng Spotify nữa)
-  audioFile: "assets/sound.mp4",
+  audioFile: "assets/sound.mp3",
   firstMessage: "2026-07-30T21:54:00+07:00",   // thời điểm tin nhắn đầu tiên (năm-tháng-ngày, giờ VN), bộ đếm tính từ đây; để "" là bỏ màn này
   firstMessagePhoto: "assets/firstmsg.webp",
   firstMessageLabel: "First message",
@@ -785,8 +785,16 @@ function launch(e) {
   rip.style.left = ((e && e.clientX ? e.clientX : br.left + br.width / 2) - br.left) + "px"; rip.style.top = ((e && e.clientY ? e.clientY : br.top + br.height / 2) - br.top) + "px";
   b.append(rip); b.classList.add("go");
   const now = performance.now() / 1000, W = innerWidth, H = innerHeight, x = pr.left + pr.width / 2, y = pr.top + pr.height / 2;
-  flyers.push({ k: "plane", t0: now, dur: 1.7, s: 30,   // lùi nhẹ lấy đà rồi vút lên góc trên
-    p: [[x, y], [x - 40, y + 30], [x + W * .15, y - H * .35], [x + W * .45, -90]] });
+  // lao ra một đoạn, nhào lộn đúng một vòng tròn gọn, rồi tăng tốc vút thẳng ra khỏi màn
+  const R = Math.min(W, H) * .13, h = -.4, L1 = 46, L2 = 2 * Math.PI * R, L3 = Math.hypot(W, H), Lt = L1 + L2 + L3;
+  const ax = x + Math.cos(h) * L1, ay = y + Math.sin(h) * L1;
+  flyers.push({ k: "plane", t0: now, dur: 2.6, s: 34, fn: u => {
+    let q = Lt * Math.pow(u, 1.45);                          // chậm lúc đầu, nhanh dần khi thoát
+    if (q < L1) return [x + Math.cos(h) * q, y + Math.sin(h) * q];
+    q -= L1;
+    if (q < L2) { const f = q / R; return [ax + R * (Math.sin(h) - Math.sin(h - f)), ay + R * (Math.cos(h - f) - Math.cos(h))]; }
+    q -= L2; return [ax + Math.cos(h) * q, ay + Math.sin(h) * q];
+  } });
   for (let i = 0; i < 70; i++) {    // viền nút vỡ ra thành bụi sáng
     const a = Math.random() * 6.2832, ex = br.left + br.width / 2 + Math.cos(a) * br.width / 2, ey = br.top + br.height / 2 + Math.sin(a) * br.height / 2;
     glints.push({ x: ex, y: ey, t: now, life: .8 + Math.random() * .8, r: 1.4 + Math.random() * 2.4,
@@ -886,7 +894,7 @@ function drawFx(nowMs) {
   fg.globalAlpha = 1;
   flyers = flyers.filter(f => t - f.t0 < f.dur);
   for (const f of flyers) {
-    const u = (t - f.t0) / f.dur, [x, y] = bez(f.p, u), [x2, y2] = bez(f.p, Math.min(1, u + .01));
+    const u = (t - f.t0) / f.dur, P = f.fn || (v => bez(f.p, v)), [x, y] = P(u), [x2, y2] = P(Math.min(1, u + .01));
     fg.save(); fg.translate(x, y);
     if (f.k === "heart") {
       const beat = 1 + Math.pow(Math.max(0, Math.sin(t * 6 + f.ph)), 8) * .16, k = f.s / 64 * beat;
