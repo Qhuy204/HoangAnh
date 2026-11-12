@@ -69,7 +69,7 @@
   body:not(.ready) #start { visibility:hidden; }
 
   /* núi meme sau khi bấm Yes */
-  #memes { position:fixed; inset:0; z-index:4; overflow:hidden; pointer-events:none; }
+  #memes { position:fixed; inset:-24px; z-index:4; overflow:hidden; pointer-events:none; }
   #memes img { translate:calc(var(--lx, 0) * -14px) calc(var(--ly, 0) * -14px); }   /* nghiêng máy: tường lệch ngược, ảnh và chữ lệch xuôi */
   #memes img { position:absolute; object-fit:cover; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.5); will-change:transform, opacity;
     opacity:0; transform:translate(var(--dx, 0), var(--dy, 0)) scale(.06) rotate(var(--r0)); filter:brightness(1.8);
@@ -378,7 +378,7 @@ const points = new THREE.Points(geo, mat);
 points.frustumCulled = false;
 scene3.add(points);
 
-/* ---------- Phong ấn giữa trái tim: quả cầu năng lượng bị giam trong lồng, vòng sáng quay quanh ---------- */
+/* ---------- Phong ấn giữa trái tim: cầu năng lượng xoáy, lõi trắng chói, gió cuộn quanh, hạt bị hút vào ---------- */
 const glowTex = (() => {
   const c = document.createElement("canvas"); c.width = c.height = 128;
   const g = c.getContext("2d"), r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
@@ -406,32 +406,43 @@ const orb = new THREE.Mesh(new THREE.SphereGeometry(SR, 64, 48), new THREE.Shade
     uniform float uTime, uOp, uCharge;
     varying vec3 vN, vV, vP;
     void main() {
-      float f = pow(1. - abs(dot(normalize(vN), normalize(vV))), 2.2);   // viền cầu sáng như thuỷ tinh
-      vec3 p = vP * 3.; float t = uTime;
-      float w = sin(p.x * 2. + t * 1.3 + sin(p.y * 3. - t)) * sin(p.y * 2.5 - t * .9 + sin(p.z * 2. + t * .7)) * sin(p.z * 2. + t * 1.1);
-      float vein = pow(1. - abs(w), 14.);                                  // mạch năng lượng chạy trên mặt cầu
-      vec3 col = mix(vec3(1., .3, .55), vec3(.72, .5, 1.), .5 + .5 * sin(p.y * .8 + t * .5));
-      vec3 c = col * (f * 1.4 + vein * .9 + .1) + vec3(1.) * f * f * .6;
-      c = mix(c, vec3(1.), uCharge * .75);
-      gl_FragColor = vec4(c, clamp(f * .95 + vein * .6 + .07 + uCharge * .3, 0., 1.) * uOp);
+      float face = abs(dot(normalize(vN), normalize(vV))), f = pow(1. - face, 2.);
+      float th = atan(vP.z, vP.x), la = asin(clamp(vP.y, -1., 1.)), t = uTime;
+      float b1 = pow(.5 + .5 * sin(th * 3. + la * 7. - t * 11.), 7.);          // sọc xoáy cuộn quanh cầu
+      float b2 = pow(.5 + .5 * sin(th * 5. - la * 5. - t * 16.), 12.);
+      float b3 = pow(.5 + .5 * sin(th * 2. + la * 11. - t * 7.), 18.);
+      float band = b1 + b2 * .8 + b3 * .6;
+      vec3 pink = vec3(1., .28, .6), hot = vec3(1., .82, .92);
+      vec3 c = mix(pink, hot, face * face) * (face * face * 1.1 + band * (.35 + f * 1.4)) + vec3(1., .45, .75) * f * 1.5;
+      c = mix(c, vec3(1.), uCharge * .8);
+      gl_FragColor = vec4(c, clamp(face * face * .5 + band * .5 + f * .9 + uCharge * .4, 0., 1.) * uOp);
     }`
 }));
-const cage = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(SR * 1.13, 1)), sealMat(new THREE.LineBasicMaterial({ color: 0xffb3cc, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), .55));
-const rings = [[0xff8fb8, 1.42, 1.25, .2], [0xc9a3ff, 1.6, -.6, .9], [0xffd0e0, 1.32, .4, -1.1]].map(([col, r, rx, rz]) => {
-  const g = new THREE.Group(); g.rotation.set(rx, 0, rz);
-  const m = new THREE.Mesh(new THREE.TorusGeometry(SR * r, .045, 6, 160), sealMat({ color: col }, .85));
-  const bead = new THREE.Sprite(sealMat(new THREE.SpriteMaterial({ map: glowTex, color: col, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1));
-  bead.position.x = SR * r; bead.scale.setScalar(1.6); m.add(bead);   // hạt sáng chạy trên vòng
-  g.add(m); return g;
+const streakGeo = (r, arc) => {      // vệt gió: một cung mảnh, sáng ở đầu và mờ dần về đuôi
+  const g = new THREE.TorusGeometry(r, .07, 5, 90, arc), pos = g.attributes.position, col = new Float32Array(pos.count * 3);
+  for (let i = 0; i < pos.count; i++) { let a = Math.atan2(pos.getY(i), pos.getX(i)); if (a < 0) a += 6.2832; const v = Math.pow(a / arc, 2.2); col.set([v, v, v], i * 3); }
+  g.setAttribute("color", new THREE.BufferAttribute(col, 3)); return g;
+};
+const streaks = [...Array(9)].map((_, i) => {
+  const g = new THREE.Group(); g.rotation.set(rnd(1.4), rnd(3.1), rnd(1.4));
+  const m = new THREE.Mesh(streakGeo(SR * (1.04 + Math.random() * .3), 2.2 + Math.random() * 1.6), sealMat({ color: i % 3 ? 0xff9ec8 : 0xffffff, vertexColors: true }, 1));
+  m.userData.v = (4 + Math.random() * 4) * (i % 4 ? 1 : -1); g.add(m); return g;
 });
-const core = new THREE.Sprite(sealMat(new THREE.SpriteMaterial({ map: glowTex, color: 0xff8fb8, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), .9));
-const sparks = (() => {             // bụi sáng quay quanh quả cầu
-  const n = 140, a = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) { const th = Math.random() * 6.2832, ph = Math.acos(Math.random() * 2 - 1), r = SR * (1.15 + Math.random() * .7); a.set([r * Math.sin(ph) * Math.cos(th), r * Math.cos(ph), r * Math.sin(ph) * Math.sin(th)], i * 3); }
-  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(a, 3));
-  return new THREE.Points(g, sealMat(new THREE.PointsMaterial({ map: glowTex, color: 0xffd6e6, size: .7, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1));
-})();
-seal.add(core, orb, cage, ...rings, sparks);
+const SN = 180, sparkPos = new Float32Array(SN * 3), sparkS = [...Array(SN)].map(() => ({ r: SR * (1 + Math.random() * 1.3), a: Math.random() * 6.2832, y: rnd(1), v: 2 + Math.random() * 3 }));
+const sparks = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(sparkPos, 3)),
+  sealMat(new THREE.PointsMaterial({ map: glowTex, color: 0xffd6e6, size: .65, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1));
+sparks.frustumCulled = false;
+function suck(dt, k) {               // hạt xoáy vòng rồi bị hút vào cầu, chạm mặt thì sinh lại ở xa
+  sparkS.forEach((q, i) => {
+    q.a += dt * q.v * (SR * 1.6 / q.r) * k; q.r -= dt * SR * .55 * k;
+    if (q.r < SR * .95) { q.r = SR * (1.9 + Math.random() * .5); q.y = rnd(1); }
+    const yy = q.y * Math.sqrt(Math.max(0, 1 - Math.pow(SR / q.r, 2) * .2));
+    sparkPos.set([Math.cos(q.a) * q.r * Math.sqrt(1 - yy * yy), yy * q.r, Math.sin(q.a) * q.r * Math.sqrt(1 - yy * yy)], i * 3);
+  });
+  sparks.geometry.attributes.position.needsUpdate = true;
+}
+const core = new THREE.Sprite(sealMat(new THREE.SpriteMaterial({ map: glowTex, color: 0xffc2dc, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1));
+seal.add(core, orb, ...streaks, sparks);
 seal.visible = false;
 let sealOn = false, sealIn = 0, sealSpin = 0, sealPoke = -1e9, sealBreak = -1e9;
 const WHITE = new THREE.Color(1, 1, 1);
@@ -510,18 +521,18 @@ renderer.setAnimationLoop(now => {
   flinch *= .9; s += flinch;
   points.scale.setScalar(s);
   if (heartFlow) {                                  // phong ấn nằm ở tâm trái tim, quay theo tim
-    sealIn += ((sealOn ? 1 : 0) - sealIn) * .025;
+    sealIn += ((sealOn ? 1 : 0) - sealIn) * (1 - Math.exp(-dt * 1.5));   // hiện dần theo thời gian thật, máy chậm cũng vậy
     const bk = sealBreak > 0 ? (now - sealBreak) / 1000 : 0, charge = bk > 0 ? Math.min(1, bk / .65) : 0, blow = bk > .65 ? Math.min(1, (bk - .65) / .7) : 0;
     const pk = Math.max(0, 1 - (now - sealPoke) / 650);
     sealSpin += dt * (1 + charge * charge * 16 + pk * 4);   // sắp vỡ thì quay điên cuồng
-    orb.rotation.y = sealSpin * .35; cage.rotation.set(sealSpin * .2, -sealSpin * .5, 0);
-    rings.forEach((g, i) => g.children[0].rotation.z = sealSpin * (1.1 + i * .45) * (i % 2 ? -1 : 1));
-    sparks.rotation.set(sealSpin * .15, sealSpin * .45, 0);
+    orb.rotation.y = sealSpin * .5;
+    streaks.forEach(g => g.children[0].rotation.z += dt * g.children[0].userData.v * (1 + charge * 3 + pk * 2));
+    suck(dt, 1 + charge * 4 + pk * 2);
     const shake = charge * .5 + pk * .35;
     seal.position.set(heartFlow.s * rnd(shake), heartFlow.oy - 3 * heartFlow.s + heartFlow.s * rnd(shake), 0);
     seal.rotation.z = Math.sin(now / 45) * pk * .18;
     seal.scale.setScalar(heartFlow.s * Math.max(.001, backOut(Math.min(1, sealIn * 1.05))) * (1 + charge * .18 + blow * 2.6));
-    core.scale.setScalar(6 + Math.sin(t * 5.2) * .7 + charge * 10 + pk * 2);
+    core.scale.setScalar(SR * 2.4 + Math.sin(t * 23) * .5 + Math.sin(t * 5.2) * .8 + charge * 12 + pk * 3);   // lõi chói, rung lẹt xẹt
     const op = Math.min(1, sealIn * 1.3) * (1 - blow);
     sealMats.forEach(([m, base, col]) => { m.opacity = Math.min(1, base * op * (1 + charge * 1.2 + pk * .5)); m.color.lerpColors(col, WHITE, charge * .8); });
     orbU.uTime.value = t + sealSpin * .5; orbU.uOp.value = op * (1 + pk * .4); orbU.uCharge.value = charge;
@@ -638,7 +649,7 @@ function fly() {                 // một máy bay giấy hoặc trái tim bay n
 }
 
 function memeWall() {              // ảnh từ sâu trong nền nổi dần lên, phủ kín cả màn hình
-  const W = innerWidth, H = innerHeight, cell = Math.max(96, Math.min(170, W / 4));
+  const W = innerWidth + 48, H = innerHeight + 48, cell = Math.max(96, Math.min(170, innerWidth / 4));
   const nx = Math.ceil(W / cell), ny = Math.ceil(H / cell), w = W / nx, h = H / ny, total = nx * ny;
   const cells = [...Array(total).keys()].sort(() => Math.random() - .5), pics = [...Array(CONFIG.memes).keys()].sort(() => Math.random() - .5);
   let n = 0;
@@ -665,9 +676,9 @@ function memeWall() {              // ảnh từ sâu trong nền nổi dần l�
     }
     const c = cells[n], img = new Image();
     img.src = memeSrc(pics[n % pics.length]); img.alt = "";
-    Object.assign(img.style, { width: w + "px", height: h + "px", left: (c % nx) * w + "px", top: Math.floor(c / nx) * h + "px" });
+    Object.assign(img.style, { width: 100 / nx + "%", height: 100 / ny + "%", left: (c % nx) * 100 / nx + "%", top: Math.floor(c / nx) * 100 / ny + "%" });
     img.style.setProperty("--r0", rnd(200) + "deg"); img.style.setProperty("--r", rnd(5) + "deg");
-    img.style.setProperty("--dx", secretXY[0] - ((c % nx) + .5) * w + "px"); img.style.setProperty("--dy", secretXY[1] - (Math.floor(c / nx) + .5) * h + "px");
+    img.style.setProperty("--dx", secretXY[0] + 24 - ((c % nx) + .5) * w + "px"); img.style.setProperty("--dy", secretXY[1] + 24 - (Math.floor(c / nx) + .5) * h + "px");
     $("memes").append(img);
     img.getBoundingClientRect();
     img.classList.add("up");
