@@ -153,6 +153,7 @@
   #yes { background:var(--accent); color:#fff; scale:var(--g, 1); box-shadow:0 8px 34px rgba(255,77,109,.55); }
   #yes:hover { background:#ff6f8a; }
   #no { background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(243,234,217,.6); }
+  .gap-no { flex:none; height:1px; transition:width 1.4s cubic-bezier(.45,0,.25,1); }   /* chỗ trống nút No để lại, khép từ từ */
   #no.run { position:fixed; z-index:7; background:#17131c; transition:left .28s cubic-bezier(.34,1.4,.64,1), top .28s cubic-bezier(.34,1.4,.64,1), rotate .28s; }
 
   body:not(.ready) #start { visibility:hidden; }
@@ -1010,15 +1011,19 @@ if (CONFIG.quiz) {
 }
 
 // Nút No: chạm vào là nhảy lung tung, nút Yes to dần, trái tim giật mình
-let dodges = 0;
+let dodges = 0, lastDodge = -1e9;
 const dodge = e => {
   e.preventDefault();
   const no = $("no"), r = no.getBoundingClientRect();
   if (!no.classList.contains("run")) {           // lần đầu: ghim tại chỗ rồi mới nhảy
     no.style.left = r.left + "px"; no.style.top = r.top + "px";
+    // giữ một ô trống đúng cỡ nút No rồi khép lại thật chậm → Yes trượt từ từ vào giữa, không nhảy tót vào dưới ngón tay
+    const gap = document.createElement("span"); gap.className = "gap-no"; gap.style.width = r.width + "px"; no.after(gap);
     no.classList.add("run"); no.getBoundingClientRect();
+    requestAnimationFrame(() => requestAnimationFrame(() => { gap.style.width = "0px"; }));
+    gap.addEventListener("transitionend", () => gap.remove(), { once: true });
   }
-  dodges++;
+  dodges++; lastDodge = performance.now();
   no.textContent = CONFIG.no[dodges % CONFIG.no.length];
   const w = no.offsetWidth, h = no.offsetHeight, pad = 16, maxX = innerWidth - w - pad, maxY = innerHeight - h - 120;
   let x, y, tries = 0;
@@ -1141,7 +1146,8 @@ function memeWall() {              // ảnh từ sâu trong nền nổi dần l�
   }, Math.max(28, 2600 / total));
 }
 
-$("yes").addEventListener("click", () => {
+$("yes").addEventListener("click", e => {
+  if (performance.now() - lastDodge < 700) { e.preventDefault(); return; }   // vừa bấm No xong thì chạm nhầm vào Yes không tính
   $("no").style.display = "none";
   ptOut($("headline")); show("");                 // câu hỏi tan thành bụi
   glowT = 1; flinch = .2;   // cả trái tim bừng sáng
