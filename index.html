@@ -76,13 +76,15 @@
     border:1px solid rgba(255,143,180,.4); box-shadow:0 0 30px rgba(255,77,140,.2), inset 0 0 24px rgba(255,77,140,.08); }
   .dpick::before { content:""; position:absolute; left:8px; right:8px; top:50%; height:48px; margin-top:-24px; border-radius:16px; pointer-events:none;
     background:linear-gradient(90deg, rgba(255,77,140,.14), rgba(255,143,180,.24), rgba(255,77,140,.14)); border:1px solid rgba(255,143,180,.4); box-shadow:0 0 18px rgba(255,77,140,.3); }
-  .wheel { position:relative; height:240px; padding:96px 0; box-sizing:border-box; overflow-y:auto; scroll-snap-type:y mandatory; overscroll-behavior:contain;
-    scrollbar-width:none; -webkit-mask-image:linear-gradient(transparent, #000 38%, #000 62%, transparent); mask-image:linear-gradient(transparent, #000 38%, #000 62%, transparent); }
-  .wheel::-webkit-scrollbar { display:none; }
+  .wheel { position:relative; height:240px; overflow:hidden; touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none;
+    -webkit-mask-image:linear-gradient(transparent, #000 36%, #000 64%, transparent); mask-image:linear-gradient(transparent, #000 36%, #000 64%, transparent); }
+  .wheel { perspective:420px; }
+  .wheel:active { cursor:grabbing; }
   .wheel[data-k="d"] { width:64px; } .wheel[data-k="m"] { width:112px; } .wheel[data-k="y"] { width:86px; }
-  .wheel div { height:48px; line-height:48px; text-align:center; scroll-snap-align:center; cursor:pointer; white-space:nowrap;
-    font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif; color:rgba(243,234,217,.45); transition:color .2s, transform .2s, text-shadow .2s; }
-  .wheel div.on { color:var(--cream); text-shadow:var(--glow); transform:scale(1.14); }
+  .wheel .track { position:absolute; transform-style:preserve-3d; left:0; right:0; top:96px; will-change:transform; }
+  .wheel .track div { height:48px; line-height:48px; text-align:center; white-space:nowrap; font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif;
+    color:var(--cream); opacity:.4; }
+  .wheel .track div.on { text-shadow:var(--glow); }
   .pick { border:0; border-radius:999px; padding:13px 40px; background:var(--accent); color:#fff; font:700 18px "Quicksand", sans-serif; letter-spacing:.06em;
     box-shadow:0 8px 34px rgba(255,77,109,.55); transition:opacity .4s, transform .4s; }
   .pick:disabled { background:rgba(255,77,109,.28); color:rgba(255,255,255,.5); box-shadow:none; cursor:default; }   /* không dùng opacity: hiệu ứng bay vào ghi đè */
@@ -942,17 +944,50 @@ const qpick = (() => {
     y: [...Array(7)].map((_, i) => [yNow - 6 + i, String(yNow - 6 + i)]) };
   const start = { d: 1, m: 1, y: yNow };
   document.querySelectorAll("#qdate .wheel").forEach(w => {
-    const k = w.dataset.k, list = items[k];
-    list.forEach(([v, label], i) => { const d = document.createElement("div"); d.textContent = label; d.onclick = () => w.scrollTo({ top: i * ROW, behavior: "smooth" }); w.append(d); });
-    const idx = () => Math.max(0, Math.min(list.length - 1, Math.round(w.scrollTop / ROW)));
-    let last = -1;
-    const mark = () => { const i = idx(); if (i === last) return; last = i; [...w.children].forEach((c, j) => c.classList.toggle("on", j === i)); };
-    w.addEventListener("scroll", mark, { passive: true });
-    cols[k] = { w, list, idx, mark, i0: list.findIndex(([v]) => v === start[k]) };
+    const k = w.dataset.k, list = items[k], max = list.length - 1, track = document.createElement("div"); track.className = "track";
+    const cells = list.map(([, label]) => { const d = document.createElement("div"); d.textContent = label; track.append(d); return d; });
+    w.append(track);
+    let pos = list.findIndex(([v]) => v === start[k]), anim = 0, drag = null;
+    const draw = () => {          // vị trí tính theo số ô (có thể lẻ); ô càng xa giữa càng nhỏ, mờ và nghiêng như bánh xe
+      track.style.transform = `translateY(${-pos * ROW}px)`;
+      cells.forEach((c, i) => { const d = Math.min(3, Math.abs(i - pos));
+        c.style.opacity = 1 - d * .28; c.style.transform = `scale(${1.14 - d * .12}) rotateX(${(i - pos) * -18}deg)`; c.classList.toggle("on", d < .5); });
+    };
+    const go = to => {            // trôi mượt về đúng một ô
+      cancelAnimationFrame(anim); to = Math.max(0, Math.min(max, Math.round(to)));
+      const from = pos, t0 = performance.now(), dur = 220 + Math.min(600, Math.abs(to - from) * 90);
+      const step = now => { const u = Math.min(1, (now - t0) / dur); pos = from + (to - from) * (1 - Math.pow(1 - u, 3)); draw(); if (u < 1) anim = requestAnimationFrame(step); };
+      anim = requestAnimationFrame(step);
+    };
+    w.addEventListener("pointerdown", e => {
+      cancelAnimationFrame(anim); w.setPointerCapture(e.pointerId);
+      drag = { y: e.clientY, p: pos, t: performance.now(), v: 0, moved: 0, ly: e.clientY };
+    });
+    w.addEventListener("pointermove", e => {
+      if (!drag) return;
+      const now = performance.now(), dt = Math.max(1, now - drag.t);
+      drag.v = .8 * ((drag.ly - e.clientY) / ROW / dt) + .2 * drag.v; drag.t = now; drag.ly = e.clientY;   // ô / ms
+      drag.moved = Math.max(drag.moved, Math.abs(e.clientY - drag.y));
+      let p = drag.p + (drag.y - e.clientY) / ROW;
+      if (p < 0) p *= .35; else if (p > max) p = max + (p - max) * .35;       // kéo quá đầu/cuối thì nặng tay như cao su
+      pos = p; draw();
+    });
+    const end = e => {
+      if (!drag) return;
+      const d = drag; drag = null;
+      if (d.moved < 6) {           // chạm nhẹ: nhảy tới ô vừa chạm
+        const r = w.getBoundingClientRect(); go(pos + (e.clientY - (r.top + 96 + ROW / 2)) / ROW); return;
+      }
+      go(pos + (performance.now() - d.t > 80 ? 0 : Math.max(-6, Math.min(6, d.v * 160))));            // vuốt nhanh thì trôi thêm vài ô theo đà
+    };
+    w.addEventListener("pointerup", end); w.addEventListener("pointercancel", end);
+    w.addEventListener("wheel", e => { e.preventDefault(); go(Math.round(pos) + Math.sign(e.deltaY)); }, { passive: false });
+    cols[k] = { list, get: () => Math.max(0, Math.min(max, Math.round(pos))) };
+    draw();
   });
   return {
-    sync() { for (const c of Object.values(cols)) { c.w.scrollTop = c.i0 * ROW; c.mark(); } },   // khi cảnh hiện mới đo được
-    value() { const g = k => cols[k].list[cols[k].idx()][0]; return `${g("y")}-${pad(g("m"))}-${pad(g("d"))}`; },
+    sync() {},
+    value() { const g = k => cols[k].list[cols[k].get()][0]; return `${g("y")}-${pad(g("m"))}-${pad(g("d"))}`; },
   };
 })();
 if (CONFIG.quiz) {
