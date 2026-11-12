@@ -82,8 +82,10 @@
   .wheel:active { cursor:grabbing; }
   .wheel[data-k="d"] { width:64px; } .wheel[data-k="m"] { width:112px; } .wheel[data-k="y"] { width:86px; }
   .wheel .track { position:absolute; transform-style:preserve-3d; left:0; right:0; top:96px; will-change:transform; }
-  .wheel .track div { height:48px; line-height:48px; text-align:center; white-space:nowrap; font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif;
+  /* căn giữa theo nét chữ thật (cap → chân chữ) chứ không theo khung font, để số nằm đúng giữa thanh hồng trên mọi máy */
+  .wheel .track div { height:48px; display:flex; align-items:center; justify-content:center; white-space:nowrap; font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif;
     color:var(--cream); opacity:.4; }
+  .wheel .track span { display:block; line-height:1; text-box:trim-both cap alphabetic; }
   .wheel .track div.on { text-shadow:var(--glow); }
   .pick { border:0; border-radius:999px; padding:13px 40px; background:var(--accent); color:#fff; font:700 18px "Quicksand", sans-serif; letter-spacing:.06em;
     box-shadow:0 8px 34px rgba(255,77,109,.55); transition:opacity .4s, transform .4s; }
@@ -945,7 +947,7 @@ const qpick = (() => {
   const start = { d: 1, m: 1, y: yNow };
   document.querySelectorAll("#qdate .wheel").forEach(w => {
     const k = w.dataset.k, list = items[k], max = list.length - 1, track = document.createElement("div"); track.className = "track";
-    const cells = list.map(([, label]) => { const d = document.createElement("div"); d.textContent = label; track.append(d); return d; });
+    const cells = list.map(([, label]) => { const d = document.createElement("div"), t = document.createElement("span"); t.textContent = label; d.append(t); track.append(d); return d; });
     w.append(track);
     let pos = list.findIndex(([v]) => v === start[k]), anim = 0, drag = null;
     const draw = () => {          // vị trí tính theo số ô (có thể lẻ); ô càng xa giữa càng nhỏ, mờ và nghiêng như bánh xe
