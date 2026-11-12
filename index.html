@@ -88,19 +88,10 @@
   .flyer svg { display:block; width:100%; height:100%; }
   #memes img.up { opacity:1; transform:translate(0, 0) scale(1.1) rotate(var(--r)); filter:none; }
 
-  /* secret nằm giữa trái tim, bấm Yes thì bung ra */
-  #secret { position:fixed; left:0; top:0; z-index:5; width:58px; height:58px; margin:-29px 0 0 -29px; padding:0; border:0; background:none; cursor:pointer;
-    opacity:0; scale:.3; pointer-events:none; transition:opacity 1.2s ease, scale 1.2s cubic-bezier(.3,1.6,.5,1); touch-action:manipulation; will-change:transform; }
-  #secret.show { opacity:1; scale:1; pointer-events:auto; }
-  #secret svg { display:block; width:100%; height:100%; overflow:visible; animation:secret 1.21s ease-in-out infinite; filter:drop-shadow(0 0 14px rgba(255,111,156,.9)) drop-shadow(0 0 30px rgba(255,77,109,.55)); }
-  @keyframes secret { 0%, 100% { transform:scale(1); } 15% { transform:scale(1.14); } 30% { transform:scale(.98); } 45% { transform:scale(1.07); } }
-  #secret span { position:absolute; left:50%; top:100%; translate:-50% 6px; white-space:nowrap; font:600 11px/1 "Quicksand", sans-serif; letter-spacing:.22em; text-transform:uppercase; color:#ffd0dc; opacity:.8; }
-  #secret.wiggle svg { animation:wiggle .5s ease; }
-  @keyframes wiggle { 20% { transform:rotate(-14deg) scale(1.1); } 40% { transform:rotate(12deg) scale(1.1); } 60% { transform:rotate(-8deg); } 80% { transform:rotate(5deg); } }
-  #secret.open { pointer-events:none; }
-  #secret.open svg { animation:pop .9s cubic-bezier(.5,0,.7,1) forwards; }
-  #secret.open span { opacity:0; transition:opacity .3s; }
-  @keyframes pop { 0% { transform:none; } 18% { transform:rotate(-16deg) scale(1.15); } 34% { transform:rotate(14deg) scale(1.2); } 50% { transform:rotate(-8deg) scale(1.3); opacity:1; } 100% { transform:scale(3.4); opacity:0; } }
+  /* chữ nhắc hiện ra khi chạm vào phong ấn */
+  #sealHint { position:fixed; left:0; top:0; z-index:5; pointer-events:none; white-space:nowrap; font:600 12px/1 "Quicksand", sans-serif; letter-spacing:.14em;
+    color:#ffd0dc; text-shadow:0 0 10px rgba(255,77,109,.9); opacity:0; transition:opacity .4s; }
+  #sealHint.show { opacity:1; }
 
   /* đĩa nhạc */
   .player { position:fixed; left:50%; bottom:14px; translate:-50% 0; z-index:5; display:flex; align-items:center; gap:14px; padding:6px 22px 6px 6px;
@@ -164,11 +155,7 @@
   </div>
 </section>
 
-<button id="secret" aria-label="secret">
-  <svg viewBox="0 0 64 64"><rect x="6" y="16" width="52" height="36" rx="6" fill="#fff4f7"/><path d="M6 22 32 38 58 22" fill="none" stroke="#ffb3c8" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M32 46c-7-5-10-8-10-12 0-3 2-5 5-5 2 0 4 1 5 3 1-2 3-3 5-3 3 0 5 2 5 5 0 4-3 7-10 12Z" fill="#ff4d6d" stroke="#fff" stroke-width="2"/></svg>
-  <span>secret</span>
-</button>
+<span id="sealHint"></span>
 <div id="memes"></div>
 
 <div class="player">
@@ -205,7 +192,7 @@ const CONFIG = {
   firstMessagePhoto: "assets/firstmsg.webp",
   firstMessageLabel: "First message",
   caption: "iu thíiiii",   // chữ dưới ảnh
-  secretHints: ["bấm yes mới mở", "hong cho xem", "yes đi rồi biết"],   // chạm vào secret trước khi bấm Yes
+  secretHints: ["bấm yes mới mở", "hong cho xem", "yes đi rồi biết"],   // chạm vào phong ấn trước khi bấm Yes
   photo: "assets/hoanganh2.webp"   // ảnh nổi lên trên tường meme ở cuối, bo góc; để "" nếu không dùng
 };
 /* ============================================ */
@@ -391,6 +378,74 @@ const points = new THREE.Points(geo, mat);
 points.frustumCulled = false;
 scene3.add(points);
 
+/* ---------- Phong ấn giữa trái tim: pháp trận xoay, hai vòng con quay, viên tinh thể bị giam ở giữa ---------- */
+function sealTex(kind) {
+  const N = 512, c = document.createElement("canvas"); c.width = c.height = N;
+  const g = c.getContext("2d");
+  g.translate(N / 2, N / 2); g.strokeStyle = "#fff"; g.lineCap = g.lineJoin = "round"; g.shadowColor = "#fff"; g.shadowBlur = 8;
+  const ring = (r, w, dash) => { g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); g.arc(0, 0, r, 0, 6.2832); g.stroke(); g.setLineDash([]); };
+  const star = (n, r, step, rot, w) => { g.lineWidth = w; g.beginPath(); for (let i = 0; i <= n; i++) { const a = rot + i * step * 6.2832 / n; g[i ? "lineTo" : "moveTo"](Math.cos(a) * r, Math.sin(a) * r); } g.stroke(); };
+  const runes = (n, r, h) => {      // ký tự phong ấn tự vẽ, mỗi chữ vài nét nối các điểm trong một ô
+    const P = [[0, -.5], [0, .5], [-.35, -.25], [.35, -.25], [-.35, .25], [.35, .25], [0, 0], [-.35, -.5], [.35, .5]];
+    for (let i = 0; i < n; i++) {
+      g.save(); g.rotate(i / n * 6.2832); g.translate(0, -r); g.lineWidth = 3; g.beginPath();
+      let q = P[i % 2]; g.moveTo(q[0] * h, q[1] * h);
+      for (let k = 0, m = 2 + (i * 7 % 3); k < m; k++) { q = P[Math.floor(Math.random() * P.length)]; g.lineTo(q[0] * h, q[1] * h); }
+      g.stroke(); g.restore();
+    }
+  };
+  if (kind === 0) {                 // vòng chính
+    ring(248, 5); ring(228, 2); runes(26, 210, 24); ring(190, 3);
+    star(3, 188, 1, -Math.PI / 2, 3); star(3, 188, 1, Math.PI / 2, 3);
+    for (let i = 0; i < 6; i++) { const a = i * 1.0472 - Math.PI / 2; g.save(); g.translate(Math.cos(a) * 188, Math.sin(a) * 188); ring(13, 2.5); g.restore(); }
+    ring(108, 2.5); ring(92, 1.5, [5, 9]); star(6, 108, 1, 0, 1.5);
+  } else if (kind === 1) {          // vòng con quay: thước khắc vạch
+    ring(250, 3); ring(214, 1.5, [2, 10]);
+    g.lineWidth = 2; for (let i = 0; i < 96; i++) { const a = i / 96 * 6.2832, l = i % 8 ? 12 : 26; g.beginPath(); g.moveTo(Math.cos(a) * 248, Math.sin(a) * 248); g.lineTo(Math.cos(a) * (248 - l), Math.sin(a) * (248 - l)); g.stroke(); }
+    runes(12, 196, 16);
+  } else {                          // vòng trong: sao bảy cánh
+    ring(250, 3); star(7, 246, 3, -Math.PI / 2, 2.5); ring(132, 2); ring(118, 1.2, [3, 7]);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const glowTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d"), r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(.22, "rgba(255,190,215,.55)"); r.addColorStop(1, "rgba(255,90,150,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c);
+})();
+const sealMats = [];
+const sealMat = (opt, base) => {
+  const m = opt.isMaterial ? opt : new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, ...opt });
+  m.opacity = 0; sealMats.push([m, base, m.color.clone()]); return m;
+};
+const SR = 5.4;                     // bán kính phong ấn (nửa bề ngang tim là 16)
+const seal = new THREE.Group(); points.add(seal);
+const sealMain = new THREE.Mesh(new THREE.PlaneGeometry(SR * 2, SR * 2), sealMat({ map: sealTex(0), color: 0xff8fb4 }, .95));
+const sealInner = new THREE.Mesh(new THREE.PlaneGeometry(SR * .95, SR * .95), sealMat({ map: sealTex(2), color: 0xffd0e0 }, .85));
+sealInner.position.z = .05;
+const gyroA = new THREE.Group(), gyroB = new THREE.Group();
+const ringA = new THREE.Mesh(new THREE.PlaneGeometry(SR * 1.5, SR * 1.5), sealMat({ map: sealTex(1), color: 0xc9a3ff }, .8));
+const ringB = new THREE.Mesh(new THREE.PlaneGeometry(SR * 1.22, SR * 1.22), sealMat({ map: sealTex(1), color: 0xff9ec0 }, .75));
+ringA.rotation.x = Math.PI / 2; ringB.rotation.y = Math.PI / 2;
+gyroA.add(ringA); gyroB.add(ringB);
+const crystalGeo = new THREE.OctahedronGeometry(1.15);
+const crystal = new THREE.Group();
+crystal.add(new THREE.Mesh(crystalGeo, sealMat({ color: 0xffeef4, wireframe: true }, 1)));
+crystal.add(new THREE.Mesh(crystalGeo, sealMat({ color: 0xff4d8a }, .35)));
+crystal.scale.set(1, 1.55, 1);
+const core = new THREE.Sprite(sealMat(new THREE.SpriteMaterial({ map: glowTex, color: 0xff8fb8, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), .9));
+const sparks = (() => {             // bụi sáng quay quanh phong ấn
+  const n = 120, a = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const th = Math.random() * 6.2832, ph = Math.acos(Math.random() * 2 - 1), r = SR * (.55 + Math.random() * .55); a.set([r * Math.sin(ph) * Math.cos(th), r * Math.cos(ph), r * Math.sin(ph) * Math.sin(th)], i * 3); }
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(a, 3));
+  return new THREE.Points(g, sealMat(new THREE.PointsMaterial({ map: glowTex, color: 0xffd6e6, size: .7, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1));
+})();
+seal.add(sealMain, sealInner, gyroA, gyroB, crystal, core, sparks);
+seal.visible = false;
+let sealOn = false, sealIn = 0, sealSpin = 0, sealPoke = -1e9, sealBreak = -1e9;
+const WHITE = new THREE.Color(1, 1, 1);
+
 // sao nền: nghiêng điện thoại (hoặc rê chuột) là trượt nhẹ ngược chiều, tạo chiều sâu
 const stars = new THREE.Group();
 {
@@ -444,6 +499,7 @@ function enableSensors() {   // iPhone bắt hỏi quyền, phải gọi ngay tr
 }
 let burstStart = -1e9, flinch = 0, lastT = 0;
 const secretPos = new THREE.Vector3(), secretXY = [innerWidth / 2, innerHeight / 2];
+const backOut = x => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
 renderer.setAnimationLoop(now => {
   const t = now / 1000;
   uniforms.uTime.value = t;
@@ -463,11 +519,26 @@ renderer.setAnimationLoop(now => {
   if (current === "heart") s += Math.pow(Math.max(0, Math.sin(t * 5.2)), 10) * .04 + Math.pow(Math.max(0, Math.sin(t * 5.2 - 1)), 10) * .02;
   flinch *= .9; s += flinch;
   points.scale.setScalar(s);
-  if (heartFlow) {                                  // secret bám theo tâm trái tim
-    points.updateMatrixWorld();
-    secretPos.set(0, heartFlow.oy - 3 * heartFlow.s, 0).applyMatrix4(points.matrixWorld).project(camera);
+  if (heartFlow) {                                  // phong ấn nằm ở tâm trái tim, quay theo tim
+    sealIn += ((sealOn ? 1 : 0) - sealIn) * .025;
+    const bk = sealBreak > 0 ? (now - sealBreak) / 1000 : 0, charge = bk > 0 ? Math.min(1, bk / .65) : 0, blow = bk > .65 ? Math.min(1, (bk - .65) / .7) : 0;
+    const pk = Math.max(0, 1 - (now - sealPoke) / 650);
+    sealSpin += dt * (1 + charge * charge * 16 + pk * 4);   // sắp vỡ thì quay điên cuồng
+    sealMain.rotation.z = sealSpin * .3; sealInner.rotation.z = -sealSpin * .55;
+    gyroA.rotation.set(Math.sin(sealSpin * .4) * .5, sealSpin * .9, 0); gyroB.rotation.set(sealSpin * .7, 0, Math.cos(sealSpin * .3) * .4);
+    crystal.rotation.y = sealSpin * 1.3; crystal.position.y = Math.sin(t * 1.7) * .35;
+    sparks.rotation.set(sealSpin * .15, sealSpin * .45, 0);
+    const shake = charge * .5 + pk * .35;
+    seal.position.set(heartFlow.s * rnd(shake), heartFlow.oy - 3 * heartFlow.s + heartFlow.s * rnd(shake), 0);
+    seal.rotation.z = Math.sin(now / 45) * pk * .18;
+    seal.scale.setScalar(heartFlow.s * Math.max(.001, backOut(Math.min(1, sealIn * 1.05))) * (1 + charge * .18 + blow * 2.6));
+    core.scale.setScalar(5.5 + Math.sin(t * 5.2) * .5 + charge * 9 + pk * 2);
+    const op = Math.min(1, sealIn * 1.3) * (1 - blow);
+    sealMats.forEach(([m, base, col]) => { m.opacity = Math.min(1, base * op * (1 + charge * 1.2 + pk * .5)); m.color.lerpColors(col, WHITE, charge * .8); });
+    seal.visible = op > .004;
+    seal.getWorldPosition(secretPos).project(camera);
     secretXY[0] = (secretPos.x + 1) / 2 * innerWidth; secretXY[1] = (1 - secretPos.y) / 2 * innerHeight;
-    $("secret").style.transform = "translate(" + secretXY[0].toFixed(1) + "px," + secretXY[1].toFixed(1) + "px)";
+    $("sealHint").style.transform = "translate(" + secretXY[0].toFixed(1) + "px," + (secretXY[1] + 78).toFixed(1) + "px) translateX(-50%)";
   }
   renderer.render(scene3, camera);
 });
@@ -514,7 +585,7 @@ $("start").addEventListener("click", async () => {
   }
   morph("heart");
   show("s3");
-  setTimeout(() => $("secret").classList.add("show"), 3200);
+  setTimeout(() => sealOn = true, 2600);
   await wait(5200);
   $("yes").classList.add("show"); $("no").classList.add("show");
 }, { once: true });
@@ -549,12 +620,14 @@ const dodge = e => {
 };
 ["pointerenter", "pointerdown", "click", "focus"].forEach(ev => $("no").addEventListener(ev, dodge));
 
-let peeks = 0;
-$("secret").addEventListener("click", () => {     // chưa bấm Yes thì chưa cho mở
-  const sc = $("secret"), tip = sc.querySelector("span");
-  sc.classList.remove("wiggle"); sc.getBoundingClientRect(); sc.classList.add("wiggle");
-  tip.textContent = CONFIG.secretHints[peeks++ % CONFIG.secretHints.length];
-  flinch = -.06;
+let peeks = 0, hintTimer = 0;
+addEventListener("pointerdown", e => {              // chạm vào phong ấn trước khi bấm Yes: nó rung lên nhưng không mở
+  if (!sealOn || sealBreak > 0 || e.target.closest("button, .player")) return;
+  if (Math.hypot(e.clientX - secretXY[0], e.clientY - secretXY[1]) > 80) return;
+  sealPoke = performance.now(); flinch = -.06;
+  $("sealHint").textContent = CONFIG.secretHints[peeks++ % CONFIG.secretHints.length];
+  $("sealHint").classList.add("show"); clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => $("sealHint").classList.remove("show"), 1800);
 });
 const memeSrc = i => "assets/memes/m" + String(i % CONFIG.memes + 1).padStart(2, "0") + ".jpg";
 const FLYERS = {                 // mũi máy bay giấy chỉ về góc trên phải (-45 độ)
@@ -615,9 +688,9 @@ function memeWall() {              // ảnh từ sâu trong nền nổi dần l�
 $("yes").addEventListener("click", () => {
   $("no").style.display = "none";
   show("");                                       // ẩn câu hỏi, nhường chỗ cho núi meme
-  $("secret").classList.add("open");              // secret rung rung rồi bung
-  setTimeout(() => { burstStart = performance.now(); flinch = .25; memeWall(); }, 520);   // trái tim nổ tung, meme phụt ra từ giữa
-  setTimeout(() => $("secret").style.display = "none", 1200);
+  sealBreak = performance.now(); $("sealHint").classList.remove("show");   // phong ấn quay nhanh dần, trắng loá rồi vỡ
+  setTimeout(() => { burstStart = performance.now(); flinch = .25; memeWall(); }, 650);   // trái tim nổ tung, meme phụt ra từ giữa
+  setTimeout(() => sealOn = false, 1500);
 });
 </script>
 </body>
