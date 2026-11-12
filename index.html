@@ -58,26 +58,19 @@
 
   /* Cảnh 2: phụ đề dưới đám hạt */
   #s2 { justify-content:flex-end; padding-bottom:11vh; cursor:pointer; }
-  .sub.big { font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8vw, 56px); line-height:1.2; }
-  .sub { min-height:3.2em; max-width:560px; margin:0; font-size:clamp(17px, 4.2vw, 22px); line-height:1.55; }
-  /* phụ đề: từng chữ cái rơi xuống xoay nhẹ rồi bật vào chỗ, sau đó cả dòng nhấp nhô như sóng và đổi màu lấp lánh chạy dọc */
+  .sub.big { font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(46px, 13vw, 84px); line-height:1.15; }
+  .sub { min-height:3.2em; max-width:720px; margin:0; font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8.6vw, 50px); line-height:1.3; }
+  /* chữ thật vẫn nằm đó để giữ bố cục, nhưng trong suốt: thứ mắt thấy là hạt vẽ trên #ptx */
   .w { display:inline-block; white-space:nowrap; }
-  .ch { display:inline-block; opacity:0; color:var(--cream); transform:translateY(-.9em) scale(1.8) rotate(-14deg); filter:blur(10px);
-    animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chWave 2.8s ease-in-out infinite, chHue 3.6s linear infinite;
-    animation-delay:calc(.9s + var(--i) * 55ms), calc(2.4s + var(--i) * 90ms), calc(var(--i) * -.12s); }
-  @keyframes chIn { 60% { opacity:1; filter:blur(0); } to { opacity:1; transform:none; filter:none; } }
-  @keyframes chWave { 0%, 100% { translate:0 0; } 50% { translate:0 -.16em; } }
-  @keyframes chHue {
-    0%, 100% { color:var(--cream); text-shadow:0 0 8px rgba(255,214,230,.35); }
-    33% { color:#ff8fb4; text-shadow:0 0 14px rgba(255,77,140,.85), 0 0 30px rgba(255,77,140,.4); }
-    66% { color:#d4b8ff; text-shadow:0 0 14px rgba(180,140,255,.8), 0 0 28px rgba(180,140,255,.35); } }
+  .ghost, .ghost * { color:transparent !important; text-shadow:none !important; }
+  #ptx { position:fixed; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; }
+  #omg { position:fixed; left:0; right:0; bottom:16vh; margin:0; padding:0 24px; text-align:center; pointer-events:none; visibility:hidden;
+    font:700 clamp(40px, 11vw, 76px)/1.1 "Quicksand", sans-serif; }
+  #omg small { display:block; font-size:.62em; }
 
   /* Cảnh 3: câu hỏi, đặt dưới trái tim */
   #s3 { justify-content:flex-end; padding-bottom:8vh; }
-  #s3 h1 { margin:0 0 6px; font-size:clamp(30px, 7.6vw, 60px); line-height:1.1; text-shadow:0 2px 30px rgba(7,6,11,.9); text-wrap:balance; }
-  .c { display:inline-block; opacity:0; transform:translateY(.5em) rotate(6deg) scale(.6); }
-  .active .c { animation:pop .9s cubic-bezier(.34,1.56,.64,1) forwards; animation-delay:calc(1.2s + var(--i) * 110ms); }
-  @keyframes pop { to { opacity:1; transform:none; } }
+  #s3 h1 { margin:0 0 10px; font-size:clamp(42px, 11.5vw, 76px); line-height:1.1; text-shadow:0 2px 30px rgba(7,6,11,.9); text-wrap:balance; }
   .answers { display:flex; gap:14px; align-items:center; justify-content:center; min-height:76px; margin-top:10px; }
   .btn { font-weight:500; border:0; border-radius:999px; padding:13px 34px; opacity:0; transform:translateY(10px); pointer-events:none;
     transition:opacity .6s, transform .6s, background .2s, scale .4s cubic-bezier(.34,1.8,.64,1); }
@@ -177,6 +170,8 @@
 </section>
 
 <span id="sealHint"></span>
+<p id="omg" class="ghost">OMG<small>she said YES</small></p>
+<canvas id="ptx"></canvas>
 <div id="memes"></div>
 
 <div class="player">
@@ -365,12 +360,12 @@ geo.setAttribute("aFrom", from);
 geo.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
 geo.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
 geo.setAttribute("aColor", new THREE.BufferAttribute(color, 3));
-const uniforms = { uP: { value: 1 }, uTime: { value: 0 }, uPx: { value: 1 }, uBurst: { value: 0 } };
+const uniforms = { uP: { value: 1 }, uTime: { value: 0 }, uPx: { value: 1 }, uBurst: { value: 0 }, uGlow: { value: 0 } };
 const mat = new THREE.ShaderMaterial({
   uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   vertexShader: `
     attribute vec3 aFrom; attribute float aSeed; attribute float aSize; attribute vec3 aColor;
-    uniform float uP, uTime, uPx, uBurst;
+    uniform float uP, uTime, uPx, uBurst, uGlow;
     varying vec3 vColor; varying float vTw;
     void main() {
       float p = clamp(uP * 1.45 - aSeed * .45, 0., 1.);      // mỗi hạt xuất phát lệch nhau một chút
@@ -385,15 +380,15 @@ const mat = new THREE.ShaderMaterial({
       vec4 mv = modelViewMatrix * vec4(pos, 1.);
       gl_Position = projectionMatrix * mv;
       vTw = .65 + .35 * sin(uTime * (1.5 + aSeed * 3.) + aSeed * 50.);
-      gl_PointSize = aSize * uPx * (60. / -mv.z) * (1. + mid * .6);
-      vColor = aColor;
+      gl_PointSize = aSize * uPx * (60. / -mv.z) * (1. + mid * .6) * (1. + uGlow * .45);
+      vColor = mix(aColor, vec3(1., .86, .93), uGlow * .45);
     }`,
   fragmentShader: `
-    varying vec3 vColor; varying float vTw;
+    uniform float uGlow; varying vec3 vColor; varying float vTw;
     void main() {
       float d = length(gl_PointCoord - .5);
       float a = smoothstep(.5, 0., d);
-      gl_FragColor = vec4(vColor, a * a * .55 * vTw);
+      gl_FragColor = vec4(vColor, a * a * .55 * mix(vTw, 1., uGlow * .6) * (1. + uGlow * 1.4));
     }`
 });
 const points = new THREE.Points(geo, mat);
@@ -455,8 +450,8 @@ const orb = (() => {               // quả cầu cũng là hạt như trái tim
   }));
   pts.frustumCulled = false; return pts;
 })();
-const streakMat = new THREE.ShaderMaterial({   // vệt gió cũng là hạt: chấm sáng ở đầu, thưa và mờ dần về đuôi
-  uniforms: orbU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+const mkStreakMat = U => new THREE.ShaderMaterial({   // vệt gió cũng là hạt: chấm sáng ở đầu, thưa và mờ dần về đuôi
+  uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   vertexShader: `
     attribute float aA, aSeed, aSize; attribute vec3 aColor;
     uniform float uTime, uPx, uCharge; varying vec3 vColor; varying float vA;
@@ -471,11 +466,12 @@ const streakMat = new THREE.ShaderMaterial({   // vệt gió cũng là hạt: ch
     uniform float uOp; varying vec3 vColor; varying float vA;
     void main() { float d = length(gl_PointCoord - .5), a = smoothstep(.5, 0., d); gl_FragColor = vec4(vColor, a * a * .9 * vA * uOp); }`
 });
-const streakPts = (r, arc, hex) => {
-  const N = 150, pos = new Float32Array(N * 3), al = new Float32Array(N), sd = new Float32Array(N), sz = new Float32Array(N), col = new Float32Array(N * 3);
+const streakMat = mkStreakMat(orbU);
+const streakPts = (r, arc, hex, N = 150, w = .22, mat = streakMat) => {
+  const pos = new Float32Array(N * 3), al = new Float32Array(N), sd = new Float32Array(N), sz = new Float32Array(N), col = new Float32Array(N * 3);
   const c1 = new THREE.Color(hex), c2 = new THREE.Color(0xffffff);
   for (let i = 0; i < N; i++) {
-    const u = Math.pow(Math.random(), .55), ang = u * arc, rr = r + gauss() * .22 * (1.3 - u), z = gauss() * .18 * (1.3 - u);   // đuôi toả rộng, đầu gọn
+    const u = Math.pow(Math.random(), .55), ang = u * arc, rr = r + gauss() * w * (1.3 - u), z = gauss() * w * .8 * (1.3 - u);   // đuôi toả rộng, đầu gọn
     pos.set([Math.cos(ang) * rr, Math.sin(ang) * rr, z], i * 3);
     al[i] = Math.pow(u, 1.8); sd[i] = Math.random(); sz[i] = .35 + Math.pow(Math.random(), 4) * 1.1;
     const k = c1.clone().lerp(c2, u * u * .7); col.set([k.r, k.g, k.b], i * 3);
@@ -484,12 +480,21 @@ const streakPts = (r, arc, hex) => {
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("aA", new THREE.BufferAttribute(al, 1));
   g.setAttribute("aSeed", new THREE.BufferAttribute(sd, 1)); g.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
   g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
-  const m = new THREE.Points(g, streakMat); m.frustumCulled = false; return m;
+  const m = new THREE.Points(g, mat); m.frustumCulled = false; return m;
 };
 const streaks = [...Array(7)].map((_, i) => {
   const g = new THREE.Group(); g.rotation.set(rnd(1.4), rnd(3.1), rnd(1.4));
   const m = streakPts(SR * (1.08 + Math.random() * .3), 2 + Math.random() * 1.6, [0xff9ec8, 0xff6f9c, 0xc9a3ff][i % 3]);
   m.userData.v = (3 + Math.random() * 3) * (i % 4 ? 1 : -1); g.add(m); return g;
+});
+// vòng hạt lớn bay quanh cả trái tim, như quỹ đạo
+const haloU = { uTime: orbU.uTime, uPx: orbU.uPx, uCharge: orbU.uCharge, uOp: { value: 0 } };
+const haloMat = mkStreakMat(haloU);
+const halo = new THREE.Group(); points.add(halo); halo.visible = false;
+[[20.5, 1.25, .35, 0xff9ec8, .8], [23, 1.05, -.5, 0xc9a3ff, -.6], [18.5, 1.42, -.15, 0xffc2dc, 1.1]].forEach(([r, tx, tz, hex, v]) => {
+  const g = new THREE.Group(); g.rotation.set(tx, 0, tz);
+  const m = streakPts(r, 6.2832, hex, 520, .45, haloMat); m.userData.v = v; m.rotation.z = Math.random() * 6.28;
+  g.add(m); halo.add(g);
 });
 const SN = 180, sparkPos = new Float32Array(SN * 3), sparkS = [...Array(SN)].map(() => ({ r: SR * (1 + Math.random() * 1.3), a: Math.random() * 6.2832, y: rnd(1), v: 2 + Math.random() * 3 }));
 const sparks = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(sparkPos, 3)),
@@ -561,7 +566,7 @@ function enableSensors() {   // iPhone bắt hỏi quyền, phải gọi ngay tr
   ask(window.DeviceOrientationEvent).then(r => r === "granted" && addEventListener("deviceorientation", onTilt));
   ask(window.DeviceMotionEvent).then(r => r === "granted" && addEventListener("devicemotion", onShake));
 }
-let burstStart = -1e9, flinch = 0, lastT = 0;
+let burstStart = -1e9, flinch = 0, lastT = 0, glowT = 0;
 const secretPos = new THREE.Vector3(), secretXY = [innerWidth / 2, innerHeight / 2];
 renderer.setAnimationLoop(now => {
   const t = now / 1000;
@@ -570,6 +575,7 @@ renderer.setAnimationLoop(now => {
   if (current === "heart" && heartFlow) { flowHeart(heartFlow, to.array, dt); to.needsUpdate = true; }
   uniforms.uP.value = Math.min(1, (now - morphStart) / morphDur);
   const b = (now - burstStart) / 1000;                       // nổ ra rồi thu về trong ~2.4 giây
+  uniforms.uGlow.value += (glowT * (.85 + .15 * Math.sin(t * 9)) - uniforms.uGlow.value) * (1 - Math.exp(-dt * 4));   // cả trái tim sáng rực, phập phồng
   uniforms.uBurst.value = b < 2.4 ? Math.sin(Math.min(1, b / 2.4) * Math.PI) * (1 - b / 2.4 * .3) : 0;
   const spin = current === "cloud" ? t * .12 : current === "heart" ? Math.sin(t * .45) * .55 : 0;   // tim tự lắc qua lại để lộ độ phồng
   look.x += (mouse.x + tilt.x - look.x) * .08; look.y += (mouse.y + tilt.y - look.y) * .08;
@@ -597,13 +603,17 @@ renderer.setAnimationLoop(now => {
     core.scale.setScalar((SR * 2.4 + Math.sin(t * 23) * .5 + Math.sin(t * 5.2) * .8) * (.2 + .8 * orbU.uGather.value) + charge * 12 + pk * 3);   // lõi chói, rung lẹt xẹt
     const op = Math.min(1, sealIn * 1.3) * (1 - blow);
     sealMats.forEach(([m, base, col]) => { m.opacity = Math.min(1, base * op * (1 + charge * 1.2 + pk * .5)); m.color.lerpColors(col, WHITE, charge * .8); });
-    orbU.uTime.value = t; orbU.uSpin.value = sealSpin; orbU.uGather.value = sealOn || sealBreak > 0 ? Math.min(1, orbU.uGather.value + dt / 2.6) : 0; orbU.uOp.value = op * (1 + pk * .4); orbU.uCharge.value = charge;
+    orbU.uTime.value = t; orbU.uSpin.value = sealSpin; orbU.uGather.value = sealOn || sealBreak > 0 ? Math.min(1, orbU.uGather.value + dt / 3.8) : 0; orbU.uOp.value = op * (1 + pk * .4); orbU.uCharge.value = charge;
     seal.visible = op > .004;
+    halo.position.set(0, heartFlow.oy - 3 * heartFlow.s, 0); halo.scale.setScalar(heartFlow.s * (1 + blow * 1.4));
+    halo.children.forEach(g => g.children[0].rotation.z += dt * g.children[0].userData.v * (1 + charge * 4));
+    haloU.uOp.value = Math.min(1, sealIn * 1.3) * (1 - blow) * .85; halo.visible = haloU.uOp.value > .004;
     seal.getWorldPosition(secretPos).project(camera);
     secretXY[0] = (secretPos.x + 1) / 2 * innerWidth; secretXY[1] = (1 - secretPos.y) / 2 * innerHeight;
     $("sealHint").style.transform = "translate(" + secretXY[0].toFixed(1) + "px," + (secretXY[1] + 78).toFixed(1) + "px) translateX(-50%)";
   }
   renderer.render(scene3, camera);
+  drawPtx(now);
 });
 
 /* ---------- Kịch bản ---------- */
@@ -627,15 +637,98 @@ if (CONFIG.firstMessage) {         // bộ đếm chạy theo giờ thật, tín
 }
 const subtitle = text => {
   $("sub").replaceChildren();
-  let k = 0;
   text.split(" ").filter(Boolean).forEach(word => {   // giữ nguyên từ để xuống dòng không cắt giữa chữ
-    const w = document.createElement("span"); w.className = "w";
-    for (const ch of word) { const c = document.createElement("span"); c.className = "ch"; c.style.setProperty("--i", k++); c.textContent = ch; w.append(c); }
-    $("sub").append(w, " "); k++;
+    const w = document.createElement("span"); w.className = "w"; w.textContent = word; $("sub").append(w, " ");
   });
+  ptext($("sub"));
 };
 
-document.body.classList.add("ready");   // script tải xong mới hiện nút, khỏi bấm hụt
+/* ---------- Chữ bằng hạt: lấy mẫu từng ký tự đúng chỗ của chữ thật, hạt bay về xếp thành chữ, lấp lánh như trái tim ---------- */
+const ptx = $("ptx"), pg = ptx.getContext("2d");
+const dotSprites = ["#ffffff", "#ffe2ee", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff"].map(c => {
+  const k = document.createElement("canvas"); k.width = k.height = 32;
+  const g = k.getContext("2d"), r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  r.addColorStop(0, "#fff"); r.addColorStop(.25, c); r.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32); return k;
+});
+let ptGroups = [], ptDpr = 1;
+function fitPtx() { ptDpr = Math.min(2, devicePixelRatio || 1); ptx.width = innerWidth * ptDpr; ptx.height = innerHeight * ptDpr; }
+fitPtx();
+function samplePts(el) {
+  const W = innerWidth, H = innerHeight, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const g = cv.getContext("2d", { willReadFrequently: true }); g.fillStyle = "#fff"; g.textBaseline = "alphabetic";
+  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), rg = document.createRange();
+  let fs = 16;
+  for (let n; (n = tw.nextNode());) {
+    const cs = getComputedStyle(n.parentElement); g.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily; fs = parseFloat(cs.fontSize);
+    const m = g.measureText("Hg"), asc = m.fontBoundingBoxAscent || fs * .8, desc = m.fontBoundingBoxDescent || fs * .2;
+    let off = 0;
+    for (const ch of n.data) {
+      if (ch.trim()) {
+        rg.setStart(n, off); rg.setEnd(n, off + ch.length);
+        const r = rg.getClientRects()[0];
+        if (r) g.fillText(ch, r.left, r.top + (r.height - asc - desc) / 2 + asc);
+      }
+      off += ch.length;
+    }
+  }
+  const box = el.getBoundingClientRect(), x0 = Math.max(0, Math.floor(box.left - fs)), y0 = Math.max(0, Math.floor(box.top - fs));
+  const x1 = Math.min(W, Math.ceil(box.right + fs)), y1 = Math.min(H, Math.ceil(box.bottom + fs));
+  if (x1 <= x0 || y1 <= y0) return [];
+  const d = g.getImageData(x0, y0, x1 - x0, y1 - y0).data, w = x1 - x0, h = y1 - y0;
+  let pts = [], step = Math.max(1.6, fs / 13);
+  for (let k = 0; k < 4; k++) {        // quá nhiều hạt thì giãn lưới ra cho nhẹ máy
+    pts = [];
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      const jx = Math.min(w - 1, Math.max(0, Math.round(x + (Math.random() - .5) * step * .6))), jy = Math.min(h - 1, Math.max(0, Math.round(y + (Math.random() - .5) * step * .6)));
+      if (d[(jy * w + jx) * 4 + 3] > 110) pts.push([x0 + jx, y0 + jy]);
+    }
+    if (pts.length < 3200) break; step *= 1.25;
+  }
+  return pts.map(([x, y]) => ({ x, y, r: step * (.55 + Math.pow(Math.random(), 4) * .9), c: Math.floor(Math.random() * dotSprites.length) }));
+}
+function ptext(el, from) {           // from: [x,y] nơi hạt phụt ra (mặc định bay từ khắp màn hình về)
+  ptOut(el); el.classList.add("ghost");
+  const now = performance.now() / 1000, pts = samplePts(el), cx = from ? from[0] : innerWidth / 2, cy = from ? from[1] : innerHeight / 2;
+  const left = pts.reduce((m, q) => Math.min(m, q.x), 1e9);
+  pts.forEach(q => {
+    const a = Math.random() * 6.2832, R = from ? Math.random() * 40 : Math.max(innerWidth, innerHeight) * (.35 + Math.random() * .5);
+    q.sx = cx + Math.cos(a) * R; q.sy = cy + Math.sin(a) * R;
+    q.dl = (q.x - left) / innerWidth * .9 + Math.random() * .5;    // chữ hiện dần từ trái sang phải
+    q.s = Math.random(); q.vx = (Math.random() - .5) * 260; q.vy = -60 - Math.random() * 240;
+  });
+  ptGroups.push({ el, pts, t0: now, out: 0 });
+}
+function ptOut(el) { const now = performance.now() / 1000; ptGroups.forEach(G => { if (G.el === el && !G.out) G.out = now; }); }
+addEventListener("resize", () => {   // xoay máy: xếp lại chữ theo bố cục mới, không bay lại từ đầu
+  fitPtx();
+  const live = ptGroups.filter(G => !G.out); ptGroups = ptGroups.filter(G => G.out);
+  live.forEach(G => { ptext(G.el); ptGroups[ptGroups.length - 1].t0 -= 10; });
+});
+function drawPtx(nowMs) {
+  const t = nowMs / 1000;
+  pg.setTransform(ptDpr, 0, 0, ptDpr, 0, 0); pg.clearRect(0, 0, innerWidth, innerHeight);
+  ptGroups = ptGroups.filter(G => !G.out || t - G.out < 1.6);
+  if (!ptGroups.length) return;
+  pg.globalCompositeOperation = "lighter";
+  for (const G of ptGroups) {
+    const lt = t - G.t0, ot = G.out ? t - G.out : 0;
+    for (const q of G.pts) {
+      let g = Math.min(1, Math.max(0, (lt - q.dl) / 1.1)); g = 1 - Math.pow(1 - g, 3);
+      if (g <= 0) continue;
+      const sw = (1 - g) * 2.4 * (q.s - .5);   // bay vòng cung về chỗ
+      let x = q.sx + (q.x - q.sx) * g + Math.sin(g * 3.14) * sw * 60, y = q.sy + (q.y - q.sy) * g - Math.sin(g * 3.14) * sw * 40;
+      x += Math.sin(t * 1.7 + q.s * 40) * .7; y += Math.cos(t * 1.3 + q.s * 31) * .7 - Math.max(0, Math.sin(t * 2.2 - q.x * .012)) * 2.2;   // sóng nhấp nhô chạy dọc dòng chữ
+      let a = (.55 + .45 * Math.sin(t * (1.5 + q.s * 3) + q.s * 50)) * (.75 + .25 * Math.sin(t * 2.6 - q.x * .02)) * Math.min(1, g * 1.6);
+      if (ot) { x += q.vx * ot; y += q.vy * ot + 120 * ot * ot; a *= Math.max(0, 1 - ot / 1.5); }   // tan ra như bụi
+      const r = q.r * (1 + (1 - g) * 1.5);
+      pg.globalAlpha = a; pg.drawImage(dotSprites[q.c], x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
+    }
+  }
+  pg.globalAlpha = 1; pg.globalCompositeOperation = "source-over";
+}
+
+document.fonts.ready.then(() => document.body.classList.add("ready"));   // script tải xong mới hiện nút, khỏi bấm hụt
 $("start").addEventListener("click", async () => {
   enableSensors();
   if (controller && !playing) controller.play();   // chạm là nhạc lên
@@ -649,20 +742,16 @@ $("start").addEventListener("click", async () => {
     subtitle(step.text);
     await hold(8500);
   }
+  ptOut($("sub"));
   morph("heart");
   show("s3");
-  setTimeout(() => sealOn = true, 2600);
+  setTimeout(() => ptext($("headline")), 1200);
+  sealOn = true;                                   // quả cầu tụ lại cùng lúc với trái tim
   await wait(5200);
   $("yes").classList.add("show"); $("no").classList.add("show");
 }, { once: true });
 
-// tiêu đề cảnh cuối: bật từng ký tự
-CONFIG.headline.split(" ").forEach((word, n, arr) => {
-  const wrap = document.createElement("span"); wrap.style.display = "inline-block";
-  const base = $("headline").querySelectorAll(".c").length;
-  [...word].forEach((ch, k) => { const c = document.createElement("span"); c.className = "c"; c.style.setProperty("--i", base + k); c.textContent = ch; wrap.append(c); });
-  $("headline").append(wrap); if (n < arr.length - 1) $("headline").append(" ");
-});
+$("headline").textContent = CONFIG.headline;
 
 // Nút No: chạm vào là nhảy lung tung, nút Yes to dần, trái tim giật mình
 let dodges = 0;
@@ -753,10 +842,12 @@ function memeWall() {              // ảnh từ sâu trong nền nổi dần l�
 
 $("yes").addEventListener("click", () => {
   $("no").style.display = "none";
-  show("");                                       // ẩn câu hỏi, nhường chỗ cho núi meme
-  sealBreak = performance.now(); $("sealHint").classList.remove("show");   // phong ấn quay nhanh dần, trắng loá rồi vỡ
-  setTimeout(() => { burstStart = performance.now(); flinch = .25; memeWall(); }, 650);   // trái tim nổ tung, meme phụt ra từ giữa
-  setTimeout(() => sealOn = false, 1500);
+  ptOut($("headline")); show("");                 // câu hỏi tan thành bụi
+  glowT = 1; flinch = .2; $("sealHint").classList.remove("show");   // cả trái tim bừng sáng
+  $("omg").style.visibility = "visible"; ptext($("omg"), secretXY.slice());   // OMG she said YES: hạt phụt ra từ tim rồi xếp thành chữ
+  setTimeout(() => { sealBreak = performance.now(); }, 2600);     // phong ấn quay nhanh dần, trắng loá rồi vỡ
+  setTimeout(() => { burstStart = performance.now(); flinch = .25; glowT = 0; ptOut($("omg")); memeWall(); }, 3250);   // trái tim nổ tung, meme phụt ra
+  setTimeout(() => sealOn = false, 4100);
 });
 </script>
 </body>
