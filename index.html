@@ -586,7 +586,11 @@ function morph(name, dur = 4600) {
   from.array.set(to.array); to.array.set(shapeOf(name));
   from.needsUpdate = to.needsUpdate = true;
   if (name === "heart") heartT0 = performance.now() / 1000;
-  { const r = points.rotation.y; points.rotation.y = Math.atan2(Math.sin(r), Math.cos(r)); }   // mây quay dồn nhiều vòng: quy về góc gần nhất để tim không quay ngược về
+  {   // mây đang quay: "đóng băng" góc quay vào vị trí hạt rồi đưa góc về 0, hạt bay thẳng từ chỗ đang đứng về hình mới, không quay ngược lại
+    const r = points.rotation.y, c = Math.cos(r), sn = Math.sin(r), A = from.array;
+    for (let i = 0; i < A.length; i += 3) { const x = A[i], z = A[i + 2]; A[i] = x * c + z * sn; A[i + 2] = -x * sn + z * c; }
+    points.rotation.y = 0;
+  }
   current = name; morphStart = performance.now(); morphDur = dur; uniforms.uP.value = 0;
 }
 function resize() {
