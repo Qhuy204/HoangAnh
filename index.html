@@ -83,7 +83,7 @@
   .wheel[data-k="d"] { width:64px; } .wheel[data-k="m"] { width:112px; } .wheel[data-k="y"] { width:86px; }
   .wheel .track { position:absolute; transform-style:preserve-3d; left:0; right:0; top:96px; will-change:transform; }
   /* căn giữa theo nét chữ thật (cap → chân chữ) chứ không theo khung font, để số nằm đúng giữa thanh hồng trên mọi máy */
-  .wheel .track div { height:48px; display:flex; align-items:center; justify-content:center; white-space:nowrap; font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif;
+  .wheel .track div { position:absolute; left:0; right:0; top:0; height:48px; display:flex; align-items:center; justify-content:center; white-space:nowrap; font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif;
     color:var(--cream); opacity:.4; }
   .wheel .track span { display:block; padding:16px 12px; margin:-16px -12px; line-height:1; text-box:trim-both cap alphabetic; }
   .wheel .track div.on { text-shadow:var(--glow); }
@@ -947,17 +947,19 @@ const qpick = (() => {
     y: [...Array(7)].map((_, i) => [yNow - 6 + i, String(yNow - 6 + i)]) };
   const start = { d: 1, m: 1, y: yNow };
   document.querySelectorAll("#qdate .wheel").forEach(w => {
-    const k = w.dataset.k, list = items[k], max = list.length - 1, track = document.createElement("div"); track.className = "track";
+    const k = w.dataset.k, list = items[k], track = document.createElement("div"); track.className = "track";
     const cells = list.map(([, label]) => { const d = document.createElement("div"), t = document.createElement("span"); t.textContent = label; d.append(t); track.append(d); return d; });
     w.append(track);
+    const n = list.length, at = p => ((Math.round(p) % n) + n) % n;   // cuộn vòng: hết cuối thì quay lại đầu
     let pos = list.findIndex(([v]) => v === start[k]), anim = 0, drag = null;
     const draw = () => {          // vị trí tính theo số ô (có thể lẻ); ô càng xa giữa càng nhỏ, mờ và nghiêng như bánh xe
-      track.style.transform = `translateY(${-pos * ROW}px)`;
-      cells.forEach((c, i) => { const d = Math.min(3, Math.abs(i - pos));
-        c.style.opacity = 1 - d * .28; c.style.transform = `scale(${1.14 - d * .12}) rotateX(${(i - pos) * -18}deg)`; c.classList.toggle("on", d < .5); });
+      cells.forEach((c, i) => {
+        const o = ((i - pos) % n + n * 1.5) % n - n / 2, d = Math.min(3, Math.abs(o));   // khoảng cách tới ô giữa, đi đường vòng ngắn nhất
+        c.style.visibility = Math.abs(o) > 3 ? "hidden" : "";
+        c.style.opacity = 1 - d * .28; c.style.transform = `translateY(${o * ROW}px) scale(${1.14 - d * .12}) rotateX(${o * -18}deg)`; c.classList.toggle("on", d < .5); });
     };
     const go = to => {            // trôi mượt về đúng một ô
-      cancelAnimationFrame(anim); to = Math.max(0, Math.min(max, Math.round(to)));
+      cancelAnimationFrame(anim); to = Math.round(to);
       const from = pos, t0 = performance.now(), dur = 220 + Math.min(600, Math.abs(to - from) * 90);
       const step = now => { const u = Math.min(1, (now - t0) / dur); pos = from + (to - from) * (1 - Math.pow(1 - u, 3)); draw(); if (u < 1) anim = requestAnimationFrame(step); };
       anim = requestAnimationFrame(step);
@@ -971,9 +973,7 @@ const qpick = (() => {
       const now = performance.now(), dt = Math.max(1, now - drag.t);
       drag.v = .8 * ((drag.ly - e.clientY) / ROW / dt) + .2 * drag.v; drag.t = now; drag.ly = e.clientY;   // ô / ms
       drag.moved = Math.max(drag.moved, Math.abs(e.clientY - drag.y));
-      let p = drag.p + (drag.y - e.clientY) / ROW;
-      if (p < 0) p *= .35; else if (p > max) p = max + (p - max) * .35;       // kéo quá đầu/cuối thì nặng tay như cao su
-      pos = p; draw();
+      pos = drag.p + (drag.y - e.clientY) / ROW; draw();
     });
     const end = e => {
       if (!drag) return;
@@ -985,7 +985,7 @@ const qpick = (() => {
     };
     w.addEventListener("pointerup", end); w.addEventListener("pointercancel", end);
     w.addEventListener("wheel", e => { e.preventDefault(); go(Math.round(pos) + Math.sign(e.deltaY)); }, { passive: false });
-    cols[k] = { list, get: () => Math.max(0, Math.min(max, Math.round(pos))) };
+    cols[k] = { list, get: () => at(pos) };
     draw();
   });
   return {
