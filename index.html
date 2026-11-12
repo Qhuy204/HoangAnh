@@ -225,6 +225,7 @@ const CONFIG = {
   trackName: "Từng Ngày Yêu Em",
   // muốn chắc chắn phát cả bài từ giây đầu: bỏ file nhạc vào assets rồi điền tên, vd "assets/song.mp3" (khi đó không dùng Spotify nữa)
   audioFile: "assets/sound.mp3",
+  nowPlaying: { title: "HoangAnh", artist: "", cover: "assets/cover.jpg" },   // hiện trên Dynamic Island / màn khoá khi thoát web mà nhạc vẫn chạy
   firstMessage: "2026-07-30T21:54:00+07:00",   // thời điểm tin nhắn đầu tiên (năm-tháng-ngày, giờ VN), bộ đếm tính từ đây; để "" là bỏ màn này
   firstMessagePhoto: "assets/firstmsg.webp",
   firstMessageLabel: "First message",
@@ -253,6 +254,12 @@ if (CONFIG.audioFile) {            // có file nhạc riêng: phát thẳng file
   const au = new Audio(CONFIG.audioFile); au.loop = true;
   ["play", "pause"].forEach(ev => au.addEventListener(ev, () => setPlaying(!au.paused)));
   controller = { play: () => au.play().catch(() => {}), togglePlay: () => au.paused ? au.play().catch(() => {}) : au.pause() };
+  if ("mediaSession" in navigator) {   // thoát web ra: Dynamic Island / màn khoá hiện ảnh bìa + tên
+    navigator.mediaSession.metadata = new MediaMetadata({ title: CONFIG.nowPlaying.title, artist: CONFIG.nowPlaying.artist,
+      artwork: [{ src: CONFIG.nowPlaying.cover, sizes: "512x512", type: "image/jpeg" }] });
+    navigator.mediaSession.setActionHandler("play", () => au.play().catch(() => {}));
+    navigator.mediaSession.setActionHandler("pause", () => au.pause());
+  }
   controller.play();
 }
 let rewound = false;
