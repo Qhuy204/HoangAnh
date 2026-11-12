@@ -106,7 +106,7 @@
   #s2 { justify-content:flex-end; padding-bottom:11vh; cursor:pointer; }
   #s2.mid { justify-content:center; padding-bottom:0; }
   #s2.mid .sub { font-size:clamp(38px, 11vw, 68px); line-height:1.25; text-wrap:balance; }
-  #s2.mid .sub.letter { max-width:600px; min-height:0; text-align:left; font-size:clamp(20px, 5.6vw, 30px); line-height:1.55; text-wrap:pretty; }
+  #s2.mid .sub.letter { width:min(600px, 100%); max-width:600px; min-height:0; text-align:left; font-size:clamp(20px, 5.6vw, 30px); line-height:1.55; text-wrap:pretty; }
   .sub.letter .ch { animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chHue 3.6s linear infinite; animation-delay:calc(.5s + var(--i) * 14ms), calc(var(--i) * -.12s); }
   .sub.big { font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(46px, 13vw, 84px); line-height:1.15; }
   .sub { min-height:3.2em; max-width:720px; margin:0; font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8.6vw, 50px); line-height:1.3; }
@@ -115,6 +115,8 @@
   .nw { white-space:nowrap; display:inline-block; }
   /* phụ đề: từng chữ cái rơi xuống xoay nhẹ rồi bật vào chỗ, sau đó cả dòng nhấp nhô như sóng và đổi màu lấp lánh chạy dọc */
   .w { display:inline-block; white-space:nowrap; }
+  /* chữ bay: để từ ở dạng inline (vẫn không ngắt giữa từ) — Safari tính sai bề ngang inline-block khi chữ bên trong có margin âm, làm cả đoạn lệch sang phải */
+  #sub .w, #qask .w, #intro .w { display:inline; }
   .ch { display:inline-block; opacity:0; color:var(--cream); transform:translateY(-.9em) scale(1.8) rotate(-14deg); filter:blur(10px);
     animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chWave 2.8s ease-in-out infinite, chHue 3.6s linear infinite;
     animation-delay:calc(.9s + var(--i) * 55ms), calc(2.4s + var(--i) * 90ms), calc(var(--i) * -.12s);
