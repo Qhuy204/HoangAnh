@@ -62,6 +62,8 @@
   .sub { min-height:3.2em; max-width:720px; margin:0; font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8.6vw, 50px); line-height:1.3; }
   /* chữ thật vẫn nằm đó để giữ bố cục, nhưng trong suốt: thứ mắt thấy là hạt vẽ trên #ptx */
   .w { display:inline-block; white-space:nowrap; }
+  .nw { white-space:nowrap; display:inline-block; }
+  .sub, #s3 h1, #omg { transition:color .9s ease, text-shadow .9s ease; }
   .ghost, .ghost * { color:transparent !important; text-shadow:none !important; }
   #ptx { position:fixed; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; }
   #omg { position:fixed; left:0; right:0; bottom:16vh; margin:0; padding:0 24px; text-align:center; pointer-events:none; visibility:hidden;
@@ -98,8 +100,7 @@
     opacity:0; transform:translateY(24px) scale(.6) rotate(-3deg); transition:transform .9s cubic-bezier(.3,1.6,.5,1), opacity .6s ease; }
   #memes .cap.up { opacity:1; transform:rotate(-3deg); }
   #memes .cap { pointer-events:auto; cursor:pointer; touch-action:manipulation; }
-  .flyer { position:fixed; left:0; top:0; z-index:6; pointer-events:none; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45)); will-change:transform; }
-  .flyer svg { display:block; width:100%; height:100%; }
+  #fx { position:fixed; inset:0; width:100%; height:100%; z-index:6; pointer-events:none; }
   #memes img.up { opacity:1; transform:translate(0, 0) scale(1.1) rotate(var(--r)); filter:none; }
 
   /* chữ nhắc hiện ra khi chạm vào phong ấn */
@@ -172,6 +173,7 @@
 <span id="sealHint"></span>
 <p id="omg" class="ghost">OMG<small>she said YES</small></p>
 <canvas id="ptx"></canvas>
+<canvas id="fx"></canvas>
 <div id="memes"></div>
 
 <div class="player">
@@ -214,7 +216,9 @@ const CONFIG = {
 /* ============================================ */
 
 const $ = id => document.getElementById(id);
-["kicker", "title", "line", "trackName"].forEach(k => $(k).textContent = CONFIG[k]);
+["kicker", "line", "trackName"].forEach(k => $(k).textContent = CONFIG[k]);
+{ const w = CONFIG.title.split(" "), keep = w.splice(-2).join(" "), t = $("title");   // 2 chữ cuối không bị tách dòng
+  t.textContent = w.join(" ") + (w.length ? " " : ""); const sp = document.createElement("span"); sp.className = "nw"; sp.textContent = keep; t.append(sp); }
 $("start").innerHTML = '<span class="lbl"></span><svg class="plane" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>';
 $("start").querySelector(".lbl").textContent = CONFIG.startLabel;
 $("yes").textContent = CONFIG.yes.label;
@@ -487,15 +491,36 @@ const streaks = [...Array(7)].map((_, i) => {
   const m = streakPts(SR * (1.08 + Math.random() * .3), 2 + Math.random() * 1.6, [0xff9ec8, 0xff6f9c, 0xc9a3ff][i % 3]);
   m.userData.v = (3 + Math.random() * 3) * (i % 4 ? 1 : -1); g.add(m); return g;
 });
-// vòng hạt lớn bay quanh cả trái tim, như quỹ đạo
+// sao chổi hạt chạy dọc theo viền trái tim (ngoài viền một chút), đuôi thưa và mờ dần
 const haloU = { uTime: orbU.uTime, uPx: orbU.uPx, uCharge: orbU.uCharge, uOp: { value: 0 } };
 const haloMat = mkStreakMat(haloU);
 const halo = new THREE.Group(); points.add(halo); halo.visible = false;
-[[20.5, 1.25, .35, 0xff9ec8, .8], [23, 1.05, -.5, 0xc9a3ff, -.6], [18.5, 1.42, -.15, 0xffc2dc, 1.1]].forEach(([r, tx, tz, hex, v]) => {
-  const g = new THREE.Group(); g.rotation.set(tx, 0, tz);
-  const m = streakPts(r, 6.2832, hex, 520, .45, haloMat); m.userData.v = v; m.rotation.z = Math.random() * 6.28;
-  g.add(m); halo.add(g);
+const comets = [[1.17, .09, .26, 0xffb3d1], [1.17, .09, .26, 0xffffff], [1.32, -.06, .2, 0xc9a3ff]].map(([sc, v, len, hex], ci) => {
+  const N = 150, pos = new Float32Array(N * 3), al = new Float32Array(N), sd = new Float32Array(N), sz = new Float32Array(N), col = new Float32Array(N * 3);
+  const c1 = new THREE.Color(hex), c2 = new THREE.Color(0xffffff), off = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const u = i / N; al[i] = Math.pow(1 - u, 1.6); sd[i] = Math.random(); sz[i] = (.5 + Math.pow(Math.random(), 4) * 1.2) * (1.4 - u * .7);
+    const k = c1.clone().lerp(c2, Math.pow(1 - u, 3) * .8); col.set([k.r, k.g, k.b], i * 3);
+    off.set([gauss() * .35 * (.3 + u), gauss() * .35 * (.3 + u), gauss() * .6 * (.3 + u)], i * 3);   // đuôi toả nhẹ
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("aA", new THREE.BufferAttribute(al, 1));
+  g.setAttribute("aSeed", new THREE.BufferAttribute(sd, 1)); g.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
+  g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+  const m = new THREE.Points(g, haloMat); m.frustumCulled = false; halo.add(m);
+  return { m, pos, off, N, sc, v, len, h: ci === 1 ? .5 : Math.random() };
 });
+function flowComets(dt) {
+  if (!heartFlow) return; const { T, M } = heartFlow;
+  comets.forEach(C => {
+    C.h = (C.h + dt * C.v + 1) % 1;
+    for (let i = 0; i < C.N; i++) {
+      const L = ((C.h - Math.sign(C.v) * i / C.N * C.len) % 1 + 1) % 1, j = Math.floor(L * M) % M;
+      C.pos[i * 3] = T[j * 2] * C.sc + C.off[i * 3]; C.pos[i * 3 + 1] = (T[j * 2 + 1] + .9) * C.sc - .9 + C.off[i * 3 + 1]; C.pos[i * 3 + 2] = C.off[i * 3 + 2];
+    }
+    C.m.geometry.attributes.position.needsUpdate = true;
+  });
+}
 const SN = 180, sparkPos = new Float32Array(SN * 3), sparkS = [...Array(SN)].map(() => ({ r: SR * (1 + Math.random() * 1.3), a: Math.random() * 6.2832, y: rnd(1), v: 2 + Math.random() * 3 }));
 const sparks = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(sparkPos, 3)),
   sealMat(new THREE.PointsMaterial({ map: glowTex, color: 0xffd6e6, size: .65, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1));
@@ -605,8 +630,8 @@ renderer.setAnimationLoop(now => {
     sealMats.forEach(([m, base, col]) => { m.opacity = Math.min(1, base * op * (1 + charge * 1.2 + pk * .5)); m.color.lerpColors(col, WHITE, charge * .8); });
     orbU.uTime.value = t; orbU.uSpin.value = sealSpin; orbU.uGather.value = sealOn || sealBreak > 0 ? Math.min(1, orbU.uGather.value + dt / 3.8) : 0; orbU.uOp.value = op * (1 + pk * .4); orbU.uCharge.value = charge;
     seal.visible = op > .004;
-    halo.position.set(0, heartFlow.oy - 3 * heartFlow.s, 0); halo.scale.setScalar(heartFlow.s * (1 + blow * 1.4));
-    halo.children.forEach(g => g.children[0].rotation.z += dt * g.children[0].userData.v * (1 + charge * 4));
+    halo.position.set(0, heartFlow.oy - .5 * heartFlow.s, 0); halo.scale.setScalar(heartFlow.s * (1 + blow * 1.4));
+    if (halo.visible) flowComets(dt * (1 + charge * 4));
     haloU.uOp.value = Math.min(1, sealIn * 1.3) * (1 - blow) * .85; halo.visible = haloU.uOp.value > .004;
     seal.getWorldPosition(secretPos).project(camera);
     secretXY[0] = (secretPos.x + 1) / 2 * innerWidth; secretXY[1] = (1 - secretPos.y) / 2 * innerHeight;
@@ -614,6 +639,7 @@ renderer.setAnimationLoop(now => {
   }
   renderer.render(scene3, camera);
   drawPtx(now);
+  drawFx(now);
 });
 
 /* ---------- Kịch bản ---------- */
@@ -697,13 +723,13 @@ function ptext(el, from) {           // from: [x,y] nơi hạt phụt ra (mặc 
     q.dl = (q.x - left) / innerWidth * .9 + Math.random() * .5;    // chữ hiện dần từ trái sang phải
     q.s = Math.random(); q.vx = (Math.random() - .5) * 260; q.vy = -60 - Math.random() * 240;
   });
-  ptGroups.push({ el, pts, t0: now, out: 0 });
+  ptGroups.push({ el, pts, t0: now, out: 0, rev: pts.reduce((m, q) => Math.max(m, q.dl), 0) + .9 });
 }
-function ptOut(el) { const now = performance.now() / 1000; ptGroups.forEach(G => { if (G.el === el && !G.out) G.out = now; }); }
+function ptOut(el) { const now = performance.now() / 1000; el.classList.add("ghost"); ptGroups.forEach(G => { if (G.el === el && !G.out) G.out = now; }); }
 addEventListener("resize", () => {   // xoay máy: xếp lại chữ theo bố cục mới, không bay lại từ đầu
   fitPtx();
   const live = ptGroups.filter(G => !G.out); ptGroups = ptGroups.filter(G => G.out);
-  live.forEach(G => { ptext(G.el); ptGroups[ptGroups.length - 1].t0 -= 10; });
+  live.forEach(G => { ptext(G.el); ptGroups[ptGroups.length - 1].t0 -= 10; G.el.classList.remove("ghost"); });
 });
 function drawPtx(nowMs) {
   const t = nowMs / 1000;
@@ -713,6 +739,8 @@ function drawPtx(nowMs) {
   pg.globalCompositeOperation = "lighter";
   for (const G of ptGroups) {
     const lt = t - G.t0, ot = G.out ? t - G.out : 0;
+    if (!G.out && lt > G.rev && G.el.classList.contains("ghost")) G.el.classList.remove("ghost");   // chữ thật hiện ra cho dễ đọc
+    const dim = G.out ? 1 : 1 - Math.min(1, Math.max(0, (lt - G.rev) / .9)) * .8;   // hạt mờ dần thành lớp lấp lánh
     for (const q of G.pts) {
       let g = Math.min(1, Math.max(0, (lt - q.dl) / 1.1)); g = 1 - Math.pow(1 - g, 3);
       if (g <= 0) continue;
@@ -722,7 +750,7 @@ function drawPtx(nowMs) {
       let a = (.55 + .45 * Math.sin(t * (1.5 + q.s * 3) + q.s * 50)) * (.75 + .25 * Math.sin(t * 2.6 - q.x * .02)) * Math.min(1, g * 1.6);
       if (ot) { x += q.vx * ot; y += q.vy * ot + 120 * ot * ot; a *= Math.max(0, 1 - ot / 1.5); }   // tan ra như bụi
       const r = q.r * (1 + (1 - g) * 1.5);
-      pg.globalAlpha = a; pg.drawImage(dotSprites[q.c], x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
+      pg.globalAlpha = a * dim; pg.drawImage(dotSprites[q.c], x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
     }
   }
   pg.globalAlpha = 1; pg.globalCompositeOperation = "source-over";
@@ -785,21 +813,72 @@ addEventListener("pointerdown", e => {              // chạm vào phong ấn tr
   hintTimer = setTimeout(() => $("sealHint").classList.remove("show"), 1800);
 });
 const memeSrc = i => "assets/memes/m" + String(i % CONFIG.memes + 1).padStart(2, "0") + ".jpg";
-const FLYERS = {                 // mũi máy bay giấy chỉ về góc trên phải (-45 độ)
-  plane: '<svg viewBox="0 0 64 64"><path d="M4 30 60 6 44 58 30 38Z" fill="#fff"/><path d="M30 38 60 6 24 34Z" fill="#ffd0dc"/><path d="M30 38 28 52 36 44Z" fill="#ff8fa8"/></svg>',
-  heart: '<svg viewBox="0 0 64 64"><path d="M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z" fill="#ff4d6d" stroke="#fff" stroke-width="3"/></svg>'
-};
-function fly() {                 // một máy bay giấy hoặc trái tim bay ngang màn hình, vào từ một cạnh ngẫu nhiên, ra ở cạnh khác
-  const W = innerWidth, H = innerHeight, kind = Math.random() < .5 ? "plane" : "heart", size = 44 + Math.random() * 40;
-  const edge = s => { const t = .1 + Math.random() * .8; return s === 0 ? [-size, t * H] : s === 1 ? [W + size, t * H] : s === 2 ? [t * W, -size] : [t * W, H + size]; };
-  const s0 = Math.floor(Math.random() * 4), s1 = (s0 + 1 + Math.floor(Math.random() * 3)) % 4;
-  const [ax, ay] = edge(s0), [bx, by] = edge(s1), ang = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
-  const r0 = kind === "plane" ? ang + 45 : rnd(40), r1 = kind === "plane" ? ang + 45 : r0 + rnd(160);
-  const el = document.createElement("div"); el.className = "flyer"; el.innerHTML = FLYERS[kind];
-  el.style.width = el.style.height = size + "px";
-  document.body.append(el);
-  const at = (x, y, r) => "translate(" + (x - size / 2) + "px," + (y - size / 2) + "px) rotate(" + r + "deg)";
-  el.animate([{ transform: at(ax, ay, r0) }, { transform: at(bx, by, r1) }], { duration: 2200 + Math.random() * 1600, easing: "cubic-bezier(.4,.1,.6,.9)" }).onfinish = () => el.remove();
+/* ---------- Tim và máy bay giấy cuối trang: vẽ trên canvas, có quầng sáng và vệt lấp lánh ---------- */
+const fx = $("fx"), fg = fx.getContext("2d");
+const fitFx = () => { fx.width = innerWidth * ptDpr; fx.height = innerHeight * ptDpr; };
+fitFx(); addEventListener("resize", fitFx);
+const HEART = new Path2D("M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z");
+const PLANE = [new Path2D("M4 30 60 6 30 38Z"), new Path2D("M30 38 60 6 44 58Z"), new Path2D("M30 38 60 6 24 34 28 52Z")];
+let flyers = [], glints = [];
+const bez = (p, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * p[0][i] + 3 * u * u * t * p[1][i] + 3 * u * t * t * p[2][i] + t * t * t * p[3][i]); };
+function fly() {                 // tim bay lên lắc lư như bóng bay; máy bay lượn đường cong qua màn, để lại vệt chấm
+  const W = innerWidth, H = innerHeight, now = performance.now() / 1000;
+  if (Math.random() < .5) {
+    const x0 = W * (.1 + Math.random() * .8), x1 = x0 + rnd(W * .35);
+    flyers.push({ k: "heart", t0: now, dur: 3.4 + Math.random() * 1.6, s: 36 + Math.random() * 30, ph: Math.random() * 6, tilt: rnd(.3),
+      p: [[x0, H + 60], [x0 + rnd(W * .5), H * .66], [x1 + rnd(W * .5), H * .33], [x1, -80]] });
+  } else {
+    const L = Math.random() < .5, y0 = H * (.3 + Math.random() * .6), y1 = H * (.05 + Math.random() * .5);
+    flyers.push({ k: "plane", t0: now, dur: 2.8 + Math.random() * 1.2, s: 50 + Math.random() * 24,
+      p: [[L ? -80 : W + 80, y0], [W * (L ? .35 : .65), y0 - H * (.25 + Math.random() * .3)], [W * (L ? .6 : .4), y1 + H * (.25 + Math.random() * .3)], [L ? W + 80 : -80, y1]] });
+  }
+}
+function drawFx(nowMs) {
+  const t = nowMs / 1000;
+  fg.setTransform(ptDpr, 0, 0, ptDpr, 0, 0); fg.clearRect(0, 0, innerWidth, innerHeight);
+  if (!flyers.length && !glints.length) return;
+  glints = glints.filter(q => t - q.t < q.life);
+  for (const q of glints) {         // bụi lấp lánh rơi lại phía sau
+    const a = (t - q.t) / q.life, r = q.r * (1 - a * .5), dt = t - q.t;
+    fg.globalAlpha = (1 - a) * .95; fg.drawImage(dotSprites[q.c], q.x + q.vx * dt - r * 1.6, q.y + q.vy * dt + 26 * dt * dt - r * 1.6, r * 3.2, r * 3.2);
+  }
+  fg.globalAlpha = 1;
+  flyers = flyers.filter(f => t - f.t0 < f.dur);
+  for (const f of flyers) {
+    const u = (t - f.t0) / f.dur, [x, y] = bez(f.p, u), [x2, y2] = bez(f.p, Math.min(1, u + .01));
+    if (Math.random() < .8) glints.push({ x: x + rnd(f.s * .25), y: y + rnd(f.s * .25), t, life: .7 + Math.random() * .7, r: 1.6 + Math.random() * 2.6,
+      c: Math.floor(Math.random() * dotSprites.length), vx: rnd(18), vy: rnd(18) });
+    if (f.k === "plane") {          // đường bay chấm chấm mờ dần phía sau
+      fg.fillStyle = "#fff";
+      for (let i = 1; i <= 26; i++) {
+        const v = u - i * .009; if (v < 0) break;
+        const [tx, ty] = bez(f.p, v); fg.globalAlpha = (1 - i / 26) * .8;
+        fg.beginPath(); fg.arc(tx, ty, 1.8 * (1 - i / 40), 0, 6.283); fg.fill();
+      }
+      fg.globalAlpha = 1;
+    }
+    fg.save(); fg.translate(x, y);
+    if (f.k === "heart") {
+      const beat = 1 + Math.pow(Math.max(0, Math.sin(t * 6 + f.ph)), 8) * .16, k = f.s / 64 * beat;
+      fg.rotate(f.tilt + Math.sin(t * 2.2 + f.ph) * .2); fg.scale(k, k); fg.translate(-32, -30);
+      const gr = fg.createRadialGradient(22, 18, 2, 32, 30, 42);
+      gr.addColorStop(0, "#ffe0ea"); gr.addColorStop(.4, "#ff7aa5"); gr.addColorStop(1, "#d6336c");
+      fg.shadowColor = "rgba(255,90,150,.9)"; fg.shadowBlur = 24 * k; fg.fillStyle = gr; fg.fill(HEART);
+      fg.shadowBlur = 0; fg.strokeStyle = "rgba(255,255,255,.55)"; fg.lineWidth = 1.5; fg.stroke(HEART);
+      fg.fillStyle = "rgba(255,255,255,.8)"; fg.beginPath(); fg.ellipse(17, 16, 6.5, 3.4, -.65, 0, 6.283); fg.fill();
+      fg.beginPath(); fg.arc(26.5, 11.5, 1.8, 0, 6.283); fg.fill();
+    } else {
+      const k = f.s / 64;
+      fg.rotate(Math.atan2(y2 - y, x2 - x) + Math.PI / 4); fg.scale(k, k * (.88 + .12 * Math.sin(t * 5 + f.t0))); fg.translate(-32, -32);   // chao cánh nhẹ
+      fg.shadowColor = "rgba(255,130,180,.8)"; fg.shadowBlur = 18 * k;
+      fg.fillStyle = "#ffffff"; fg.fill(PLANE[0]); fg.shadowBlur = 0;
+      fg.fillStyle = "#ffe4ee"; fg.fill(PLANE[1]);
+      fg.fillStyle = "#ffb3cb"; fg.fill(PLANE[2]);
+      fg.strokeStyle = "rgba(214,51,108,.55)"; fg.lineWidth = 1.4; fg.lineJoin = "round";
+      PLANE.forEach(P => fg.stroke(P));
+    }
+    fg.restore();
+  }
 }
 
 function memeWall() {              // ảnh từ sâu trong nền nổi dần lên, phủ kín cả màn hình
