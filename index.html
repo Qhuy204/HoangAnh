@@ -103,10 +103,6 @@
   #fx { position:fixed; inset:0; width:100%; height:100%; z-index:6; pointer-events:none; }
   #memes img.up { opacity:1; transform:translate(0, 0) scale(1.1) rotate(var(--r)); filter:none; }
 
-  /* chữ nhắc hiện ra khi chạm vào phong ấn */
-  #sealHint { position:fixed; left:0; top:0; z-index:5; pointer-events:none; white-space:nowrap; font:600 12px/1 "Quicksand", sans-serif; letter-spacing:.14em;
-    color:#ffd0dc; text-shadow:0 0 10px rgba(255,77,109,.9); opacity:0; transition:opacity .4s; }
-  #sealHint.show { opacity:1; }
 
   /* đĩa nhạc */
   .player { position:fixed; left:50%; bottom:14px; translate:-50% 0; z-index:5; display:flex; align-items:center; gap:14px; padding:6px 22px 6px 6px;
@@ -170,7 +166,6 @@
   </div>
 </section>
 
-<span id="sealHint"></span>
 <p id="omg" class="ghost">OMG<small>she said YES</small></p>
 <canvas id="ptx"></canvas>
 <canvas id="fx"></canvas>
@@ -210,7 +205,6 @@ const CONFIG = {
   firstMessagePhoto: "assets/firstmsg.webp",
   firstMessageLabel: "First message",
   caption: "iu thíiiii",   // chữ dưới ảnh
-  secretHints: ["bấm yes mới mở", "hong cho xem", "yes đi rồi biết"],   // chạm vào phong ấn trước khi bấm Yes
   photo: "assets/hoanganh2.webp"   // ảnh nổi lên trên tường meme ở cuối, bo góc; để "" nếu không dùng
 };
 /* ============================================ */
@@ -635,7 +629,6 @@ renderer.setAnimationLoop(now => {
     haloU.uOp.value = Math.min(1, sealIn * 1.3) * (1 - blow) * .85; halo.visible = haloU.uOp.value > .004;
     seal.getWorldPosition(secretPos).project(camera);
     secretXY[0] = (secretPos.x + 1) / 2 * innerWidth; secretXY[1] = (1 - secretPos.y) / 2 * innerHeight;
-    $("sealHint").style.transform = "translate(" + secretXY[0].toFixed(1) + "px," + (secretXY[1] + 78).toFixed(1) + "px) translateX(-50%)";
   }
   renderer.render(scene3, camera);
   drawPtx(now);
@@ -803,14 +796,10 @@ const dodge = e => {
 };
 ["pointerenter", "pointerdown", "click", "focus"].forEach(ev => $("no").addEventListener(ev, dodge));
 
-let peeks = 0, hintTimer = 0;
 addEventListener("pointerdown", e => {              // chạm vào phong ấn trước khi bấm Yes: nó rung lên nhưng không mở
   if (!sealOn || sealBreak > 0 || e.target.closest("button, .player")) return;
   if (Math.hypot(e.clientX - secretXY[0], e.clientY - secretXY[1]) > 80) return;
   sealPoke = performance.now(); flinch = -.06;
-  $("sealHint").textContent = CONFIG.secretHints[peeks++ % CONFIG.secretHints.length];
-  $("sealHint").classList.add("show"); clearTimeout(hintTimer);
-  hintTimer = setTimeout(() => $("sealHint").classList.remove("show"), 1800);
 });
 const memeSrc = i => "assets/memes/m" + String(i % CONFIG.memes + 1).padStart(2, "0") + ".jpg";
 /* ---------- Tim và máy bay giấy cuối trang: vẽ trên canvas, có quầng sáng và vệt lấp lánh ---------- */
@@ -922,7 +911,7 @@ function memeWall() {              // ảnh từ sâu trong nền nổi dần l�
 $("yes").addEventListener("click", () => {
   $("no").style.display = "none";
   ptOut($("headline")); show("");                 // câu hỏi tan thành bụi
-  glowT = 1; flinch = .2; $("sealHint").classList.remove("show");   // cả trái tim bừng sáng
+  glowT = 1; flinch = .2;   // cả trái tim bừng sáng
   $("omg").style.visibility = "visible"; ptext($("omg"), secretXY.slice());   // OMG she said YES: hạt phụt ra từ tim rồi xếp thành chữ
   setTimeout(() => { sealBreak = performance.now(); }, 2600);     // phong ấn quay nhanh dần, trắng loá rồi vỡ
   setTimeout(() => { burstStart = performance.now(); flinch = .25; glowT = 0; ptOut($("omg")); memeWall(); }, 3250);   // trái tim nổ tung, meme phụt ra
