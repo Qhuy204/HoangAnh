@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="dark only">
+<meta name="theme-color" content="#07060b">
 <title>Dear HoangAnh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
@@ -10,6 +12,8 @@
   :root { --glow:0 0 14px rgba(255,77,140,.55), 0 0 32px rgba(255,77,140,.25); --bg:#07060b; --cream:#f3ead9; --dim:#9a93a3; --accent:#ff4d6d; }
   * { box-sizing:border-box; }
   html, body { height:100%; margin:0; }
+  /* trang vốn tối sẵn: báo cho trình duyệt (Safari, Chrome, Zalo/Messenger...) đừng tự bật "chế độ tối" đảo màu trang */
+  :root { color-scheme:only dark; background:#07060b; }
   /* iPhone: chạm nhanh 2 lần để sang trang thì Safari tưởng là double-tap phóng to → cả trang bị zoom, trôi lệch sang một bên.
      Khoá trang đứng yên: không zoom bằng double-tap, không cuộn/kéo nảy ngang dọc */
   html, body { position:fixed; inset:0; width:100%; overflow:hidden; overscroll-behavior:none; touch-action:manipulation; -webkit-text-size-adjust:100%; }
