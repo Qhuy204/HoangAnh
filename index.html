@@ -566,11 +566,13 @@ const stars = new THREE.Group();
 }
 scene3.add(stars);
 
-let current = "cloud", morphStart = 0, morphDur = 1;
+let current = "cloud", morphStart = 0, morphDur = 1, heartT0 = 0, straight = 0;
 function morph(name, dur = 4600) {
   if (name === current) return;
   from.array.set(to.array); to.array.set(shapeOf(name));
   from.needsUpdate = to.needsUpdate = true;
+  if (name === "heart") heartT0 = performance.now() / 1000;
+  { const r = points.rotation.y; points.rotation.y = Math.atan2(Math.sin(r), Math.cos(r)); }   // mây quay dồn nhiều vòng: quy về góc gần nhất để tim không quay ngược về
   current = name; morphStart = performance.now(); morphDur = dur; uniforms.uP.value = 0;
 }
 function resize() {
@@ -586,21 +588,21 @@ const mouse = { x: 0, y: 0 };
 addEventListener("pointermove", e => { if (e.pointerType === "mouse") { mouse.x = e.clientX / innerWidth - .5; mouse.y = e.clientY / innerHeight - .5; } });
 
 // cảm biến điện thoại: nghiêng máy = xoay đám hạt + trượt nền + ảnh lệch theo; lắc máy = tim giật mạnh, trang cuối bay tim/máy bay
-const tilt = { x: 0, y: 0, b0: null }, look = { x: 0, y: 0 };
+const tilt = { x: 0, y: 0, b0: null, g0: null }, look = { x: 0, y: 0 };
 const clamp1 = v => Math.max(-1, Math.min(1, v));
 let lastShake = 0;
 function onTilt(e) {
   if (e.gamma == null) return;
-  if (tilt.b0 == null) tilt.b0 = e.beta;                 // lấy tư thế cầm máy lúc đầu làm gốc
-  tilt.b0 += (e.beta - tilt.b0) * .004;                  // gốc trôi chậm theo, đổi tư thế cầm không bị lệch mãi
-  tilt.x = clamp1(e.gamma / 30) * .5; tilt.y = clamp1((e.beta - tilt.b0) / 30) * .5;
+  if (tilt.b0 == null) { tilt.b0 = e.beta; tilt.g0 = e.gamma; }   // lấy tư thế cầm máy lúc đầu làm gốc
+  tilt.b0 += (e.beta - tilt.b0) * .004; tilt.g0 += (e.gamma - tilt.g0) * .004;   // gốc trôi chậm theo, đổi tư thế cầm không bị lệch mãi
+  tilt.x = clamp1((e.gamma - tilt.g0) / 30) * .5; tilt.y = clamp1((e.beta - tilt.b0) / 30) * .5;
 }
 function onShake(e) {
   const a = e.acceleration || e.accelerationIncludingGravity; if (!a) return;
   const g = e.acceleration ? 0 : 9.8, m = Math.abs(Math.hypot(a.x || 0, a.y || 0, a.z || 0) - g), now = performance.now();
   if (m < 14 || now - lastShake < 700) return;
   lastShake = now; flinch = .18;
-  if (document.querySelector("#memes .cap")) { burst(innerWidth * (.2 + Math.random() * .6), innerHeight * (.2 + Math.random() * .5)); setTimeout(() => burst(innerWidth * (.2 + Math.random() * .6), innerHeight * (.2 + Math.random() * .5)), 220); }
+  if (document.querySelector("#memes .cap")) { fly(); fly(); setTimeout(fly, 160); }
 }
 function enableSensors() {   // iPhone bắt hỏi quyền, phải gọi ngay trong lúc chạm
   const ask = C => C && typeof C.requestPermission === "function" ? C.requestPermission().catch(() => "denied") : Promise.resolve("granted");
@@ -618,10 +620,13 @@ renderer.setAnimationLoop(now => {
   const b = (now - burstStart) / 1000;                       // nổ ra rồi thu về trong ~2.4 giây
   uniforms.uGlow.value += (glowT * (.85 + .15 * Math.sin(t * 9)) - uniforms.uGlow.value) * (1 - Math.exp(-dt * 4));   // cả trái tim sáng rực, phập phồng
   uniforms.uBurst.value = b < 2.4 ? Math.sin(Math.min(1, b / 2.4) * Math.PI) * (1 - b / 2.4 * .3) : 0;
-  const spin = current === "cloud" ? t * .12 : current === "heart" ? Math.sin(t * .45) * .55 : 0;   // tim tự lắc qua lại để lộ độ phồng
+  straight += ((glowT > 0 || sealBreak > 0 ? 1 : 0) - straight) * (1 - Math.exp(-dt * 3));
+  const hl = t - heartT0, sw = Math.min(1, hl / 4) * (1 - straight);   // tim hiện ra thẳng giữa rồi mới lắc nhẹ; bấm Yes thì đứng thẳng lại
+  const spin = current === "cloud" ? t * .12 : current === "heart" ? Math.sin(hl * .45) * .3 * sw : 0;   // tim tự lắc qua lại để lộ độ phồng
   look.x += (mouse.x + tilt.x - look.x) * .08; look.y += (mouse.y + tilt.y - look.y) * .08;
-  points.rotation.y += (spin + look.x * .9 - points.rotation.y) * .05;
-  points.rotation.x += (look.y * .6 - points.rotation.x) * .05;
+  const lk = current === "heart" ? 1 - straight : 1;
+  points.rotation.y += (spin + look.x * .9 * lk - points.rotation.y) * .05;
+  points.rotation.x += (look.y * .6 * lk - points.rotation.x) * .05;
   stars.position.set(-look.x * 14, look.y * 10, 0);
   document.documentElement.style.setProperty("--lx", look.x.toFixed(3));
   document.documentElement.style.setProperty("--ly", look.y.toFixed(3));
@@ -849,6 +854,18 @@ const HEART = new Path2D("M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 
 const PLANE = [new Path2D("M4 30 60 6 30 38Z"), new Path2D("M30 38 60 6 44 58Z"), new Path2D("M30 38 60 6 24 34 28 52Z")];
 let flyers = [], glints = [];
 const bez = (p, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * p[0][i] + 3 * u * u * t * p[1][i] + 3 * u * t * t * p[2][i] + t * t * t * p[3][i]); };
+function fly() {                 // tim bay lên lắc lư như bóng bay; máy bay lượn đường cong qua màn, để lại vệt chấm
+  const W = innerWidth, H = innerHeight, now = performance.now() / 1000;
+  if (Math.random() < .5) {
+    const x0 = W * (.1 + Math.random() * .8), x1 = x0 + rnd(W * .35);
+    flyers.push({ k: "heart", t0: now, dur: 3.4 + Math.random() * 1.6, s: 36 + Math.random() * 30, ph: Math.random() * 6, tilt: rnd(.3),
+      p: [[x0, H + 60], [x0 + rnd(W * .5), H * .66], [x1 + rnd(W * .5), H * .33], [x1, -80]] });
+  } else {
+    const L = Math.random() < .5, y0 = H * (.3 + Math.random() * .6), y1 = H * (.05 + Math.random() * .5);
+    flyers.push({ k: "plane", t0: now, dur: 2.8 + Math.random() * 1.2, s: 50 + Math.random() * 24,
+      p: [[L ? -80 : W + 80, y0], [W * (L ? .35 : .65), y0 - H * (.25 + Math.random() * .3)], [W * (L ? .6 : .4), y1 + H * (.25 + Math.random() * .3)], [L ? W + 80 : -80, y1]] });
+  }
+}
 function burst(x, y) {           // pháo hoa bụi sáng nhỏ: toả tròn ra rồi rơi nhẹ, tắt dần
   const now = performance.now() / 1000;
   for (let i = 0; i < 90; i++) {
@@ -920,9 +937,9 @@ function memeWall() {              // ảnh từ sâu trong nền nổi dần l�
         hero.onload = () => { $("memes").append(hero); hero.getBoundingClientRect(); hero.classList.add("up");
           if (CONFIG.caption) setTimeout(() => {
             const cap = document.createElement("div"); cap.className = "cap"; cap.textContent = CONFIG.caption;
-            cap.addEventListener("click", e => {   // bấm là bụi sáng nổ ra từ chỗ chạm
+            cap.addEventListener("click", () => {   // mỗi lần bấm bay ra 1-2 cái
               cap.animate([{ scale: 1 }, { scale: 1.18 }, { scale: 1 }], { duration: 260 });
-              burst(e.clientX, e.clientY);
+              fly(); if (Math.random() < .5) setTimeout(fly, 180);
             });
             $("memes").append(cap); cap.getBoundingClientRect(); cap.classList.add("up");
           }, 2200);
