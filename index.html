@@ -50,12 +50,13 @@
   @keyframes rip { from { transform:scale(0); opacity:1; } to { transform:scale(22); opacity:0; } }
   #sm.active > * { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both; animation-delay:calc(.35s + var(--k, 0) * .16s); }
   #sm.active > .hint { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both, hint 2.4s ease-in-out 2.4s infinite; animation-delay:calc(.35s + var(--k, 0) * .16s), 2.4s; }
-  #sm > :nth-child(2) { --k:1; } #sm > :nth-child(3) { --k:2; } #sm > :nth-child(4) { --k:3; }
+  #sm > :nth-child(2) { --k:1; } #sm > :nth-child(3) { --k:2; } #sm > :nth-child(4) { --k:3; } #sm > :nth-child(5) { --k:4; }
   @keyframes flyIn { from { opacity:0; transform:translate(-60vw, 40vh) rotate(-24deg) scale(.35); filter:blur(8px); } 70% { filter:none; } to { opacity:1; transform:none; filter:none; } }
 
   /* Cảnh tin nhắn đầu tiên + bộ đếm */
-  #sm { justify-content:center; gap:22px; cursor:pointer; }
-  #sm img { width:min(86vw, 420px, 53vh); height:auto; border-radius:22px;
+  #sm { justify-content:center; gap:18px; cursor:pointer; }
+  .verdict { margin:0; font:700 clamp(28px, 7.6vw, 46px)/1.2 "Quicksand", "Be Vietnam Pro", sans-serif; color:var(--cream); text-shadow:var(--glow); }
+  #sm img { width:min(86vw, 400px, 44vh); height:auto; border-radius:22px;
     box-shadow:0 0 0 1px rgba(243,234,217,.2), 0 20px 60px rgba(0,0,0,.6), 0 0 50px rgba(255,77,109,.28); }
   .count { display:flex; gap:clamp(12px, 4vw, 26px); }
   .count div { display:flex; flex-direction:column; align-items:center; gap:8px; }
@@ -65,10 +66,44 @@
   #sm .small { color:#ffc2d6; } #sm .hint { font-family:"Quicksand", "Be Vietnam Pro", sans-serif; font-weight:700; font-size:clamp(18px, 5.2vw, 24px); letter-spacing:.14em; opacity:.55; animation:hint 2.4s ease-in-out infinite; }
   @keyframes hint { 50% { opacity:.2; } }
 
+  /* Câu đố ngày nhắn tin đầu tiên */
+  #sq { justify-content:center; gap:26px; }
+  #si { justify-content:center; cursor:pointer; }
+  #si .ask.big { font-size:clamp(64px, 20vw, 120px); }
+  .ask { margin:0; max-width:640px; font:700 clamp(30px, 8.2vw, 50px)/1.3 "Quicksand", "Be Vietnam Pro", sans-serif; text-wrap:balance; }
+  /* chọn ngày kiểu bánh xe cuộn, thay cho ô date mặc định của trình duyệt */
+  .dpick { position:relative; display:flex; gap:4px; padding:0 12px; border-radius:28px; background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,143,180,.4); box-shadow:0 0 30px rgba(255,77,140,.2), inset 0 0 24px rgba(255,77,140,.08); }
+  .dpick::before { content:""; position:absolute; left:8px; right:8px; top:50%; height:48px; margin-top:-24px; border-radius:16px; pointer-events:none;
+    background:linear-gradient(90deg, rgba(255,77,140,.14), rgba(255,143,180,.24), rgba(255,77,140,.14)); border:1px solid rgba(255,143,180,.4); box-shadow:0 0 18px rgba(255,77,140,.3); }
+  .wheel { position:relative; height:240px; padding:96px 0; box-sizing:border-box; overflow-y:auto; scroll-snap-type:y mandatory; overscroll-behavior:contain;
+    scrollbar-width:none; -webkit-mask-image:linear-gradient(transparent, #000 38%, #000 62%, transparent); mask-image:linear-gradient(transparent, #000 38%, #000 62%, transparent); }
+  .wheel::-webkit-scrollbar { display:none; }
+  .wheel[data-k="d"] { width:64px; } .wheel[data-k="m"] { width:112px; } .wheel[data-k="y"] { width:86px; }
+  .wheel div { height:48px; line-height:48px; text-align:center; scroll-snap-align:center; cursor:pointer; white-space:nowrap;
+    font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif; color:rgba(243,234,217,.45); transition:color .2s, transform .2s, text-shadow .2s; }
+  .wheel div.on { color:var(--cream); text-shadow:var(--glow); transform:scale(1.14); }
+  .pick { border:0; border-radius:999px; padding:13px 40px; background:var(--accent); color:#fff; font:700 18px "Quicksand", sans-serif; letter-spacing:.06em;
+    box-shadow:0 8px 34px rgba(255,77,109,.55); transition:opacity .4s, transform .4s; }
+  .pick:disabled { background:rgba(255,77,109,.28); color:rgba(255,255,255,.5); box-shadow:none; cursor:default; }   /* không dùng opacity: hiệu ứng bay vào ghi đè */
+  #sq.active > * { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both; animation-delay:calc(.35s + var(--k, 0) * .16s); }
+  #sq > :nth-child(2) { --k:1; } #sq > :nth-child(3) { --k:2; }
+  /* 1...2...3... */
+  #sc { justify-content:center; }
+  .cnt { margin:0; font:700 clamp(46px, 14vw, 90px)/1 "Quicksand", sans-serif; color:var(--cream); text-shadow:var(--glow); }
+  .cnt span { display:inline-block; opacity:0; animation:pop .7s cubic-bezier(.3,1.7,.5,1) forwards; animation-delay:calc(.7s + var(--n) * 1s); }
+  @keyframes pop { from { opacity:0; transform:scale(2.4); filter:blur(10px); } to { opacity:1; transform:none; filter:none; } }
+  /* gợi ý chạm để sang trang */
+  #tap { position:fixed; left:0; right:0; bottom:3.5vh; z-index:5; text-align:center; pointer-events:none; opacity:0; transition:opacity .8s;
+    font:700 clamp(15px, 4.2vw, 19px) "Quicksand", "Be Vietnam Pro", sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#ffc2d6; }
+  #tap.on { opacity:.55; animation:hint 2.4s ease-in-out 1s infinite; }
+
   /* Cảnh 2: phụ đề dưới đám hạt */
   #s2 { justify-content:flex-end; padding-bottom:11vh; cursor:pointer; }
   #s2.mid { justify-content:center; padding-bottom:0; }
   #s2.mid .sub { font-size:clamp(38px, 11vw, 68px); line-height:1.25; text-wrap:balance; }
+  #s2.mid .sub.letter { max-width:600px; min-height:0; text-align:left; font-size:clamp(20px, 5.6vw, 30px); line-height:1.55; text-wrap:pretty; }
+  .sub.letter .ch { animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chHue 3.6s linear infinite; animation-delay:calc(.5s + var(--i) * 14ms), calc(var(--i) * -.12s); }
   .sub.big { font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(46px, 13vw, 84px); line-height:1.15; }
   .sub { min-height:3.2em; max-width:720px; margin:0; font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8.6vw, 50px); line-height:1.3; }
   /* chữ thật vẫn nằm đó để giữ bố cục, nhưng trong suốt: thứ mắt thấy là hạt vẽ trên #ptx */
@@ -173,7 +208,20 @@
   <button class="start" id="start"></button>
 </section>
 
+<section class="scene" id="si"><h2 class="ask" id="intro"></h2></section>
+
+<section class="scene" id="sq">
+  <h2 class="ask" id="qask"></h2>
+  <div class="dpick" id="qdate" aria-label="Ngày bắt đầu nhắn">
+    <div class="wheel" data-k="d"></div><div class="wheel" data-k="m"></div><div class="wheel" data-k="y"></div>
+  </div>
+  <button class="pick" id="qok">Chốt</button>
+</section>
+
+<section class="scene" id="sc"><p class="cnt" id="cnt"></p></section>
+
 <section class="scene" id="sm">
+  <p class="verdict" id="verdict"></p>
   <span class="small" id="mlabel"></span>
   <img id="mimg" alt="">
   <div class="count" id="count"></div>
@@ -181,6 +229,7 @@
 </section>
 
 <section class="scene" id="s2"><p class="sub" id="sub"></p></section>
+<span id="tap">chạm để tiếp tục</span>
 
 <section class="scene" id="s3">
   <h1 class="serif ghost" id="headline"></h1>
@@ -213,7 +262,10 @@ const CONFIG = {
   startLabel: "Open message",
   // mỗi bước: hạt xếp thành "shape" ("cloud", "moon" hoặc "heart"), bên dưới hiện câu "text"; big: true là chữ to
   steps: [
+    { shape: "cloud", text: "Thôi vào việc chính nhé", mid: true },
     { shape: "cloud", text: "Dear phù thủy ma cà rồng xink iu siu ngầu", mid: true },
+    { shape: "cloud", mid: true, letter: true,   // đoạn thư dài: chữ nhỏ, căn trái; \n là xuống dòng
+      text: "Yêu ơi,\nTính tới thời điểm hiện tại thì cta quen nhau cũng lâu phết rồi đấy chứ, chuyện vui có, buồn cũng có. Chị em mình cũng hiểu hơn về tính cách cũng như tình cảm của nhau goy. Hôm nay em muốn nói với chị cái nàyyyyy" },
     { shape: "heart", text: "Em thích chị.", big: true }
   ],
   headline: "Will you be my girlfriend?",
@@ -229,6 +281,8 @@ const CONFIG = {
   firstMessage: "2026-07-30T21:54:00+07:00",   // thời điểm tin nhắn đầu tiên (năm-tháng-ngày, giờ VN), bộ đếm tính từ đây; để "" là bỏ màn này
   firstMessagePhoto: "assets/firstmsg.webp",
   firstMessageLabel: "First message",
+  quiz: { intro: ["Hí lu", "Trước khi vào việc chính, em hỏi chị cái này xíu"],   // các trang trước câu đố, chạm để sang
+    ask: "Đố chị biết mình bắt đầu nhắn với nhau từ bao giờ?", right: "Bingo!", wrong: "Em nhắc chị đấy nhé =)))" },   // đáp án là ngày của firstMessage
   caption: "iu thíiiii",   // chữ dưới ảnh
   photo: "assets/hoanganh2.webp"   // ảnh nổi lên trên tường meme ở cuối, bo góc; để "" nếu không dùng
 };
@@ -346,10 +400,11 @@ function heart() {            // tinh vân hình tim: viền mờ như khói sao
   }
   // kiểu trái tim hạt trend 2022: hạt dày đặc ở viền, thưa dần vào lòng, ngoài có quầng lấp lánh; đập thì lòng co lại, quầng nở ra.
   // thêm chiều sâu: hạt trong lòng nằm trên mặt trước/sau của một trái tim bơm phồng, nên xoay nghiêng là thấy khối.
-  const st = { T, M, s, oy: v.h * .12, L: new Float32Array(COUNT), k: new Float32Array(COUNT), sp: new Float32Array(COUNT), kind: new Uint8Array(COUNT),
-    jx: new Float32Array(COUNT), jy: new Float32Array(COUNT), z: new Float32Array(COUNT), ph: new Float32Array(COUNT), t: 0 };
-  // trái tim là một khối phồng kín (vỏ cong đều như quả bóng), hạt rải đều trên vỏ: nhìn thẳng thì viền tự sáng dày, xoay ngang vẫn là khối tròn, không lộ vòng viền phẳng
   const PUFF = 10.5;  // độ dày khối (nửa bề ngang tim là 16)
+  const st = { T, M, s, oy: v.h * .12, L: new Float32Array(COUNT), k: new Float32Array(COUNT), sp: new Float32Array(COUNT), kind: new Uint8Array(COUNT),
+    jx: new Float32Array(COUNT), jy: new Float32Array(COUNT), z: new Float32Array(COUNT), ph: new Float32Array(COUNT), t: 0,
+    r: new Float32Array(COUNT), th: new Float32Array(COUNT), w: new Float32Array(COUNT), pz: PUFF * s };
+  // trái tim là một khối phồng kín (vỏ cong đều như quả bóng), hạt rải đều trên vỏ: nhìn thẳng thì viền tự sáng dày, xoay ngang vẫn là khối tròn, không lộ vòng viền phẳng
   for (let i = 0; i < COUNT; i++) {
     const u = Math.random(), c = Math.random() * 2 - 1, kc = Math.sqrt(1 - c * c);   // điểm đều trên vỏ: c là cao độ trước-sau
     let k, z, kind;
@@ -358,7 +413,11 @@ function heart() {            // tinh vân hình tim: viền mờ như khói sao
     else { const r = 1.06 + Math.pow(Math.random(), 1.8) * .42; kind = 2; k = kc * r; z = c * PUFF * r; }           // quầng ngoài, cũng bao quanh khối
     st.L[i] = Math.random(); st.k[i] = k; st.kind[i] = kind; st.z[i] = z * s; st.ph[i] = Math.random() * 6.2832;
     st.jx[i] = gauss() * .18; st.jy[i] = gauss() * .18;
-    st.sp[i] = kind === 0 ? .016 + Math.random() * .026 : (Math.random() < .5 ? -1 : 1) * (.003 + Math.random() * .01);
+    st.r[i] = kc > 1e-4 ? k / kc : 1;                                              // bán kính trên vỏ
+    st.th[i] = Math.asin(c);                                                       // góc trước-sau trên vỏ
+    const sg = Math.random() < .5 ? -1 : 1;   // mỗi hạt một hướng: có hạt chạy xuôi, có hạt ngược, có hạt lượn từ trước ra sau
+    st.w[i] = (Math.random() < .5 ? -1 : 1) * (.12 + Math.random() * .5);
+    st.sp[i] = sg * (kind === 0 ? .01 + Math.random() * .022 : .003 + Math.random() * .012);
   }
   heartFlow = st; flowHeart(st, a, 0);
   return a;
@@ -371,11 +430,15 @@ function flowHeart(st, a, dt) {   // mỗi khung hình: hạt chạy dọc viề
   for (let i = 0; i < COUNT; i++) {
     let L = st.L[i] + st.sp[i] * dt; L -= Math.floor(L); st.L[i] = L;
     const q = L * M, m = Math.floor(q) % M, n = (m + 1) % M, f = q - Math.floor(q), kind = st.kind[i];
-    let k = st.k[i], zf = 1;
+    const th = st.th[i] += st.w[i] * dt;   // lượn vòng qua mép từ mặt trước ra mặt sau rồi vòng lại
+    let k = Math.abs(Math.cos(th)) * st.r[i], zf = 1;
     if (kind === 2) { const g = 1 + (beat * .09 + .025 * Math.sin(t * 2.3 + st.ph[i])) / Math.max(.3, k); k *= g; zf = g; }   // quầng nở ra theo nhịp, rung nhẹ
     else { const c = 1 - beat * .07 * (1.2 - k); k *= c; zf = c; }                     // lòng co vào theo nhịp, gần tâm co nhiều hơn
     const x = T[m * 2] + (T[n * 2] - T[m * 2]) * f, y = T[m * 2 + 1] + (T[n * 2 + 1] - T[m * 2 + 1]) * f;
-    a[i * 3] = x * k * s + st.jx[i]; a[i * 3 + 1] = (y * k - .5) * s + oy + st.jy[i]; a[i * 3 + 2] = st.z[i] * zf;
+    const ph = st.ph[i], wob = s;   // trôi lắc nhẹ trái phải, lên xuống, trước sau
+    a[i * 3] = x * k * s + st.jx[i] + Math.sin(t * .9 + ph) * wob * .5;
+    a[i * 3 + 1] = (y * k - .5) * s + oy + st.jy[i] + Math.cos(t * .7 + ph * 1.3) * wob * .5;
+    a[i * 3 + 2] = Math.sin(th) * st.pz * st.r[i] * zf + Math.sin(t * .8 + ph * 2.1) * wob * 1.2;
   }
 }
 const shapeOf = name => name === "cloud" ? cloud() : name === "moon" ? moon() : heart();
@@ -687,6 +750,7 @@ let skip = null;
 const hold = ms => new Promise(r => { const t = setTimeout(r, ms); skip = () => { clearTimeout(t); r(); }; });
 $("s2").addEventListener("click", () => skip && skip());
 $("sm").addEventListener("click", () => skip && skip());
+$("si").addEventListener("click", () => skip && skip());
 if (CONFIG.firstMessage) {         // bộ đếm chạy theo giờ thật, tính từ tin nhắn đầu tiên
   const t0 = new Date(CONFIG.firstMessage).getTime(), cells = ["ngày", "giờ", "phút", "giây"].map(label => {
     const d = document.createElement("div"), b = document.createElement("b"), s = document.createElement("span");
@@ -699,15 +763,27 @@ if (CONFIG.firstMessage) {         // bộ đếm chạy theo giờ thật, tín
   tick(); setInterval(tick, 1000);
   $("mimg").src = CONFIG.firstMessagePhoto; $("mlabel").textContent = CONFIG.firstMessageLabel;
 }
-const subtitle = text => {
-  const sub = $("sub"); sub.replaceChildren(); sub.classList.remove("bye", "ghost");
-  let k = 0;
-  text.split(" ").filter(Boolean).forEach(word => {   // giữ nguyên từ để xuống dòng không cắt giữa chữ
-    const w = document.createElement("span"); w.className = "w";
-    for (const ch of word) { const c = document.createElement("span"); c.className = "ch"; c.style.setProperty("--i", k++); c.textContent = ch; w.append(c); }
-    sub.append(w, " "); k++;
+const spell = (el, text) => {      // tách chữ thành từng ký tự bay vào; trả về số ký tự để biết bao lâu thì hiện xong
+  el.replaceChildren(); let k = 0;
+  text.split("\n").forEach((line, li) => {
+    if (li) el.append(document.createElement("br"));
+    line.split(" ").filter(Boolean).forEach(word => {   // giữ nguyên từ để xuống dòng không cắt giữa chữ
+      const w = document.createElement("span"); w.className = "w";
+      for (const ch of word) { const c = document.createElement("span"); c.className = "ch"; c.style.setProperty("--i", k++); c.textContent = ch; w.append(c); }
+      el.append(w, " "); k++;
+    });
   });
+  return k;
 };
+const subtitle = text => { $("sub").classList.remove("bye", "ghost"); return spell($("sub"), text); };
+// chờ người xem chạm mới sang trang; chỉ nhận chạm sau khi chữ đã hiện xong (ready ms)
+const tap = (ready, hint = true) => new Promise(r => {
+  skip = null;
+  setTimeout(() => {
+    if (hint) $("tap").classList.add("on");
+    skip = () => { skip = null; $("tap").classList.remove("on"); r(); };
+  }, ready);
+});
 
 /* ---------- Chữ bằng hạt: lấy mẫu từng ký tự đúng chỗ của chữ thật, hạt bay về xếp thành chữ, lấp lánh như trái tim ---------- */
 const ptx = $("ptx"), pg = ptx.getContext("2d");
@@ -828,13 +904,26 @@ $("start").addEventListener("click", async event => {
   if (controller && !playing) controller.play();   // chạm là nhạc lên
   for (let i = 0; i < CONFIG.memes; i++) new Image().src = "assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
   const gone = launch(event) * 1000; await wait(900); show(""); await wait(Math.max(0, gone + 1000 - 900 - 350));   // trang đầu mờ đi, máy bay khuất hẳn ~1s thì ảnh hiện (ảnh có .35s trễ sẵn)
-  if (CONFIG.firstMessage) { show("sm"); await hold(16000); }
+  if (CONFIG.firstMessage) {
+    for (const [i, text] of (CONFIG.quiz.intro || []).entries()) {   // Hí lu → em hỏi chị cái này xíu
+      if (i) { $("intro").style.opacity = 0; await wait(450); }
+      $("intro").style.opacity = ""; $("intro").classList.toggle("big", text.length < 12);
+      const n = spell($("intro"), text); show("si");
+      await tap((.9 + n * .055) * 1000 + 700);
+    }
+    show("sq"); qpick.sync();                      // câu đố: cuộn chọn ngày rồi bấm Chốt
+    const ans = await new Promise(r => $("qok").addEventListener("click", () => r(qpick.value()), { once: true }));
+    $("verdict").textContent = ans === CONFIG.firstMessage.slice(0, 10) ? CONFIG.quiz.right : CONFIG.quiz.wrong;
+    show("sc"); $("cnt").innerHTML = [1, 2, 3].map((n, i) => `<span style="--n:${i}">${n}...</span>`).join("");
+    await wait(4400);
+    show("sm"); await tap(1800, false);
+  }
   show("s2");
   for (const step of CONFIG.steps) {
     morph(step.shape);
-    $("sub").classList.toggle("big", !!step.big); $("s2").classList.toggle("mid", !!step.mid);
-    subtitle(step.text);
-    await hold(8500);
+    $("sub").classList.toggle("big", !!step.big); $("sub").classList.toggle("letter", !!step.letter); $("s2").classList.toggle("mid", !!step.mid);
+    const n = subtitle(step.text);
+    await tap((step.letter ? .5 + n * .014 : .9 + n * .055) * 1000 + 900);
   }
   $("sub").classList.add("bye");
   morph("heart");
@@ -846,6 +935,30 @@ $("start").addEventListener("click", async event => {
 }, { once: true });
 
 $("headline").textContent = CONFIG.headline;
+// bánh xe chọn ngày: mỗi cột cuộn có nấc, ô nằm giữa là ô được chọn; chạm vào ô nào thì cuộn tới ô đó
+const qpick = (() => {
+  const ROW = 48, yNow = new Date().getFullYear(), cols = {}, pad = n => String(n).padStart(2, "0");
+  const items = { d: [...Array(31)].map((_, i) => [i + 1, pad(i + 1)]), m: [...Array(12)].map((_, i) => [i + 1, "tháng " + (i + 1)]),
+    y: [...Array(7)].map((_, i) => [yNow - 6 + i, String(yNow - 6 + i)]) };
+  const start = { d: 1, m: 1, y: yNow };
+  document.querySelectorAll("#qdate .wheel").forEach(w => {
+    const k = w.dataset.k, list = items[k];
+    list.forEach(([v, label], i) => { const d = document.createElement("div"); d.textContent = label; d.onclick = () => w.scrollTo({ top: i * ROW, behavior: "smooth" }); w.append(d); });
+    const idx = () => Math.max(0, Math.min(list.length - 1, Math.round(w.scrollTop / ROW)));
+    let last = -1;
+    const mark = () => { const i = idx(); if (i === last) return; last = i; [...w.children].forEach((c, j) => c.classList.toggle("on", j === i)); };
+    w.addEventListener("scroll", mark, { passive: true });
+    cols[k] = { w, list, idx, mark, i0: list.findIndex(([v]) => v === start[k]) };
+  });
+  return {
+    sync() { for (const c of Object.values(cols)) { c.w.scrollTop = c.i0 * ROW; c.mark(); } },   // khi cảnh hiện mới đo được
+    value() { const g = k => cols[k].list[cols[k].idx()][0]; return `${g("y")}-${pad(g("m"))}-${pad(g("d"))}`; },
+  };
+})();
+if (CONFIG.quiz) {
+  spell($("qask"), CONFIG.quiz.ask);
+  $("intro").style.transition = "opacity .4s";
+}
 
 // Nút No: chạm vào là nhảy lung tung, nút Yes to dần, trái tim giật mình
 let dodges = 0;
