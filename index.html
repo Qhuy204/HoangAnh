@@ -250,15 +250,20 @@ const setPlaying = on => {
   document.querySelector(".player").classList.toggle("playing", on);
   $("trackState").textContent = on ? "đang phát" : "chạm đĩa để bật nhạc";
 };
+let userPaused = false, heard = false;
 if (CONFIG.audioFile) {            // có file nhạc riêng: phát thẳng file, luôn từ đầu bài
-  const au = new Audio(CONFIG.audioFile); au.loop = true;
+  const au = new Audio(CONFIG.audioFile); au.loop = true;   // luôn lặp; chỉ người xem chạm đĩa (hoặc nút pause trên Dynamic Island) mới tắt
+  au.addEventListener("ended", () => { if (!userPaused) { au.currentTime = 0; au.play().catch(() => {}); } });   // phòng máy nào lờ loop
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && au.paused && !userPaused && heard) au.play().catch(() => {}); });   // máy tự ngắt (cuộc gọi...) thì quay lại web là phát tiếp
   ["play", "pause"].forEach(ev => au.addEventListener(ev, () => setPlaying(!au.paused)));
-  controller = { play: () => au.play().catch(() => {}), togglePlay: () => au.paused ? au.play().catch(() => {}) : au.pause() };
+  au.addEventListener("playing", () => heard = true);
+  controller = { play: () => { if (!userPaused) au.play().catch(() => {}); },
+    togglePlay: () => { userPaused = !au.paused; userPaused ? au.pause() : au.play().catch(() => {}); } };
   if ("mediaSession" in navigator) {   // thoát web ra: Dynamic Island / màn khoá hiện ảnh bìa + tên
     navigator.mediaSession.metadata = new MediaMetadata({ title: CONFIG.nowPlaying.title, artist: CONFIG.nowPlaying.artist,
       artwork: [{ src: CONFIG.nowPlaying.cover, sizes: "512x512", type: "image/jpeg" }] });
-    navigator.mediaSession.setActionHandler("play", () => au.play().catch(() => {}));
-    navigator.mediaSession.setActionHandler("pause", () => au.pause());
+    navigator.mediaSession.setActionHandler("play", () => { userPaused = false; au.play().catch(() => {}); });
+    navigator.mediaSession.setActionHandler("pause", () => { userPaused = true; au.pause(); });
   }
   controller.play();
 }
@@ -280,7 +285,7 @@ window.onSpotifyIframeApiReady = api => {
 $("disc").addEventListener("click", () => { if (controller) controller.togglePlay(); });
 // trình duyệt chặn tự phát khi chưa có thao tác: chạm lần đầu ở bất kỳ đâu là nhạc lên
 const firstTouch = e => {
-  if (e.target.closest("#disc")) return;
+  if (e.target.closest("#disc, .player")) return;
   if (controller && !playing) controller.play();
   if (controller) ["pointerdown", "keydown"].forEach(ev => removeEventListener(ev, firstTouch, true));
 };
