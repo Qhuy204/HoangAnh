@@ -35,10 +35,19 @@
   .start { display:inline-flex; align-items:center; gap:10px; }
   .start .plane { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; animation:bob 1.8s ease-in-out infinite; }
   @keyframes bob { 50% { transform:translate(2px, -3px) rotate(-6deg); } }
-  .start.go { animation:none; pointer-events:none; }
-  .start.go .lbl { transition:opacity .4s, letter-spacing .5s; opacity:0; letter-spacing:.5em; }
-  .start.go .plane { animation:away .9s cubic-bezier(.5,0,.75,.4) forwards; }
-  @keyframes away { 30% { transform:translate(-14px, 8px) rotate(-12deg) scale(1.15); } to { transform:translate(70vw, -75vh) rotate(18deg) scale(.4); opacity:0; } }
+  /* bấm: nút lún xuống, bừng hồng, gợn sóng loang ra, chữ giãn tan; máy bay giấy thật (vẽ trên canvas) cất cánh kéo vệt lấp lánh */
+  .start { position:relative; overflow:hidden; }
+  .start.go { animation:goBtn 1s cubic-bezier(.3,.7,.3,1) forwards; pointer-events:none; }
+  @keyframes goBtn {
+    0% { transform:scale(1); }
+    14% { transform:scale(.93); background:rgba(255,77,109,.28); border-color:#ff9ab5; box-shadow:0 0 26px rgba(255,77,109,.7), inset 0 0 18px rgba(255,180,205,.45); }
+    40% { transform:scale(1.05); background:rgba(255,77,109,.18); border-color:#ffc2d4; box-shadow:0 0 60px rgba(255,77,109,.85), inset 0 0 22px rgba(255,200,220,.5); }
+    100% { transform:scale(1.25); opacity:0; filter:blur(8px); border-color:#ffc2d4; box-shadow:0 0 90px rgba(255,77,109,0); } }
+  .start.go .lbl { transition:opacity .55s .1s, letter-spacing .7s cubic-bezier(.2,.8,.2,1), filter .55s .1s; opacity:0; letter-spacing:.6em; filter:blur(4px); }
+  .start.go .plane { visibility:hidden; }
+  .start .rip { position:absolute; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(255,235,242,.95), rgba(255,120,160,.55) 45%, rgba(255,77,109,0) 70%); animation:rip .75s ease-out forwards; }
+  @keyframes rip { from { transform:scale(0); opacity:1; } to { transform:scale(22); opacity:0; } }
   #sm.active > * { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both; animation-delay:calc(.35s + var(--k, 0) * .16s); }
   #sm.active > .hint { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both, hint 2.4s ease-in-out 2.4s infinite; animation-delay:calc(.35s + var(--k, 0) * .16s), 2.4s; }
   #sm > :nth-child(2) { --k:1; } #sm > :nth-child(3) { --k:2; } #sm > :nth-child(4) { --k:3; }
@@ -63,7 +72,20 @@
   /* chữ thật vẫn nằm đó để giữ bố cục, nhưng trong suốt: thứ mắt thấy là hạt vẽ trên #ptx */
   .w { display:inline-block; white-space:nowrap; }
   .nw { white-space:nowrap; display:inline-block; }
-  .sub, #s3 h1, #omg { transition:color .9s ease, text-shadow .9s ease; }
+  /* phụ đề: từng chữ cái rơi xuống xoay nhẹ rồi bật vào chỗ, sau đó cả dòng nhấp nhô như sóng và đổi màu lấp lánh chạy dọc */
+  .w { display:inline-block; white-space:nowrap; }
+  .ch { display:inline-block; opacity:0; color:var(--cream); transform:translateY(-.9em) scale(1.8) rotate(-14deg); filter:blur(10px);
+    animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chWave 2.8s ease-in-out infinite, chHue 3.6s linear infinite;
+    animation-delay:calc(.9s + var(--i) * 55ms), calc(2.4s + var(--i) * 90ms), calc(var(--i) * -.12s); }
+  @keyframes chIn { 60% { opacity:1; filter:blur(0); } to { opacity:1; transform:none; filter:none; } }
+  @keyframes chWave { 0%, 100% { translate:0 0; } 50% { translate:0 -.16em; } }
+  @keyframes chHue {
+    0%, 100% { color:var(--cream); text-shadow:0 0 8px rgba(255,214,230,.35); }
+    33% { color:#ff8fb4; text-shadow:0 0 14px rgba(255,77,140,.85), 0 0 30px rgba(255,77,140,.4); }
+    66% { color:#d4b8ff; text-shadow:0 0 14px rgba(180,140,255,.8), 0 0 28px rgba(180,140,255,.35); } }
+  .sub { transition:opacity .6s, filter .6s; }
+  .sub.bye { opacity:0; filter:blur(8px); }
+  #s3 h1, #omg { transition:color .9s ease, text-shadow .9s ease; }
   .ghost, .ghost * { color:transparent !important; text-shadow:none !important; }
   #ptx { position:fixed; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; }
   #omg { position:fixed; left:0; right:0; bottom:16vh; margin:0; padding:0 24px; text-align:center; pointer-events:none; visibility:hidden;
@@ -655,11 +677,13 @@ if (CONFIG.firstMessage) {         // bộ đếm chạy theo giờ thật, tín
   $("mimg").src = CONFIG.firstMessagePhoto; $("mlabel").textContent = CONFIG.firstMessageLabel;
 }
 const subtitle = text => {
-  $("sub").replaceChildren();
+  const sub = $("sub"); sub.replaceChildren(); sub.classList.remove("bye", "ghost");
+  let k = 0;
   text.split(" ").filter(Boolean).forEach(word => {   // giữ nguyên từ để xuống dòng không cắt giữa chữ
-    const w = document.createElement("span"); w.className = "w"; w.textContent = word; $("sub").append(w, " ");
+    const w = document.createElement("span"); w.className = "w";
+    for (const ch of word) { const c = document.createElement("span"); c.className = "ch"; c.style.setProperty("--i", k++); c.textContent = ch; w.append(c); }
+    sub.append(w, " "); k++;
   });
-  ptext($("sub"));
 };
 
 /* ---------- Chữ bằng hạt: lấy mẫu từng ký tự đúng chỗ của chữ thật, hạt bay về xếp thành chữ, lấp lánh như trái tim ---------- */
@@ -750,11 +774,25 @@ function drawPtx(nowMs) {
 }
 
 document.fonts.ready.then(() => document.body.classList.add("ready"));   // script tải xong mới hiện nút, khỏi bấm hụt
-$("start").addEventListener("click", async () => {
+function launch(e) {
+  const b = $("start"), br = b.getBoundingClientRect(), pr = b.querySelector(".plane").getBoundingClientRect();
+  const rip = document.createElement("span"); rip.className = "rip";   // gợn sáng loang ra từ chỗ ngón tay chạm
+  rip.style.left = ((e && e.clientX ? e.clientX : br.left + br.width / 2) - br.left) + "px"; rip.style.top = ((e && e.clientY ? e.clientY : br.top + br.height / 2) - br.top) + "px";
+  b.append(rip); b.classList.add("go");
+  const now = performance.now() / 1000, W = innerWidth, H = innerHeight, x = pr.left + pr.width / 2, y = pr.top + pr.height / 2;
+  flyers.push({ k: "plane", t0: now, dur: 1.7, s: 30,   // lùi nhẹ lấy đà rồi vút lên góc trên
+    p: [[x, y], [x - 40, y + 30], [x + W * .15, y - H * .35], [x + W * .45, -90]] });
+  for (let i = 0; i < 70; i++) {    // viền nút vỡ ra thành bụi sáng
+    const a = Math.random() * 6.2832, ex = br.left + br.width / 2 + Math.cos(a) * br.width / 2, ey = br.top + br.height / 2 + Math.sin(a) * br.height / 2;
+    glints.push({ x: ex, y: ey, t: now, life: .8 + Math.random() * .8, r: 1.4 + Math.random() * 2.4,
+      c: Math.floor(Math.random() * dotSprites.length), vx: Math.cos(a) * (30 + Math.random() * 90), vy: Math.sin(a) * (20 + Math.random() * 60) - 20 });
+  }
+}
+$("start").addEventListener("click", async event => {
   enableSensors();
   if (controller && !playing) controller.play();   // chạm là nhạc lên
   for (let i = 0; i < CONFIG.memes; i++) new Image().src = "assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
-  $("start").classList.add("go"); await wait(800);   // máy bay giấy vút đi rồi mới sang cảnh sau
+  launch(event); await wait(1000);   // máy bay giấy vút đi rồi mới sang cảnh sau
   if (CONFIG.firstMessage) { show("sm"); await hold(16000); }
   show("s2");
   for (const step of CONFIG.steps) {
@@ -763,7 +801,7 @@ $("start").addEventListener("click", async () => {
     subtitle(step.text);
     await hold(8500);
   }
-  ptOut($("sub"));
+  $("sub").classList.add("bye");
   morph("heart");
   show("s3");
   setTimeout(() => ptext($("headline")), 1200);
