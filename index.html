@@ -788,8 +788,8 @@ function launch(e) {
   // lao ra một đoạn, nhào lộn đúng một vòng tròn gọn, rồi tăng tốc vút thẳng ra khỏi màn
   const R = Math.min(W, H) * .13, h = -.4, L1 = 46, L2 = 2 * Math.PI * R, L3 = Math.hypot(W, H), Lt = L1 + L2 + L3;
   const ax = x + Math.cos(h) * L1, ay = y + Math.sin(h) * L1;
-  flyers.push({ k: "plane", t0: now, dur: 2.6, s: 34, fn: u => {
-    let q = Lt * Math.pow(u, 1.45);                          // chậm lúc đầu, nhanh dần khi thoát
+  flyers.push({ k: "plane", t0: now, dur: 4.4, s: 34, fn: u => {
+    let q = Lt * Math.pow(u, 1.25);                          // chậm lúc đầu, nhanh dần nhẹ khi thoát
     if (q < L1) return [x + Math.cos(h) * q, y + Math.sin(h) * q];
     q -= L1;
     if (q < L2) { const f = q / R; return [ax + R * (Math.sin(h) - Math.sin(h - f)), ay + R * (Math.cos(h - f) - Math.cos(h))]; }
