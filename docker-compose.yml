@@ -4,5 +4,5 @@ services:
     image: hoanganh-web
     container_name: hoanganh
     ports:
-      - "8080:80"
+      - "8123:80"
     restart: unless-stopped   # Docker bật lên là trang tự chạy lại
