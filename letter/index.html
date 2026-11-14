@@ -251,6 +251,10 @@
   #dim { position:fixed; inset:0; z-index:19; background:rgba(40,48,30,.5); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 1s; }
   #dim.on { opacity:1; pointer-events:auto; }
   #tapHint { z-index:23; }
+  #night { position:fixed; inset:0; z-index:22; background:radial-gradient(ellipse at 50% 44%, #1e1026, #0b0711 72%); opacity:0; pointer-events:none; transition:opacity 1.4s; }
+  #night.on { opacity:1; pointer-events:auto; }
+  #stars { position:fixed; inset:0; width:100%; height:100%; z-index:22; pointer-events:none; }
+  #stars.tap { pointer-events:auto; cursor:pointer; }
 
   /* núi meme cuối cùng */
   #memes { position:fixed; inset:-24px; z-index:35; overflow:hidden; pointer-events:none; }
@@ -327,6 +331,7 @@
 <button id="heart" aria-label="Trái tim"><svg viewBox="0 0 64 60"><defs><radialGradient id="hg" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffe0ea"/><stop offset=".4" stop-color="#ff7aa5"/><stop offset="1" stop-color="#d6336c"/></radialGradient></defs>
   <path d="M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z" fill="url(#hg)" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/>
   <ellipse cx="17" cy="16" rx="6.5" ry="3.4" transform="rotate(-37 17 16)" fill="rgba(255,255,255,.8)"/><circle cx="26.5" cy="11.5" r="1.8" fill="rgba(255,255,255,.8)"/></svg></button>
+<div id="night"></div><canvas id="stars"></canvas>
 <p class="hint" id="tapHint"></p>
 
 <!-- màn 1: cái cửa -->
@@ -834,41 +839,122 @@ $("yes").addEventListener("click", async () => {
   if (tooSoon()) return;
   $("ask4").classList.remove("on"); $("no").style.opacity = 0; $("no").style.pointerEvents = "none";
   $("signTxt").classList.remove("on");
-  const cat = $("cat");
-  burst(W / 2, K.y + K.h * .25, 80);
-  const k = placeCat("cat-offer");
-  cat.animate([{ transform: "scale(.94)" }, { transform: "scale(1.04)", offset: .6 }, { transform: "none" }], { duration: 500, easing: "ease-out" });
-  const h = $("heart"), hs = Math.min(k.w * .5, 170);
-  Object.assign(h.style, { left: k.x + k.w * OFFER.x + "px", top: k.y + k.h * OFFER.y + "px", width: hs + "px", visibility: "visible" });
-  h.animate([{ scale: 0, rotate: "-30deg" }, { scale: 1.2, rotate: "8deg", offset: .6 }, { scale: 1, rotate: "0deg" }], { duration: 800, easing: "ease-out", delay: 300, fill: "backwards" });
-  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 60, k.y + k.h + 12) + "px";
-  setTimeout(() => { th.classList.add("on"); heartOn = true; }, 1100);
+  $("cat").animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(24px) scale(.9)" }], { duration: 700, easing: "ease-in", fill: "forwards" });
+  $("night").classList.add("on");
+  const o = starHeart();
+  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 60, o.cy + o.s * 21 + 12) + "px";
+  setTimeout(() => { th.classList.add("on"); heartOn = true; $("stars").classList.add("tap"); }, 3800);
 });
-$("heart").addEventListener("click", () => {
-  if (!heartOn) return;
-  const h = $("heart"), r = h.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-  taps++;
-  burst(cx, cy, 30 + taps * 12);
+$("stars").addEventListener("click", () => {
+  if (!heartOn || !SH) return;
+  taps++; SH.kick = 1;
   if (taps < TAPS) {
-    h.style.scale = 1 + taps * .22;
-    h.animate([{ rotate: "0deg" }, { rotate: "-12deg" }, { rotate: "10deg" }, { rotate: "-6deg" }, { rotate: "0deg" }], { duration: 380 });
-    h.style.filter = `drop-shadow(0 0 ${18 + taps * 10}px rgba(255,90,150,.95))`;
+    SH.grow = 1 + taps * .05;
     $("tapHint").textContent = ["", "nữa nào", "nữa đi", "sắp rồi...", "1 cái nữa thôi!"][taps] || "";
     return;
   }
-  heartOn = false; $("tapHint").classList.remove("on");
-  explode(cx, cy);
+  heartOn = false; $("tapHint").classList.remove("on"); $("stars").classList.remove("tap");
+  SH.boom = performance.now() / 1000;
+  setTimeout(() => {
+    $("flash").animate([{ opacity: 0 }, { opacity: 1, offset: .25 }, { opacity: 0 }], { duration: 1100, easing: "ease-out" });
+    secret = [W / 2, H / 2];
+    memeWall();
+  }, 450);
 });
-async function explode(cx, cy) {
-  const h = $("heart");
-  await h.animate([{ transform: "none" }, { transform: `translate(${W / 2 - cx}px, ${H / 2 - cy}px) scale(1.6)`, offset: .5 },
-    { transform: `translate(${W / 2 - cx + 6}px, ${H / 2 - cy - 4}px) scale(2.1) rotate(6deg)`, offset: .7 }, { transform: `translate(${W / 2 - cx - 6}px, ${H / 2 - cy + 4}px) scale(2.4) rotate(-6deg)`, offset: .85 },
-    { transform: `translate(${W / 2 - cx}px, ${H / 2 - cy}px) scale(2.8)` }], { duration: 1100, easing: "ease-in", fill: "forwards" }).finished;
-  $("flash").animate([{ opacity: 0 }, { opacity: 1, offset: .25 }, { opacity: 0 }], { duration: 1100, easing: "ease-out" });
-  h.style.visibility = "hidden";
-  for (let i = 0; i < 4; i++) setTimeout(() => burst(W / 2 + rnd(60), H / 2 + rnd(60), 130, true), i * 160);
-  secret = [W / 2, H / 2];
-  memeWall();
+
+/* ---------- tim bụi sao: bụi bay từ 4 phía vào thành tim (dáng tim + màu như bản chính) ---------- */
+const SC = $("stars"), sg = SC.getContext("2d");
+const SPAL = ["#ffffff", "#ffe9d6", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff", "#8fb8ff", "#ff4d7d"];
+const SPR = SPAL.map(c => {   // mỗi màu một hạt sáng: lõi trắng, quầng màu mờ dần
+  const s = document.createElement("canvas"); s.width = s.height = 64;
+  const g = s.getContext("2d"), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  r.addColorStop(0, "#fff"); r.addColorStop(.16, c); r.addColorStop(.42, c + "55"); r.addColorStop(1, c + "00");
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64); return s;
+});
+const gss = () => (Math.random() + Math.random() + Math.random() + Math.random() - 2) * .87;
+let SH = null;
+function starHeart() {
+  const N = W < 700 ? 2800 : 4200, BG = W < 700 ? 280 : 420, dp = Math.min(2, devicePixelRatio || 1);
+  SC.width = W * dp; SC.height = H * dp;
+  // viền tim kiểu emoji (giống bản chính): nửa phải là các đường Bézier trong hệ 32x32, nửa trái lật đối xứng
+  const R = [[16, 7, 17.6, 3.4, 20.4, 2, 23.5, 2], [23.5, 2, 27.8, 2, 31, 5.2, 31, 10], [31, 10, 31, 17.5, 23.5, 23.6, 18.6, 28.2], [18.6, 28.2, 17.7, 29.1, 16.9, 29.6, 16, 29.6]];
+  const bz = (c, t) => { const u = 1 - t; return [0, 1].map(j => u * u * u * c[j] + 3 * u * u * t * c[2 + j] + 3 * u * t * t * c[4 + j] + t * t * t * c[6 + j]); };
+  const half = []; R.forEach(c => { for (let i = 0; i < 80; i++) half.push(bz(c, i / 80)); }); half.push([16, 29.6]);
+  const P = [...half, ...half.slice(0, -1).reverse().map(([x, y]) => [32 - x, y])].map(([x, y]) => [(x - 16) * 1.07, (y - 15.6) * 1.07]);
+  const NP = P.length - 1, cum = new Float32Array(NP + 1);
+  for (let i = 1; i <= NP; i++) cum[i] = cum[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
+  const M = 1024, T = new Float32Array(M * 2);
+  for (let m = 0, j = 0; m < M; m++) {
+    const L = m / M * cum[NP]; while (j < NP - 1 && cum[j + 1] < L) j++;
+    const f = (L - cum[j]) / (cum[j + 1] - cum[j] || 1);
+    T[m * 2] = P[j][0] + (P[j + 1][0] - P[j][0]) * f; T[m * 2 + 1] = P[j][1] + (P[j + 1][1] - P[j][1]) * f;
+  }
+  const F = () => new Float32Array(N), FB = () => new Float32Array(BG);
+  const o = { N, BG, dp, T, M, s: Math.min(W * .4, H * .24) / 17, cx: W / 2, cy: H * .44, t0: performance.now() / 1000, grow: 1, g: 1, kick: 0, boom: 0,
+    sx: F(), sy: F(), L: F(), k: F(), kind: new Uint8Array(N), jx: F(), jy: F(), ph: F(), f1: F(), f2: F(), d: F(), du: F(), cv: F(), sz: F(), al: F(), c: new Uint8Array(N), vx: F(), vy: F(),
+    bx: FB(), by: FB(), bs: FB(), ba: FB(), bp: FB(), bc: new Uint8Array(BG) };
+  for (let i = 0; i < N; i++) {
+    const side = i % 4, m = 30 + Math.random() * H * .25;   // xuất phát ngoài mép màn hình, chia đều 4 phía
+    if (side === 0) { o.sx[i] = Math.random() * W; o.sy[i] = -m; }
+    else if (side === 1) { o.sx[i] = W + m; o.sy[i] = Math.random() * H; }
+    else if (side === 2) { o.sx[i] = Math.random() * W; o.sy[i] = H + m; }
+    else { o.sx[i] = -m; o.sy[i] = Math.random() * H; }
+    o.d[i] = Math.random() * 1.6; o.du[i] = 1.7 + Math.random() * 1.3; o.cv[i] = gss() * o.s * 9;
+    const u = Math.random();
+    if (u < .68) { const c = Math.random() * 2 - 1; o.k[i] = Math.sqrt(1 - c * c) * (1 - Math.abs(gss()) * .035); o.kind[i] = 0; }   // vỏ tim (dày ở viền)
+    else if (u < .84) { o.k[i] = Math.pow(Math.random(), .6) * .95; o.kind[i] = 1; }                                                // bụi trong lòng
+    else { o.k[i] = 1.05 + Math.pow(Math.random(), 1.8) * .5; o.kind[i] = 2; }                                                    // quầng ngoài
+    o.L[i] = Math.random(); o.jx[i] = gss() * o.s * .25; o.jy[i] = gss() * o.s * .25; o.ph[i] = Math.random() * 6.283;
+    o.f1[i] = .25 + Math.random() * .75; o.f2[i] = .25 + Math.random() * .75;
+    o.sz[i] = 3 + Math.pow(Math.random(), 5) * 15; o.al[i] = o.sz[i] > 10 ? .22 : .4 + Math.random() * .55;
+    o.c[i] = Math.random() * SPAL.length | 0;
+  }
+  for (let j = 0; j < BG; j++) {   // bụi sao rải khắp nền, vài hạt to mờ như đốm sáng
+    o.bx[j] = Math.random() * W; o.by[j] = Math.random() * H; o.bs[j] = 2 + Math.pow(Math.random(), 6) * 26;
+    o.ba[j] = o.bs[j] > 9 ? .14 + Math.random() * .2 : .25 + Math.random() * .6; o.bp[j] = Math.random() * 6.283; o.bc[j] = Math.random() * SPAL.length | 0;
+  }
+  SH = o; requestAnimationFrame(starDraw);
+  return o;
+}
+function starDraw(ms) {
+  const o = SH; if (!o) return;
+  const t = performance.now() / 1000, e = t - o.t0, { T, M, s, cx, cy } = o;
+  sg.setTransform(o.dp, 0, 0, o.dp, 0, 0); sg.globalCompositeOperation = "source-over"; sg.globalAlpha = 1; sg.clearRect(0, 0, W, H);
+  sg.globalCompositeOperation = "lighter";
+  const b = o.boom ? t - o.boom : -1, out = b < 0 ? 1 : Math.max(0, 1 - b / 1.6);
+  const fade = Math.min(1, e / 1.4) * out;
+  for (let j = 0; j < o.BG; j++) {
+    const tw = .55 + .45 * Math.sin(t * (1 + (o.bp[j] % 1.5)) + o.bp[j] * 7), d = o.bs[j];
+    sg.globalAlpha = o.ba[j] * tw * fade;
+    sg.drawImage(SPR[o.bc[j]], o.bx[j] + Math.sin(t * .2 + o.bp[j]) * 8 - d, o.by[j] + Math.cos(t * .17 + o.bp[j]) * 8 - d, d * 2, d * 2);
+  }
+  o.g += (o.grow - o.g) * .08; o.kick *= .9;
+  const p = (Math.sin(t * 5.2) + 1) / 2, beat = Math.pow(p, 8) + .55 * Math.pow((Math.sin(t * 5.2 - 1.1) + 1) / 2, 10) + o.kick * .8;
+  const wan = (f, ph) => Math.sin(t * f + ph) + .55 * Math.sin(t * f * 2.17 + ph * 2.9) + .3 * Math.sin(t * f * 3.73 + ph * 1.7);
+  for (let i = 0; i < o.N; i++) {
+    const u = (e - o.d[i]) / o.du[i]; if (u <= 0) continue;
+    const ph = o.ph[i], kind = o.kind[i];
+    let L = o.L[i] + wan(o.f1[i] * .5, ph * 1.3) * .006; L -= Math.floor(L);
+    const q = L * M, m = Math.floor(q) % M, n = (m + 1) % M, f = q - Math.floor(q);
+    let k = o.k[i];
+    if (kind === 2) k *= 1 + beat * .09; else k *= 1 - beat * .06 * (1.2 - k);
+    const amp = kind === 2 ? 1.6 : 1, x = T[m * 2] + (T[n * 2] - T[m * 2]) * f, y = T[m * 2 + 1] + (T[n * 2 + 1] - T[m * 2 + 1]) * f;
+    const tx = cx + (x * k * s + o.jx[i] + wan(o.f1[i], ph) * s * .45 * amp) * o.g, ty = cy + (y * k * s + o.jy[i] + wan(o.f2[i], ph * 1.9) * s * .45 * amp) * o.g;
+    let px = tx, py = ty, a = o.al[i];
+    if (u < 1) {   // đang bay vào: đường cong lượn, tới nơi chậm dần
+      const qq = 1 - Math.pow(1 - u, 3), dx = tx - o.sx[i], dy = ty - o.sy[i], len = Math.hypot(dx, dy) || 1, sw = Math.sin(qq * Math.PI) * o.cv[i];
+      px = o.sx[i] + dx * qq - dy / len * sw; py = o.sy[i] + dy * qq + dx / len * sw; a *= Math.min(1, u * 4);
+    }
+    if (b >= 0) {   // nổ tung khi chạm đủ
+      if (!o.vx[i] && !o.vy[i]) { const dx = px - cx, dy = py - cy, l = Math.hypot(dx, dy) || 1, v = 250 + Math.random() * 750; o.vx[i] = dx / l * v; o.vy[i] = dy / l * v; }
+      const r = (1 - Math.exp(-2.5 * b)) / 2.5; px += o.vx[i] * r; py += o.vy[i] * r; a *= out;
+    }
+    const d = o.sz[i] * (1 + o.kick * .25 + (o.g - 1) * .5);
+    sg.globalAlpha = Math.min(1, a * (1 + o.kick * .5));
+    sg.drawImage(SPR[o.c[i]], px - d, py - d, d * 2, d * 2);
+  }
+  if (b > 1.8) { SH = null; sg.setTransform(1, 0, 0, 1, 0, 0); sg.clearRect(0, 0, SC.width, SC.height); return; }
+  requestAnimationFrame(starDraw);
 }
 
 /* ---------- pháo bụi, tim bay, tường meme (như bản cũ) ---------- */
