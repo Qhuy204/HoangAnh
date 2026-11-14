@@ -353,7 +353,7 @@
   <div class="phone" id="phone">
     <div id="msgs"></div>
   </div>
-  <div class="car" id="carA"><div class="seat" id="seat"></div><img src="../assets/flow/car-a.webp" alt="">
+  <div class="car" id="carA"><div class="seat" id="seat"></div><img src="../assets/flow/car-a.webp?v=4" alt="">
     <div class="tow" id="tow"><div class="flag">Time flies ✈</div><svg viewBox="0 0 60 30"><path d="M0 15 Q30 26 60 15" fill="none" stroke="#5a4a42" stroke-width="2.5" stroke-linecap="round"/></svg></div></div>
   <div class="car" id="carB"><img src="../assets/flow/car-b.webp" alt=""></div>
   <div id="memo"><div class="lbl">First message</div><img src="../assets/firstmsg.webp" alt="">
@@ -388,7 +388,7 @@ const HOP = {   // mèo đứng (cat-hop): sp = lúc ngồi trên yên xe, gp = 
 };
 const CATENV = { x: .62, y: .35, w: .6 };   // tâm + bề rộng phong thư trong cat-env.webp (tỉ lệ ảnh)
 /* chỗ ngồi trên xe A, thùng xe B (tỉ lệ theo ảnh xe) */
-const SEAT = { x: .24, y: .34, w: .4 };
+const SEAT = { x: .06, y: .37, w: .38 };   // miệng thùng xe bán tải
 const BED = { x: .26, y: .42 };
 /* ============================================ */
 
@@ -449,7 +449,7 @@ mb.onclick = () => setMusic(au.paused);
 
 /* ---------- tiện ích ---------- */
 const imgs = {};
-for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign3","cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=3`; imgs[n] = i; }
+for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign3","cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=${n == "car-a" ? 4 : 3}`; imgs[n] = i; }
 for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
 const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
 const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
