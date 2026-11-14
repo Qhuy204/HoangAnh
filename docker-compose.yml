@@ -4,7 +4,7 @@ services:
     image: hoanganh-web
     container_name: hoanganh
     ports:
-      - "8123:80"
+      - "8124:80"
     restart: unless-stopped   # Docker bật lên là trang tự chạy lại
 
   letter:                     # bản phong thư dấu sáp
@@ -15,5 +15,5 @@ services:
     image: hoanganh-letter
     container_name: hoanganh-letter
     ports:
-      - "8124:80"
+      - "8123:80"
     restart: unless-stopped
