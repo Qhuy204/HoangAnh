@@ -3,374 +3,1054 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="color-scheme" content="dark only">
-<meta name="theme-color" content="#07060b">
-<title>Dear HoangAnh</title>
+<meta name="color-scheme" content="only dark">
+<meta name="theme-color" content="#5f6e45">
+<title>Thư cho HoangAnh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Patrick+Hand&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --glow:0 0 14px rgba(255,77,140,.55), 0 0 32px rgba(255,77,140,.25); --bg:#07060b; --cream:#f3ead9; --dim:#9a93a3; --accent:#ff4d6d; }
-  * { box-sizing:border-box; }
-  html, body { height:100%; margin:0; }
-  /* trang vốn tối sẵn: báo cho trình duyệt (Safari, Chrome, Zalo/Messenger...) đừng tự bật "chế độ tối" đảo màu trang */
-  :root { color-scheme:only dark; background:#07060b; }
-  /* iPhone: chạm nhanh 2 lần để sang trang thì Safari tưởng là double-tap phóng to → cả trang bị zoom, trôi lệch sang một bên.
-     Khoá trang đứng yên: không zoom bằng double-tap, không cuộn/kéo nảy ngang dọc */
-  html, body { position:fixed; inset:0; width:100%; overflow:hidden; overscroll-behavior:none; touch-action:manipulation; -webkit-text-size-adjust:100%; }
-  body { background:radial-gradient(120% 90% at 50% 40%, #1a0f1f 0%, var(--bg) 65%); color:var(--cream); font-family:"Be Vietnam Pro", system-ui, sans-serif; overflow:hidden;
-    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
-  button { font:inherit; color:inherit; cursor:pointer; }
-  #gl { position:fixed; inset:0; width:100%; height:100%; display:block; z-index:1; }
+  :root { color-scheme:only dark; background:#5f6e45; --paper:#f5f0e5; --ink:#3b4430; --wax:#8e1b1b; --pink:#e2557a; }
+  html, body { position:fixed; inset:0; margin:0; width:100%; height:100%; overflow:hidden; overscroll-behavior:none; touch-action:manipulation;
+    -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+  body { background:#6c7b50; font-family:"Cormorant Garamond", Georgia, serif; color:#fff; }
+  /* hạt giấy phủ toàn trang */
+  body::after { content:""; position:fixed; inset:0; z-index:20; pointer-events:none; opacity:.1; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .32 0 0 0 0 .22 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  #bg { position:fixed; inset:0; z-index:0; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #bg { background-image:url(../assets/letter/bg-wide.webp); } }
+  button { font:inherit; -webkit-tap-highlight-color:transparent; }
 
-  .scene { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; padding:24px; text-align:center;
-    opacity:0; visibility:hidden; transition:opacity 1.6s ease, visibility 0s 1.6s; z-index:3; pointer-events:none; }
-  .scene.active { opacity:1; visibility:visible; transition:opacity 1.6s ease .5s; pointer-events:auto; }
-  .small { font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim); }
-  .serif { font-family:"Quicksand", "Be Vietnam Pro", sans-serif; font-weight:700; letter-spacing:-.01em; }
+  .cap { position:absolute; left:0; right:0; z-index:8; text-align:center; padding:0 20px; transition:opacity .6s; pointer-events:none;
+    text-shadow:0 1px 10px rgba(30,40,20,.45); }
+  #capBot { font:italic 600 clamp(16px, 4.4vw, 20px) "Cormorant Garamond", serif; opacity:.95; animation:breath 2.6s ease-in-out infinite; }
+  @keyframes breath { 50% { opacity:.55; } }
+  .opened .cap, body.pre .cap, body:not(.sealReady) .cap { opacity:0 !important; animation:none; }
 
-  /* Cảnh 1 */
-  #s1 { justify-content:center; }
-  #s1 .small { display:inline-block; color:var(--cream); animation:ring 1.6s ease-in-out infinite; }
-  @keyframes ring { 0%, 50%, 100% { transform:none; } 5%, 15%, 25%, 35% { transform:rotate(-5deg) translateX(-2px); } 10%, 20%, 30%, 40% { transform:rotate(5deg) translateX(2px); } }
-  .line { margin:0 0 30px; font-size:clamp(16px, 4vw, 20px); letter-spacing:.04em; text-shadow:0 0 10px var(--bg), 0 0 18px var(--bg), 0 0 26px var(--bg); }
-  #s1 h1 { margin:14px 0 10px;font-size:clamp(40px, 10vw, 84px); line-height:1.05; text-shadow:0 0 40px rgba(255,77,109,.45); }
-  .start { background:none; border:1px solid rgba(243,234,217,.5); border-radius:999px; padding:13px 30px; letter-spacing:.14em; text-transform:uppercase; font-size:13px;
-    transition:background .3s, color .3s, box-shadow .3s; animation:glow 2.4s ease-in-out infinite; }
-  .start:hover { background:var(--cream); color:var(--bg); }
-  @keyframes glow { 50% { box-shadow:0 0 28px rgba(255,77,109,.55); } }
-  /* nút có máy bay giấy: bấm là máy bay vút đi, cảnh sau chữ bay tới */
-  .start { display:inline-flex; align-items:center; gap:10px; }
-  .start .plane { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; animation:bob 1.8s ease-in-out infinite; }
-  @keyframes bob { 50% { transform:translate(2px, -3px) rotate(-6deg); } }
-  /* bấm: nút lún xuống, bừng hồng, gợn sóng loang ra, chữ giãn tan; máy bay giấy thật (vẽ trên canvas) cất cánh kéo vệt lấp lánh */
-  .start { position:relative; overflow:hidden; }
-  .start.go { animation:goBtn 1s cubic-bezier(.3,.7,.3,1) forwards; pointer-events:none; }
-  @keyframes goBtn {
-    0% { transform:scale(1); }
-    14% { transform:scale(.93); background:rgba(255,77,109,.28); border-color:#ff9ab5; box-shadow:0 0 26px rgba(255,77,109,.7), inset 0 0 18px rgba(255,180,205,.45); }
-    40% { transform:scale(1.05); background:rgba(255,77,109,.18); border-color:#ffc2d4; box-shadow:0 0 60px rgba(255,77,109,.85), inset 0 0 22px rgba(255,200,220,.5); }
-    100% { transform:scale(1.25); opacity:0; filter:blur(8px); border-color:#ffc2d4; box-shadow:0 0 90px rgba(255,77,109,0); } }
-  .start.go .lbl { transition:opacity .55s .1s, letter-spacing .7s cubic-bezier(.2,.8,.2,1), filter .55s .1s; opacity:0; letter-spacing:.6em; filter:blur(4px); }
-  .start.go .plane { visibility:hidden; }
-  .start .rip { position:absolute; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%; pointer-events:none;
-    background:radial-gradient(circle, rgba(255,235,242,.95), rgba(255,120,160,.55) 45%, rgba(255,77,109,0) 70%); animation:rip .75s ease-out forwards; }
-  @keyframes rip { from { transform:scale(0); opacity:1; } to { transform:scale(22); opacity:0; } }
-  #sm.active > * { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both; animation-delay:calc(.35s + var(--k, 0) * .16s); }
-  #sm.active > .hint { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both, hint 2.4s ease-in-out 2.4s infinite; animation-delay:calc(.35s + var(--k, 0) * .16s), 2.4s; }
-  #sm > :nth-child(2) { --k:1; } #sm > :nth-child(3) { --k:2; } #sm > :nth-child(4) { --k:3; } #sm > :nth-child(5) { --k:4; }
-  @keyframes flyIn { from { opacity:0; transform:translate(-60vw, 40vh) rotate(-24deg) scale(.35); filter:blur(8px); } 70% { filter:none; } to { opacity:1; transform:none; filter:none; } }
+  /* ---------- phong thư ---------- */
+  #env { position:absolute; transition:left 1s cubic-bezier(.6,0,.3,1), top 1s cubic-bezier(.6,0,.3,1), width 1s cubic-bezier(.6,0,.3,1), height 1s cubic-bezier(.6,0,.3,1); }
+  #env > * { position:absolute; inset:0; }
+  body.pre #env, body.pre #seal { visibility:hidden; }
+  .back { z-index:1; border-radius:4px; background:linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,.3)), url(../assets/letter/envelope2.webp) center/cover; box-shadow:0 18px 40px rgba(30,40,20,.45), 0 2px 6px rgba(30,40,20,.3); }
+  .pocket { z-index:3; width:100%; height:100%; pointer-events:none; filter:drop-shadow(0 -1px 1px rgba(80,70,50,.12)); }
+  .flap { z-index:4; transform-origin:50% 0; transform:perspective(900px) rotateX(0deg); transition:transform .9s cubic-bezier(.5,0,.3,1);
+    clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(170deg, rgba(255,255,255,.5), rgba(255,255,255,.35) 70%), url(../assets/letter/envelope2.webp) 30% 20%/cover; }
+  .flapShade { z-index:4; pointer-events:none; clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(rgba(0,0,0,0) 30%, rgba(80,70,50,.3)); transition:opacity .4s; }
+  .opened .flap { transform:perspective(900px) rotateX(178deg); }
+  .opened .flapShade { opacity:0; }
+  .pocket .cast { transition:opacity .3s; } .opened .pocket .cast { opacity:0; }
+  .flap.behind { z-index:0; }
 
-  /* Cảnh tin nhắn đầu tiên + bộ đếm */
-  #sm { justify-content:center; gap:18px; cursor:pointer; }
-  .verdict { margin:0; font:700 clamp(28px, 7.6vw, 46px)/1.2 "Quicksand", "Be Vietnam Pro", sans-serif; color:var(--cream); text-shadow:var(--glow); }
-  #sm img { width:min(86vw, 400px, 44vh); height:auto; border-radius:22px;
-    box-shadow:0 0 0 1px rgba(243,234,217,.2), 0 20px 60px rgba(0,0,0,.6), 0 0 50px rgba(255,77,109,.28); }
-  .count { display:flex; gap:clamp(12px, 4vw, 26px); }
-  .count div { display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .count b { font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8.5vw, 52px); line-height:1; font-variant-numeric:tabular-nums;
-    color:var(--cream); text-shadow:var(--glow); }
-  .count span { font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); }
-  #sm .small { color:#ffc2d6; } #sm .hint { font-family:"Quicksand", "Be Vietnam Pro", sans-serif; font-weight:700; font-size:clamp(18px, 5.2vw, 24px); letter-spacing:.14em; opacity:.55; animation:hint 2.4s ease-in-out infinite; }
-  @keyframes hint { 50% { opacity:.2; } }
+  /* dấu sáp */
+  #seal { position:absolute; z-index:9; left:50%; top:58%; width:21%; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; cursor:pointer;
+    background:url(../assets/letter/seal.webp) center/contain no-repeat; filter:drop-shadow(0 5px 6px rgba(40,10,0,.45));
+    transition:transform .5s cubic-bezier(.3,1.6,.5,1), opacity .5s; }
+  @keyframes pulse { 0%, 100% { transform:scale(1); filter:drop-shadow(0 5px 6px rgba(40,10,0,.45)) drop-shadow(0 0 6px rgba(255,200,150,.35)); }
+    50% { transform:scale(1.08); filter:drop-shadow(0 4px 8px rgba(40,10,0,.35)) drop-shadow(0 0 22px rgba(255,214,150,.95)) drop-shadow(0 0 40px rgba(255,150,120,.6)); } }
+  .sealReady:not(.opened) #seal { animation:pulse 1.8s ease-in-out infinite; }
+  .opened #seal { animation:none; transform:scale(1.5) rotate(-20deg); opacity:0; pointer-events:none; }
 
-  /* Câu đố ngày nhắn tin đầu tiên */
-  #sq { justify-content:center; gap:26px; }
-  #si { justify-content:center; cursor:pointer; }
-  #si .ask.big { font-size:clamp(64px, 20vw, 120px); }
-  .ask { margin:0; max-width:640px; font:700 clamp(30px, 8.2vw, 50px)/1.3 "Quicksand", "Be Vietnam Pro", sans-serif; text-wrap:balance; }
-  /* chọn ngày kiểu bánh xe cuộn, thay cho ô date mặc định của trình duyệt */
-  .dpick { position:relative; display:flex; gap:4px; padding:0 12px; border-radius:28px; background:rgba(255,255,255,.045);
-    border:1px solid rgba(255,143,180,.4); box-shadow:0 0 30px rgba(255,77,140,.2), inset 0 0 24px rgba(255,77,140,.08); }
-  .dpick::before { content:""; position:absolute; left:8px; right:8px; top:50%; height:48px; margin-top:-24px; border-radius:16px; pointer-events:none;
-    background:linear-gradient(90deg, rgba(255,77,140,.14), rgba(255,143,180,.24), rgba(255,77,140,.14)); border:1px solid rgba(255,143,180,.4); box-shadow:0 0 18px rgba(255,77,140,.3); }
-  .wheel { position:relative; height:240px; overflow:hidden; touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none;
-    -webkit-mask-image:linear-gradient(transparent, #000 36%, #000 64%, transparent); mask-image:linear-gradient(transparent, #000 36%, #000 64%, transparent); }
-  .wheel { perspective:420px; }
-  .wheel:active { cursor:grabbing; }
-  .wheel[data-k="d"] { width:64px; } .wheel[data-k="m"] { width:112px; } .wheel[data-k="y"] { width:86px; }
-  .wheel .track { position:absolute; transform-style:preserve-3d; left:0; right:0; top:96px; will-change:transform; }
-  /* căn giữa theo nét chữ thật (cap → chân chữ) chứ không theo khung font, để số nằm đúng giữa thanh hồng trên mọi máy */
-  .wheel .track div { position:absolute; left:0; right:0; top:0; height:48px; display:flex; align-items:center; justify-content:center; white-space:nowrap; font:700 22px "Quicksand", "Be Vietnam Pro", sans-serif;
-    color:var(--cream); opacity:.4; }
-  .wheel .track span { display:block; padding:16px 12px; margin:-16px -12px; line-height:1; text-box:trim-both cap alphabetic; }
-  .wheel .track div.on { text-shadow:var(--glow); }
-  .pick { border:0; border-radius:999px; padding:13px 40px; background:var(--accent); color:#fff; font:700 18px "Quicksand", sans-serif; letter-spacing:.06em;
-    box-shadow:0 8px 34px rgba(255,77,109,.55); transition:opacity .4s, transform .4s; }
-  .pick:disabled { background:rgba(255,77,109,.28); color:rgba(255,255,255,.5); box-shadow:none; cursor:default; }   /* không dùng opacity: hiệu ứng bay vào ghi đè */
-  #sq.active > * { animation:flyIn 1.1s cubic-bezier(.2,1.1,.3,1) both; animation-delay:calc(.35s + var(--k, 0) * .16s); }
-  #sq > :nth-child(2) { --k:1; } #sq > :nth-child(3) { --k:2; }
-  /* 1...2...3... */
-  #sc { justify-content:center; }
-  .cnt { margin:0; font:700 clamp(46px, 14vw, 90px)/1 "Quicksand", sans-serif; color:var(--cream); text-shadow:var(--glow); }
-  .cnt span { display:inline-block; padding:.4em; margin:-.4em; opacity:0; animation:pop .7s cubic-bezier(.3,1.7,.5,1) forwards; animation-delay:calc(.7s + var(--n) * 1s); }
-  @keyframes pop { from { opacity:0; transform:scale(2.4); filter:blur(10px); } to { opacity:1; transform:none; filter:none; } }
-  /* gợi ý chạm để sang trang */
-  #tap { position:fixed; left:0; right:0; bottom:3.5vh; z-index:5; text-align:center; pointer-events:none; opacity:0; transition:opacity .8s;
-    font:700 clamp(15px, 4.2vw, 19px) "Quicksand", "Be Vietnam Pro", sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#ffc2d6; }
-  #tap.on { opacity:.55; animation:hint 2.4s ease-in-out 1s infinite; }
+  /* hào quang mở rương */
+  #rays { position:absolute; z-index:0; pointer-events:none; border-radius:50%; translate:-50% -50%; opacity:0; transition:opacity 1.2s;
+    background:repeating-conic-gradient(from 0deg, rgba(255,246,214,.6) 0 7deg, rgba(255,246,214,0) 9deg 22deg);
+    -webkit-mask:radial-gradient(closest-side, #000 18%, transparent 100%); mask:radial-gradient(closest-side, #000 18%, transparent 100%);
+    animation:spin 16s linear infinite; }
+  #glow { position:absolute; z-index:0; pointer-events:none; border-radius:50%; translate:-50% -50%; opacity:0; transition:opacity 1.2s;
+    background:radial-gradient(closest-side, rgba(255,246,210,1), rgba(255,226,160,.7) 38%, rgba(255,205,140,.25) 65%, transparent 100%); }
+  #rays.on, #glow.on { opacity:1; }
+  #glow.on { animation:glowB 1.8s ease-in-out infinite; }
+  @keyframes glowB { 50% { scale:1.12; filter:brightness(1.15); } }
+  @keyframes spin { to { rotate:360deg; } }
 
-  /* Cảnh 2: phụ đề dưới đám hạt */
-  #s2 { justify-content:flex-end; padding-bottom:11vh; cursor:pointer; }
-  #s2.mid { justify-content:center; padding-bottom:0; }
-  #s2.mid .sub { font-size:clamp(38px, 11vw, 68px); line-height:1.25; text-wrap:balance; }
-  #s2.mid .sub.letter { width:min(600px, 100%); max-width:600px; min-height:0; text-align:left; font-size:clamp(20px, 5.6vw, 30px); line-height:1.55; text-wrap:pretty; }
-  .sub.letter .ch { animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chHue 3.6s linear infinite; animation-delay:calc(.5s + var(--i) * 14ms), calc(var(--i) * -.12s); }
-  .sub.big { font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(46px, 13vw, 84px); line-height:1.15; }
-  .sub { min-height:3.2em; max-width:720px; margin:0; font-family:"Quicksand", sans-serif; font-weight:700; font-size:clamp(30px, 8.6vw, 50px); line-height:1.3; }
-  /* chữ thật vẫn nằm đó để giữ bố cục, nhưng trong suốt: thứ mắt thấy là hạt vẽ trên #ptx */
-  .w { display:inline-block; white-space:nowrap; }
-  .nw { white-space:nowrap; display:inline-block; }
-  /* phụ đề: từng chữ cái rơi xuống xoay nhẹ rồi bật vào chỗ, sau đó cả dòng nhấp nhô như sóng và đổi màu lấp lánh chạy dọc */
-  .w { display:inline-block; white-space:nowrap; }
-  /* chữ bay: để từ ở dạng inline (vẫn không ngắt giữa từ) — Safari tính sai bề ngang inline-block khi chữ bên trong có margin âm, làm cả đoạn lệch sang phải */
-  #sub .w, #qask .w, #intro .w { display:inline; }
-  .ch { display:inline-block; opacity:0; color:var(--cream); transform:translateY(-.9em) scale(1.8) rotate(-14deg); filter:blur(10px);
-    animation:chIn .9s cubic-bezier(.2,1.5,.4,1) forwards, chWave 2.8s ease-in-out infinite, chHue 3.6s linear infinite;
-    animation-delay:calc(.9s + var(--i) * 55ms), calc(2.4s + var(--i) * 90ms), calc(var(--i) * -.12s);
-    padding:.5em .45em; margin:-.5em -.45em; }   /* iPhone cắt quầng sáng theo khung của chữ đang chạy hiệu ứng: nới khung ra cho đủ chỗ, margin âm để không lệch chữ */
-  @keyframes chIn { 60% { opacity:1; filter:blur(0); } to { opacity:1; transform:none; filter:none; } }
-  @keyframes chWave { 0%, 100% { translate:0 0; } 50% { translate:0 -.16em; } }
-  @keyframes chHue {
-    0%, 100% { color:var(--cream); text-shadow:0 0 8px rgba(255,214,230,.35); }
-    33% { color:#ff8fb4; text-shadow:0 0 14px rgba(255,77,140,.85), 0 0 30px rgba(255,77,140,.4); }
-    66% { color:#ffc2d6; text-shadow:0 0 12px rgba(255,77,140,.6), 0 0 26px rgba(255,77,140,.25); } }
-  .sub { transition:opacity .6s, filter .6s; }
-  .sub.bye { opacity:0; filter:blur(8px); }
-  #s3 h1, #omg { transition:color .9s ease, text-shadow .9s ease; }
-  .ghost, .ghost * { color:transparent !important; text-shadow:none !important; transition:none !important; }   /* tắt ngay, không mờ dần lộ chữ cũ */
-  #ptx { position:fixed; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; }
-  #omg { position:fixed; left:0; right:0; bottom:16vh; margin:0; padding:0 24px; text-align:center; pointer-events:none; visibility:hidden;
-    font:700 clamp(40px, 11vw, 76px)/1.1 "Quicksand", sans-serif; color:var(--cream); text-shadow:var(--glow); }
-  #omg small { display:block; font-size:.62em; }
+  /* khe chứa ảnh: cắt phần thò xuống dưới đáy phong thư */
+  #slot { position:absolute; top:0; z-index:2; overflow:hidden; pointer-events:none; transition:left 1s cubic-bezier(.6,0,.3,1), width 1s cubic-bezier(.6,0,.3,1), height 1s cubic-bezier(.6,0,.3,1); }
+  .photo { position:absolute; visibility:hidden; will-change:transform; }
+  .strip { background:#1c1b19; padding:6% 7%; box-sizing:border-box; display:flex; flex-direction:column; gap:5%; box-shadow:0 6px 14px rgba(0,0,0,.35); }
+  .strip img { width:100%; flex:1; min-height:0; object-fit:cover; filter:grayscale(.85) contrast(1.08); }
+  .polaroid { background:#fdfcf8; padding:7% 7% 0; box-sizing:border-box; box-shadow:0 6px 16px rgba(0,0,0,.35); }
+  .polaroid img { width:100%; aspect-ratio:1; object-fit:cover; object-position:50% 30%; display:block; }
+  .polaroid span { display:block; text-align:center; font:700 calc(var(--pw) * .1)/2.1 "Dancing Script", cursive; color:#7d1414; }
 
-  /* Cảnh 3: câu hỏi, đặt dưới trái tim */
-  #s3 { justify-content:flex-end; padding-bottom:8vh; }
-  #s3 h1 { margin:0 0 10px; font-size:clamp(42px, 11.5vw, 76px); line-height:1.1; text-shadow:0 2px 30px rgba(7,6,11,.9), var(--glow); text-wrap:balance; }
-  .answers { display:flex; gap:14px; align-items:center; justify-content:center; min-height:76px; margin-top:10px; }
-  .btn { font-weight:500; border:0; border-radius:999px; padding:13px 34px; opacity:0; transform:translateY(10px); pointer-events:none;
-    transition:opacity .6s, transform .6s, background .2s, scale .4s cubic-bezier(.34,1.8,.64,1); }
-  .btn.show { opacity:1; transform:none; pointer-events:auto; }
-  #yes { background:var(--accent); color:#fff; scale:var(--g, 1); box-shadow:0 8px 34px rgba(255,77,109,.55); }
-  #yes:hover { background:#ff6f8a; }
-  #no { background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(243,234,217,.6); }
-  .gap-no { flex:none; height:1px; transition:width 1.4s cubic-bezier(.45,0,.25,1); }   /* chỗ trống nút No để lại, khép từ từ */
-  #no.run { position:fixed; z-index:7; background:#17131c; transition:left .28s cubic-bezier(.34,1.4,.64,1), top .28s cubic-bezier(.34,1.4,.64,1), rotate .28s; }
+  /* thiệp */
+  #card { position:absolute; z-index:2; visibility:hidden; will-change:transform; background:#eef0e6; color:var(--ink); box-shadow:0 14px 34px rgba(30,40,20,.4);
+    border-radius:2px; }
+  #card.out { z-index:12; }
+  #card::before, #card::after { content:""; position:absolute; left:0; right:0; height:10px; background-size:18px 10px; background-repeat:repeat-x; }
+  #card::before { top:-9px; background-image:radial-gradient(circle at 50% 100%, #eef0e6 8.5px, transparent 9px); }
+  #card::after { bottom:-9px; background-image:radial-gradient(circle at 50% 0, #eef0e6 8.5px, transparent 9px); }
+  #card .in { position:absolute; inset:0; padding:22px 22px 26px; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; overscroll-behavior:contain;
+    scrollbar-width:none; user-select:text; -webkit-user-select:text; }
+  #card .in::-webkit-scrollbar { display:none; }
+  #card h2 { margin:0 0 10px; font:700 calc(clamp(26px, 7vw, 34px) * var(--k, 1))/1.1 "Dancing Script", cursive; color:#4a5a35; }
+  #card p, #card .then { margin:0; white-space:pre-line; font:500 calc(clamp(19px, 5.2vw, 23px) * var(--k, 1))/1.42 "Dancing Script", cursive; }
+  #card .big { margin:.25em 0 .15em; text-align:center; white-space:nowrap; font:700 calc(clamp(19px, 5.2vw, 23px) * 3 * var(--k, 1))/1.15 "Dancing Script", cursive; color:#8e1b1b; }
+  #card .big:empty, #card .then:empty { display:none; }
+  #card .sign { margin-top:14px; text-align:right; font:700 calc(clamp(22px, 6vw, 28px) * var(--k, 1)) "Dancing Script", cursive; color:#7d1414; opacity:0; transition:opacity 1s; }
+  #card .sign.on { opacity:1; }
+  .caret { display:inline-block; width:2px; height:1em; margin-left:2px; vertical-align:-.12em; background:#7d1414; animation:blink .9s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0; } }
 
-  body:not(.ready) #start { visibility:hidden; }
+  /* hoa + ghi chú viết tay */
+  .flower { position:absolute; z-index:11; pointer-events:none; transform-origin:50% 100%; transform:scale(0); transition:transform 1.1s cubic-bezier(.3,1.4,.5,1); }
+  .flower.on { transform:scale(1) rotate(var(--r, 0deg)); }
+  img.flower { height:auto; filter:drop-shadow(0 8px 10px rgba(30,40,20,.35)); }
+  .note { position:absolute; z-index:11; pointer-events:none; font:700 clamp(17px, 4.6vw, 22px) "Dancing Script", cursive; color:#fbf8f1; white-space:nowrap;
+    text-shadow:0 1px 6px rgba(30,40,20,.5); opacity:0; translate:0 6px; transition:opacity .8s, translate .8s; }
+  .note.on { opacity:1; translate:0 0; }
+  .note svg { position:absolute; width:34px; height:30px; fill:none; stroke:#fbf8f1; stroke-width:1.6; stroke-linecap:round; }
 
-  /* núi meme sau khi bấm Yes */
-  #memes { position:fixed; inset:-24px; z-index:4; overflow:hidden; pointer-events:none; }
-  #memes > img { translate:calc(var(--lx, 0) * -14px) calc(var(--ly, 0) * -14px); }   /* nghiêng máy: tường lệch ngược, ảnh và chữ lệch xuôi */
-  #memes > img { position:absolute; object-fit:cover; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.5); will-change:transform, opacity;
-    opacity:0; transform:translate(var(--dx, 0), var(--dy, 0)) scale(.06) rotate(var(--r0)); filter:brightness(1.8);
-    transition:transform 1.5s cubic-bezier(.16,.9,.3,1.06), opacity .5s ease, filter 1.5s ease; }
-  #memes > img.hero { left:50%; top:50%; width:min(72vw, 48vh, 380px); aspect-ratio:2/3; margin:0; translate:calc(-50% + var(--lx, 0) * 26px) calc(-50% + var(--ly, 0) * 26px); z-index:2; border-radius:28px;
-    box-shadow:0 0 0 4px rgba(255,255,255,.9), 0 24px 70px rgba(0,0,0,.7), 0 0 60px rgba(255,77,109,.45);
-    transition:transform 2.6s cubic-bezier(.16,.84,.3,1), opacity 1.8s ease, filter 2.6s ease; }
-  #memes > img.hero.up { transform:translate(0, 0) scale(1) rotate(-2deg); }
-  #memes .cap { position:absolute; left:50%; top:calc(50% + min(72vw, 48vh, 380px) * .75 + 10px); translate:calc(-50% + var(--lx, 0) * 38px) calc(var(--ly, 0) * 38px); z-index:3; white-space:nowrap;
-    font-family:"Quicksand", "Be Vietnam Pro", sans-serif; font-weight:700; font-size:clamp(28px, 8vw, 46px); color:var(--cream); text-shadow:var(--glow); padding:4px 26px 8px; border-radius:999px;
-    background:rgba(7,6,11,.72); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:0 0 0 1.5px rgba(255,143,180,.75), 0 0 26px rgba(255,77,140,.35), 0 12px 34px rgba(0,0,0,.55);
-    opacity:0; transform:translateY(24px) scale(.6) rotate(-3deg); transition:transform .9s cubic-bezier(.3,1.6,.5,1), opacity .6s ease; }
-  #memes .cap.up { opacity:1; transform:rotate(-3deg); }
-  #memes .cap { pointer-events:auto; cursor:pointer; touch-action:manipulation; }
-  #fx { position:fixed; inset:0; width:100%; height:100%; z-index:6; pointer-events:none; }
-  #memes > img.up { opacity:1; transform:translate(0, 0) scale(1.1) rotate(var(--r)); filter:none; }
-
-
-  /* đĩa nhạc */
-  .player { position:fixed; left:50%; bottom:14px; translate:-50% 0; z-index:5; display:flex; align-items:center; gap:14px; padding:6px 22px 6px 6px;
-    background:rgba(255,255,255,.07); backdrop-filter:blur(10px); border-radius:999px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); max-width:calc(100vw - 24px); }
-  .disc { position:relative; width:76px; height:76px; flex:none; padding:0; border:0; background:none; }
+  /* đĩa nhạc (giống bản chính): góc trên phải, đĩa quay khi đang phát */
+  .player { position:fixed; right:14px; top:calc(14px + env(safe-area-inset-top)); z-index:50; display:flex; flex-direction:row-reverse; align-items:center; gap:10px; }
+  .disc { position:relative; width:44px; height:44px; flex:none; padding:0; border:0; background:none; cursor:pointer; }
   .vinyl { position:absolute; inset:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
     background:repeating-radial-gradient(circle, #101114 0 2px, #25272d 2px 3px); box-shadow:0 4px 14px rgba(0,0,0,.6), inset 0 0 0 1px #000;
     animation:spin 3.2s linear infinite; animation-play-state:paused; }
   .vinyl::before { content:""; position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 20deg, transparent 0 40deg, rgba(255,255,255,.18) 60deg, transparent 80deg 220deg, rgba(255,255,255,.13) 240deg, transparent 260deg); }
-  .vinyl::after { content:""; position:absolute; width:7px; height:7px; border-radius:50%; background:var(--cream); box-shadow:0 0 0 1px rgba(0,0,0,.5); }
-  .vinyl img { width:44%; height:44%; border-radius:50%; object-fit:cover; background:var(--accent); }
+  .vinyl::after { content:""; position:absolute; width:4px; height:4px; border-radius:50%; background:#f3ead9; box-shadow:0 0 0 1px rgba(0,0,0,.5); }
+  .vinyl img { width:44%; height:44%; border-radius:50%; object-fit:cover; background:var(--wax); }
   .playing .vinyl { animation-play-state:running; }
   @keyframes spin { to { transform:rotate(360deg); } }
-  .arm { position:absolute; right:-4px; top:-4px; width:5px; height:44px; border-radius:3px; background:linear-gradient(#e6dfd0, #9a927f); transform-origin:50% 5px; transform:rotate(-12deg);
+  .arm { position:absolute; right:-3px; top:-3px; width:3px; height:26px; border-radius:3px; background:linear-gradient(#e6dfd0, #9a927f); transform-origin:50% 3px; transform:rotate(-12deg);
     transition:transform .7s cubic-bezier(.34,1.3,.64,1); box-shadow:0 2px 4px rgba(0,0,0,.5); }
-  .arm::before { content:""; position:absolute; left:-4px; top:-2px; width:13px; height:13px; border-radius:50%; background:#8d8573; }
-  .arm::after { content:""; position:absolute; left:-2px; bottom:-3px; width:9px; height:12px; border-radius:2px; background:var(--accent); }
+  .arm::before { content:""; position:absolute; left:-3px; top:-2px; width:9px; height:9px; border-radius:50%; background:#8d8573; }
+  .arm::after { content:""; position:absolute; left:-1.5px; bottom:-2px; width:6px; height:8px; border-radius:2px; background:var(--wax); }
   .playing .arm { transform:rotate(24deg); }
-  .track { display:flex; flex-direction:column; min-width:0; text-align:left; font-size:13px; line-height:1.35; }
-  .track b { font-weight:500; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .track span { color:var(--dim); }
-  /* đĩa nhạc thu nhỏ, nằm ở góc trên phải */
-  .player { left:auto; bottom:auto; right:14px; top:14px; translate:none; flex-direction:row-reverse; gap:10px; padding:0; background:none; backdrop-filter:none; box-shadow:none; }
-  .disc { width:44px; height:44px; }
-  .vinyl::after { width:4px; height:4px; }
-  .arm { right:-3px; top:-3px; width:3px; height:26px; transform-origin:50% 3px; }
-  .arm::before { left:-3px; top:-2px; width:9px; height:9px; }
-  .arm::after { left:-1.5px; bottom:-2px; width:6px; height:8px; }
-  .track { text-align:right; font-size:11px; opacity:.75; transition:opacity .6s; }
-  .track b { font-size:11px; font-weight:400; letter-spacing:.04em; }
-  .playing .track span { display:none; }
-  .playing .track { opacity:.45; }
-  .embed { position:fixed; left:0; bottom:0; width:300px; height:80px; opacity:0; pointer-events:none; z-index:-1; }
+  .track { display:flex; flex-direction:column; text-align:right; font:400 11px/1.35 "Be Vietnam Pro", system-ui, sans-serif; letter-spacing:.04em; color:#f6efe6; opacity:.8; text-shadow:0 1px 4px rgba(0,0,0,.4); }
+  .track span { opacity:.75; }
+
+  /* ---------- các màn phủ toàn trang ---------- */
+  .scr { position:fixed; inset:0; z-index:30; opacity:0; visibility:hidden; overflow:hidden; transition:opacity .9s, visibility 0s .9s; }
+  .scr.on { opacity:1; visibility:visible; transition:opacity .9s; }
+  .scr:not(.on), .scr:not(.on) * { pointer-events:none !important; }   /* cánh cửa 3D vẫn bắt chạm dù màn đã ẩn → chặn mất dấu sáp */
+  .hint { position:absolute; left:0; right:0; text-align:center; font:500 clamp(17px, 4.6vw, 21px) "Patrick Hand", cursive; color:#fff; pointer-events:none;
+    text-shadow:0 1px 8px rgba(60,30,50,.55); opacity:0; transition:opacity .6s; }
+  .hint.on { opacity:1; animation:breath 2.4s ease-in-out infinite; }
+  #flash { position:fixed; inset:0; z-index:45; pointer-events:none; opacity:0; background:radial-gradient(circle at 50% 50%, #fff, #fff6e0 55%, #ffe1ea); }
+
+  /* màn 1: cái cửa */
+  #s1 { background:#000; }
+  #s1 .dbg { position:absolute; inset:0; background:radial-gradient(ellipse 60% 45% at 50% 58%, #1c1712 0, #000 70%); }
+  .knock { position:absolute; left:0; right:0; bottom:calc(44% + min(52vw, 31vh, 300px) * .75 + 30px); margin:0; text-align:center; padding:0 16px; pointer-events:none;
+    font:400 clamp(30px, 9vw, 54px)/1.08 "Patrick Hand", cursive; color:#f6efe6; text-shadow:0 4px 18px rgba(0,0,0,.8); transition:opacity .6s; }
+  .knock span { display:inline-block; color:#ffb3c7; animation:knockT 1.6s ease-in-out infinite; }
+  @keyframes knockT { 0%, 60%, 100% { rotate:0deg; } 66% { rotate:-5deg; } 72% { rotate:5deg; } 78% { rotate:-3deg; } 84% { rotate:0deg; } }
+  /* cửa gỗ nâu một cánh, khung gỗ tối; mở ra là thấy nền xanh bên trong */
+  #door { position:absolute; left:50%; top:56%; width:min(52vw, 31vh, 300px); aspect-ratio:2/3; translate:-50% -50%; cursor:pointer;
+    perspective:1100px; background:#6c7b50 url(../assets/letter/bg.webp) center/cover;
+    box-shadow:0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 30px 80px rgba(255,220,170,.08); transform-origin:50% 50%; }
+  #door .light { position:absolute; inset:0; background:radial-gradient(circle at 50% 50%, rgba(255,250,225,.55), rgba(255,240,200,0) 70%); opacity:0; transition:opacity 1.4s; }
+  #door.open .light { opacity:1; }
+  #door { box-shadow:inset 0 0 0 1px #000, inset 10px 0 18px rgba(0,0,0,.55), inset -10px 0 18px rgba(0,0,0,.45), inset 0 12px 20px rgba(0,0,0,.5) !important; }
+  #door::before { content:""; position:absolute; inset:-14px; z-index:-1; border:14px solid #3b2416; pointer-events:none;   /* khung gỗ */
+    border-image:linear-gradient(90deg, #24140a, #523320 10%, #3b2416 50%, #523320 90%, #24140a) 1;
+    box-shadow:0 0 0 1px #000, 0 30px 80px rgba(0,0,0,.6); }
+  #door .leaf { position:absolute; inset:0; transform-origin:0 50%; transform-style:preserve-3d;
+    transition:transform 1.8s cubic-bezier(.55,0,.2,1); }
+  #door .leaf .face { position:absolute; inset:0; background:#6b4226 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.35), inset -3px 0 6px rgba(0,0,0,.25); }
+  #door .leaf .face::after { content:""; position:absolute; inset:0; background:#000; opacity:0; transition:opacity 1.8s; }
+  #door.open .leaf .face::after { opacity:.45; }
+  /* bề dày cánh cửa: mép tự do + mặt sau */
+  #door .leaf .edge { position:absolute; top:0; bottom:0; right:0; width:var(--th, 14px); transform-origin:100% 50%; transform:rotateY(-90deg);
+    background:linear-gradient(90deg, #8a5a33, #6d4424 40%, #4c2e17); box-shadow:inset 0 0 0 1px rgba(0,0,0,.4); }
+  #door .leaf .edge.t { top:0; bottom:auto; left:0; right:0; width:auto; height:var(--th, 14px); transform-origin:50% 0; transform:rotateX(-90deg); background:#3d2512; }   /* âm = dày về phía sau, khớp mép bên + mặt sau, không lòi ra trước */
+  #door .leaf .back { position:absolute; inset:0; transform:translateZ(calc(var(--th, 14px) * -1)) rotateY(180deg); background:#4f3019 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; filter:brightness(.5); backface-visibility:hidden; }
+  #door .leaf.r { display:none; }
+  #door.open .leaf.l { transform:rotateY(78deg); }   /* dương = mép tự do lùi ra xa người xem: cửa mở vào trong, không lòi qua khung/bậc thềm */
+  #s1 .step { position:absolute; left:50%; translate:-50% 0; top:calc(56% + min(52vw, 31vh, 300px) * .75 + 12px); width:calc(min(52vw, 31vh, 300px) + 60px); height:10px;
+    border-radius:3px; background:linear-gradient(#4a2e1b, #24150c); box-shadow:0 10px 30px rgba(0,0,0,.6); }
+  .bang { position:absolute; z-index:3; pointer-events:none; font:400 clamp(24px, 7vw, 34px) "Patrick Hand", cursive; color:#fff; text-shadow:0 2px 0 #c2456c, 0 0 12px rgba(194,69,108,.6); }
+  #s1 .hint { top:calc(56% + min(52vw, 31vh, 300px) * .75 + 40px); color:#d9cfc4; }
+
+  /* màn 2: tin nhắn — nền xanh giống bức thư */
+  #s2 { background:#6c7b50; }
+  #sky { position:absolute; inset:0; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #sky { background-image:url(../assets/letter/bg-wide.webp); } }
+  .phone { position:absolute; top:0; bottom:0; left:50%; translate:-50% 0; width:min(100%, 460px); background:#fff; display:flex; flex-direction:column;
+    font-family:"Quicksand", sans-serif; color:#111; transition:background .8s, box-shadow .8s; box-shadow:0 0 40px rgba(0,0,0,.18); }
+  .phone header { display:flex; align-items:center; gap:10px; padding:calc(12px + env(safe-area-inset-top)) 14px 12px; border-bottom:1px solid #eee; transition:opacity .6s; }
+  .phone header img { width:40px; height:40px; border-radius:50%; object-fit:cover; }
+  .phone header b { display:block; font-weight:700; font-size:16px; }
+  .phone header small { color:#8a8d91; font-size:12px; display:flex; align-items:center; gap:5px; }
+  .phone header small::before { content:""; width:8px; height:8px; border-radius:50%; background:#31a24c; }
+  /* tin nhắn hiện thẳng trên màn như trong phim, không có khung điện thoại */
+  .phone { background:transparent !important; box-shadow:none !important; }
+  .stamp { align-self:center; margin:14px 0 4px; font:600 13px "Quicksand", sans-serif; letter-spacing:.04em; color:rgba(255,255,255,.85); text-shadow:0 1px 6px rgba(0,0,0,.55); }
+  .rep::before { content:"↩ "; }
+  .me .bub { background:#0a7cff !important; color:#fff; }
+  .her .bub, .dots { background:#303030 !important; color:#fff; }
+  .dots i { background:#bbb !important; }
+  .bub, .dots, .pic, .story { box-shadow:0 6px 20px rgba(0,0,0,.35); }
+  .pic { border:0 !important; }
+  .pic.dora { width:min(66vw, 300px); aspect-ratio:698/386; object-fit:cover; background:#223; }
+  .phone.bare { background:transparent; box-shadow:none; }
+  .phone.bare header { opacity:0; }
+  #s2 #msgs { justify-content:center !important; padding:14px 12px 40px !important; }   /* tin nhắn nằm giữa màn */
+  #msgs { flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:6px; padding:14px 12px 120px; overflow:hidden; }
+  .row { display:flex; align-items:flex-end; gap:8px; max-width:78%; will-change:transform; }
+  .row.me { align-self:flex-end; flex-direction:row-reverse; }
+  .row .av { width:28px; height:28px; border-radius:50%; object-fit:cover; flex:none; }
+  .col { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .me .col { align-items:flex-end; } .her .col { align-items:flex-start; }
+  .rep { font-size:11.5px; color:#65676b; padding:0 4px; }
+  .story { width:96px; aspect-ratio:9/16; object-fit:cover; border-radius:14px; opacity:.85; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .bub { padding:9px 13px; border-radius:20px; font-size:16px; font-weight:600; line-height:1.3; }
+  .me .bub { background:linear-gradient(135deg, #a33bff, #ff4f8b); color:#fff; }
+  .her .bub { background:#f0f0f0; }
+  .pic { width:min(52vw, 210px); border-radius:18px; border:1px solid #e5e5e5; background:#fff; display:block; }
+  .dots { display:flex; gap:4px; padding:13px 14px; background:#f0f0f0; border-radius:20px; }
+  .dots i { width:7px; height:7px; border-radius:50%; background:#9a9da1; animation:dot 1s ease-in-out infinite; }
+  .dots i:nth-child(2) { animation-delay:.15s; } .dots i:nth-child(3) { animation-delay:.3s; }
+  @keyframes dot { 30% { translate:0 -5px; background:#666; } }
+  .s2cap { align-self:center; margin:18px 0 0; font:400 clamp(28px, 8.4vw, 40px)/1.05 "Patrick Hand", cursive; color:#ff4f8b; text-align:center; white-space:nowrap;
+    text-shadow:0 2px 0 #fff, 0 0 14px rgba(255,255,255,.9); will-change:transform; }
+  .phone.bare .bub, .phone.bare .dots { box-shadow:0 4px 14px rgba(40,60,90,.18); }
+  .rep { color:#fff !important; font-weight:600; text-shadow:0 1px 6px rgba(0,0,0,.55); }
+
+  .car { position:absolute; left:0; will-change:transform; z-index:3; visibility:hidden; }
+  .car.show { visibility:visible; }
+  .car > img { display:block; width:100%; height:auto; }
+  .car.go > img { animation:bob .32s ease-in-out infinite alternate; }
+  @keyframes bob { to { translate:0 -2.5px; rotate:-.4deg; } }
+  .seat { position:absolute; z-index:-1; }
+  .seat > * { position:absolute !important; margin:0 !important; max-width:none !important; transform-origin:0 0; pointer-events:none; }
+  .tow { position:absolute; right:96%; display:flex; align-items:center; pointer-events:none; }
+  .tow svg { width:60px; height:30px; flex:none; overflow:visible; }
+  .flag { position:relative; padding:10px 26px 10px 22px; font:400 clamp(28px, 8vw, 40px)/1 "Patrick Hand", cursive; color:#fff; white-space:nowrap;
+    background:linear-gradient(#ff7aa2, #ff4f8b); clip-path:polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%); box-shadow:0 4px 12px rgba(0,0,0,.2);
+    text-shadow:0 2px 0 rgba(150,20,60,.35); transform-origin:100% 50%; animation:flap .5s ease-in-out infinite alternate; }
+  @keyframes flap { from { transform:skewY(-2deg) scaleY(.96); } to { transform:skewY(2deg) scaleY(1.03); } }
+  /* khối "First message" giữ y như bản cũ, chỉ đổi nền */
+  #memo { position:absolute; left:0; top:0; z-index:4; width:min(88vw, 400px, 46vh * 1.21); display:flex; flex-direction:column; align-items:center; gap:16px;
+    text-align:center; transform-origin:50% 100%; visibility:hidden; font-family:"Quicksand", sans-serif; color:#f3ead9; }
+  #memo .lbl { font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:#ffd6e2; text-shadow:0 1px 6px rgba(0,0,0,.5); }
+  #memo img { width:100%; height:auto; display:block; border-radius:22px;
+    box-shadow:0 20px 50px rgba(0,0,0,.4); }
+  #memo .count { display:flex; gap:clamp(12px, 4vw, 26px); }
+  #memo .count div { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  #memo .count b { font-weight:700; font-size:clamp(30px, 8.5vw, 52px); line-height:1; font-variant-numeric:tabular-nums; color:#fff4e6;
+    text-shadow:0 0 18px rgba(255,120,150,.55), 0 2px 10px rgba(0,0,0,.35); }
+  #memo .count span { font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,244,230,.8); text-shadow:0 1px 4px rgba(0,0,0,.4); }
+  #s2 .hint { bottom:calc(22px + env(safe-area-inset-bottom)); }
+
+  /* shipper mèo */
+  #cat { position:absolute; z-index:21; left:0; top:0; pointer-events:none; visibility:hidden; will-change:transform; }
+  #cat > img { display:block; width:100%; height:100%; filter:drop-shadow(0 6px 10px rgba(30,40,20,.3)); }
+  #cat.flip > img { transform:scaleX(-1); }
+  #cat.go > img { animation:bob .28s ease-in-out infinite alternate; }
+  #hop { position:absolute; z-index:22; left:0; top:0; pointer-events:none; visibility:hidden; will-change:transform; filter:drop-shadow(0 6px 10px rgba(30,40,20,.3)); }
+  #signTxt { position:absolute; display:flex; align-items:center; justify-content:center; text-align:center; color:#2b2b2b; box-sizing:border-box; padding:4%;
+    font:400 clamp(22px, 6.6vw, 36px)/1.08 "Patrick Hand", cursive; opacity:0; transition:opacity .4s; }
+  #signTxt.on { opacity:1; }
+  #signTxt span { display:flex; flex-direction:column; align-items:center; white-space:nowrap; line-height:1; }
+  #signTxt small { font-size:.62em; letter-spacing:.02em; }
+  #signTxt b { font-weight:400; font-size:1em; color:#e0457b; margin:.04em 0 .06em; }
+  #signTxt i { font-style:normal; color:#e0457b; }
+  #heart { position:absolute; z-index:24; width:120px; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; background:none; cursor:pointer; visibility:hidden;
+    filter:drop-shadow(0 0 18px rgba(255,90,150,.85)); transition:scale .35s cubic-bezier(.3,1.8,.5,1); }
+  #heart svg { width:100%; height:100%; display:block; overflow:visible; animation:beat 1s ease-in-out infinite; }
+  @keyframes beat { 0%, 40%, 100% { transform:scale(1); } 12% { transform:scale(1.12); } 24% { transform:scale(1.04); } }
+  .say { position:absolute; z-index:22; white-space:nowrap; padding:10px 18px; translate:-50% -100%; background:#fff; color:#2b2b2b; border-radius:18px;
+    border:2.5px solid #222; font:400 clamp(20px, 5.8vw, 26px)/1.15 "Patrick Hand", cursive; text-align:center; pointer-events:none;
+    opacity:0; scale:.6; transform-origin:50% 100%; transition:opacity .3s, scale .4s cubic-bezier(.3,1.7,.5,1); }
+  .say::after { content:""; position:absolute; left:50%; bottom:-11px; width:16px; height:16px; translate:-50% 0; rotate:45deg; background:#fff; border:2.5px solid #222; border-top:0; border-left:0; }
+  .say.on { opacity:1; scale:1; }
+  .ask { position:absolute; z-index:23; left:0; right:0; display:flex; justify-content:center; align-items:center; gap:18px; pointer-events:none; }
+  .btn { border:0; border-radius:999px; padding:12px 32px; font:700 18px "Quicksand", sans-serif; cursor:pointer; touch-action:manipulation;
+    opacity:0; translate:0 10px; transition:opacity .5s, translate .5s, scale .4s cubic-bezier(.34,1.8,.64,1); }
+  .ask.on .btn, .btn.on { opacity:1; translate:0 0; pointer-events:auto; }
+  .btn.yes { background:var(--pink); color:#fff; scale:var(--g, 1); box-shadow:0 8px 26px rgba(226,85,122,.5); }
+  .btn.no { background:#fffdf8; color:#3b2b33; box-shadow:0 0 0 2px #3b2b33; }
+  .btn.no.run { position:fixed; z-index:60; transition:left .28s cubic-bezier(.34,1.4,.64,1), top .28s cubic-bezier(.34,1.4,.64,1), rotate .28s, opacity .3s; }
+  .gap-no { flex:none; height:1px; transition:width 1.4s cubic-bezier(.45,0,.25,1); }
+  #nhan { position:absolute; z-index:23; left:50%; translate:-50% 10px; pointer-events:none; }
+  #nhan.on { translate:-50% 0; pointer-events:auto; }
+  #paw { position:absolute; z-index:22; right:0; pointer-events:none; visibility:hidden; filter:drop-shadow(0 6px 10px rgba(30,40,20,.3)); }
+  .dust { position:absolute; z-index:20; width:26px; height:26px; border-radius:50%; background:#f4f1e8; pointer-events:none; }
+  #dim { position:fixed; inset:0; z-index:19; background:rgba(40,48,30,.5); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 1s; }
+  #dim.on { opacity:1; pointer-events:auto; }
+  #tapHint { z-index:23; }
+  #night { position:fixed; inset:0; z-index:22; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; opacity:0; pointer-events:none; transition:opacity 1.4s; }
+  #night.on { opacity:1; pointer-events:auto; }
+  #stars { position:fixed; inset:0; width:100%; height:100%; z-index:22; pointer-events:none; }
+  #stars.tap { pointer-events:auto; cursor:pointer; }
+  /* OMG she said YES: chữ bằng hạt y bản chính */
+  #ptx { position:fixed; inset:0; width:100%; height:100%; z-index:23; pointer-events:none; }
+  #omg { position:fixed; z-index:23; left:0; right:0; margin:0; padding:0 24px; text-align:center; pointer-events:none; visibility:hidden;
+    font:700 clamp(40px, 11vw, 76px)/1.1 "Quicksand", sans-serif; color:#f3ead9; text-shadow:0 0 14px rgba(255,77,140,.55), 0 0 32px rgba(255,77,140,.25);
+    transition:color .9s ease, text-shadow .9s ease; }
+  #omg small { display:block; font-size:.62em; }
+  .ghost, .ghost * { color:transparent !important; text-shadow:none !important; transition:none !important; }
+
+  /* núi meme cuối cùng */
+  #memes { position:fixed; inset:-24px; z-index:35; overflow:hidden; pointer-events:none; }
+  #memes > img { position:absolute; object-fit:cover; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.5); will-change:transform, opacity;
+    opacity:0; transform:translate(var(--dx, 0), var(--dy, 0)) scale(.06) rotate(var(--r0)); filter:brightness(1.8);
+    transition:transform 1.5s cubic-bezier(.16,.9,.3,1.06), opacity .5s ease, filter 1.5s ease; }
+  #memes > img.up { opacity:1; transform:translate(0, 0) scale(1.1) rotate(var(--r)); filter:none; }
+  #memes > img.hero { left:50%; top:50%; width:min(72vw, 48vh, 380px); aspect-ratio:2/3; translate:-50% -50%; z-index:2; border-radius:28px;
+    box-shadow:0 0 0 4px rgba(255,255,255,.9), 0 24px 70px rgba(0,0,0,.7), 0 0 60px rgba(255,77,109,.45);
+    transition:transform 2.6s cubic-bezier(.16,.84,.3,1), opacity 1.8s ease, filter 2.6s ease; }
+  #memes > img.hero.up { transform:translate(0, 0) scale(1) rotate(-2deg); }
+  #memes .mcap { position:absolute; left:50%; top:calc(50% + min(72vw, 48vh, 380px) * .75 + 10px); translate:-50% 0; z-index:3; white-space:nowrap; pointer-events:auto; cursor:pointer;
+    font:700 clamp(28px, 8vw, 46px) "Quicksand", sans-serif; color:#fff3e6; text-shadow:0 0 14px rgba(255,120,170,.8); padding:4px 26px 8px; border-radius:999px;
+    background:rgba(7,6,11,.72); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:0 0 0 1.5px rgba(255,143,180,.75), 0 0 26px rgba(255,77,140,.35), 0 12px 34px rgba(0,0,0,.55);
+    opacity:0; transform:translateY(24px) scale(.6) rotate(-3deg); transition:transform .9s cubic-bezier(.3,1.6,.5,1), opacity .6s ease; }
+  #memes .mcap.up { opacity:1; transform:rotate(-3deg); }
+  #fx { position:fixed; inset:0; width:100%; height:100%; z-index:40; pointer-events:none; }
+
+  @media (prefers-reduced-motion: reduce) { #seal, #capBot, .knock span { animation:none; } }
 </style>
-<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }</script>
 </head>
-<body>
-<canvas id="gl"></canvas>
+<body class="pre">
+<div id="bg"></div>
+<div id="glow"></div>
+<div id="rays"></div>
 
-<section class="scene active" id="s1">
-  <span class="small" id="kicker"></span>
-  <h1 class="serif" id="title"></h1>
-  <p class="line" id="line"></p>
-  <button class="start" id="start"></button>
-</section>
+<div class="cap" id="capBot">(chạm vào dấu sáp để mở thư nhé)</div>
 
-<section class="scene" id="si"><h2 class="ask" id="intro"></h2></section>
-
-<section class="scene" id="sq">
-  <h2 class="ask" id="qask"></h2>
-  <div class="dpick" id="qdate" aria-label="Ngày bắt đầu nhắn">
-    <div class="wheel" data-k="d"></div><div class="wheel" data-k="m"></div><div class="wheel" data-k="y"></div>
-  </div>
-  <button class="pick" id="qok">Chốt</button>
-</section>
-
-<section class="scene" id="sc"><p class="cnt" id="cnt"></p></section>
-
-<section class="scene" id="sm">
-  <p class="verdict" id="verdict"></p>
-  <span class="small" id="mlabel"></span>
-  <img id="mimg" alt="">
-  <div class="count" id="count"></div>
-  <span class="small hint">LÊN THUYỀN =)))</span>
-</section>
-
-<section class="scene" id="s2"><p class="sub" id="sub"></p></section>
-<span id="tap">chạm để tiếp tục</span>
-
-<section class="scene" id="s3">
-  <h1 class="serif ghost" id="headline"></h1>
-  <div class="answers" id="answers">
-    <button class="btn" id="yes"></button>
-    <button class="btn" id="no"></button>
-  </div>
-</section>
-
-<p id="omg" class="ghost">OMG<small>she said YES</small></p>
-<canvas id="ptx"></canvas>
-<canvas id="fx"></canvas>
-<div id="memes"></div>
-
-<div class="player">
-  <button class="disc" id="disc" aria-label="Bật / tắt nhạc">
-    <span class="vinyl"><img id="cover" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></span>
-    <span class="arm"></span>
-  </button>
-  <div class="track"><b id="trackName"></b><span id="trackState">chạm đĩa để bật nhạc</span></div>
+<div id="env">
+  <div class="back"></div>
+  <svg class="pocket" viewBox="0 0 150 100" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <pattern id="tex" patternUnits="userSpaceOnUse" width="150" height="100"><image href="../assets/letter/envelope2.webp" width="150" height="100" preserveAspectRatio="xMidYMid slice"/></pattern>
+      <linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".55" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#6e6553" stop-opacity=".5"/></linearGradient>
+      <linearGradient id="gr" x1="1" x2="0"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".55" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#6e6553" stop-opacity=".5"/></linearGradient>
+      <linearGradient id="gb" y1="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".6" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#6e6553" stop-opacity=".35"/></linearGradient>
+    </defs>
+    <polygon points="0,0 0,100 76,56" fill="url(#tex)"/><polygon points="0,0 0,100 76,56" fill="url(#gl)"/>
+    <polygon points="150,0 150,100 74,56" fill="url(#tex)"/><polygon points="150,0 150,100 74,56" fill="url(#gr)"/>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter><polygon points="0,100 150,100 75,47" fill="url(#tex)"/><polygon points="0,100 150,100 75,47" fill="url(#gb)" stroke="rgba(120,100,70,.15)" stroke-width=".4"/><polygon class="cast" points="0,-2 150,-2 75,63" fill="rgba(60,50,35,.5)" filter="url(#sh)"/>
+  </svg>
+  <div class="flap"></div>
+  <div class="flapShade"></div>
 </div>
-<div class="embed"><div id="spotify"></div></div>
+<button id="seal" aria-label="Mở thư"></button>
+
+<div id="slot">
+  <div class="photo polaroid" id="pol"><img src="../assets/firstmsg.webp" alt=""><span>30 • 07</span></div>
+  <div class="photo strip" id="strip"><img src="../assets/hoanganh.webp" alt=""><img src="../assets/hoanganh2.webp" alt=""><img src="../assets/cover.jpg" alt=""></div>
+</div>
+
+<div id="card"><div class="in">
+  <h2>Gửi HoangAnh,</h2>
+  <p id="text"></p>
+  <div class="big" id="big"></div>
+  <div class="then" id="then"></div>
+  <div class="sign" id="sign">— Qhuy ♡</div>
+</div></div>
+
+<img class="flower" id="fl1" src="../assets/letter/hydrangea-left.webp" alt="" style="--r:-6deg">
+<img class="flower" id="fl2" src="../assets/letter/hydrangea-right.webp" alt="" style="--r:6deg">
+
+<div class="note" id="n1">for you ♡<svg viewBox="0 0 34 30" style="left:22px; top:26px"><path d="M4 2 C8 14 16 22 28 24 M22 18 L28 24 L21 28"/></svg></div>
+<div class="note" id="n2">tin nhắn đầu tiên<svg viewBox="0 0 34 30" style="right:8px; top:26px"><path d="M30 2 C26 14 18 22 6 24 M12 18 L6 24 L13 28"/></svg></div>
+
+<!-- shipper mèo (màn 3 + 4) -->
+<div id="dim"></div>
+<img id="hop" src="../assets/flow/cat-hop.webp?v=3" alt="">
+<div id="cat"><img id="catImg" src="../assets/flow/cat-scooter.webp" alt=""><div id="signTxt"><span><small>Chị làm</small><b>người yêu</b><small>em nhé? <i>♥</i></small></span></div></div>
+<div class="say" id="say"></div>
+<div class="ask" id="ask3"><button class="btn yes" id="co">Có</button><button class="btn no" id="khong">Không</button></div>
+<button class="btn yes" id="nhan">Nhận</button>
+<div class="ask" id="ask4"><button class="btn yes" id="yes">Yes</button><button class="btn no" id="no">No</button></div>
+<button id="heart" aria-label="Trái tim"><svg viewBox="0 0 64 60"><defs><radialGradient id="hg" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffe0ea"/><stop offset=".4" stop-color="#ff7aa5"/><stop offset="1" stop-color="#d6336c"/></radialGradient></defs>
+  <path d="M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z" fill="url(#hg)" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/>
+  <ellipse cx="17" cy="16" rx="6.5" ry="3.4" transform="rotate(-37 17 16)" fill="rgba(255,255,255,.8)"/><circle cx="26.5" cy="11.5" r="1.8" fill="rgba(255,255,255,.8)"/></svg></button>
+<div id="night"></div><canvas id="stars"></canvas>
+<p class="hint" id="tapHint"></p>
+<canvas id="ptx"></canvas><p id="omg" class="ghost">OMG<small>she said YES</small></p>
+
+<!-- màn 1: cái cửa -->
+<section class="scr on" id="s1">
+  <div class="dbg"></div>
+  <h1 class="knock"><span>Cốc cốc cốc,</span><br>mở cửa cho em đê</h1>
+  <div id="door" role="button" aria-label="Mở cửa"><div class="light"></div><div class="leaf l"><div class="back"></div><div class="edge"></div><div class="edge t"></div><div class="face"></div></div><div class="leaf r"></div></div>
+  <div class="step"></div>
+  <p class="hint on">(chạm vào cửa nha)</p>
+</section>
+
+<!-- màn 2: tin nhắn + xe -->
+<section class="scr" id="s2">
+  <div id="sky"></div>
+  <div class="phone" id="phone">
+    <div id="msgs"></div>
+  </div>
+  <div class="car" id="carA"><div class="seat" id="seat"></div><img src="../assets/flow/car-a.webp?v=4" alt="">
+    <div class="tow" id="tow"><div class="flag">Time flies ✈</div><svg viewBox="0 0 60 30"><path d="M0 15 Q30 26 60 15" fill="none" stroke="#5a4a42" stroke-width="2.5" stroke-linecap="round"/></svg></div></div>
+  <div class="car" id="carB"><img src="../assets/flow/car-b.webp" alt=""></div>
+  <div id="memo"><div class="lbl">First message</div><img src="../assets/firstmsg.webp" alt="">
+    <div class="count"><div><b id="cD"></b><span>ngày</span></div><div><b id="cH"></b><span>giờ</span></div><div><b id="cM"></b><span>phút</span></div><div><b id="cS"></b><span>giây</span></div></div></div>
+  <p class="hint" id="s2hint">(chạm để tiếp nhaa)</p>
+</section>
+
+<div id="flash"></div>
+<div id="memes"></div>
+<canvas id="fx"></canvas>
+<div class="player">
+  <button class="disc" id="disc" aria-label="Bật / tắt nhạc"><span class="vinyl"><img alt="" src="../assets/cover.jpg"></span><span class="arm"></span></button>
+  <div class="track"><b>Từng Ngày Yêu Em</b><span id="trackState">chạm đĩa để bật nhạc</span></div>
+</div>
 
 <script>
 /* ============ SỬA NỘI DUNG Ở ĐÂY ============ */
-const CONFIG = {
-  kicker: "Ring ring ring",
-  title: "Dear HoangAnh yêu",
-  line: "you have a message from Qhuy",
-  startLabel: "Open message",
-  // mỗi bước: hạt xếp thành "shape" ("cloud", "moon" hoặc "heart"), bên dưới hiện câu "text"; big: true là chữ to
-  steps: [
-    { shape: "cloud", text: "Thôi vào việc chính nhé", mid: true },
-    { shape: "cloud", text: "Dear phù thủy ma cà rồng xink iu siu ngầu", mid: true },
-    { shape: "cloud", mid: true, letter: true,   // đoạn thư dài: chữ nhỏ, căn trái; \n là xuống dòng
-      text: "Yêu ơi,\nTính tới thời điểm hiện tại thì cta quen nhau cũng lâu phết rồi đấy chứ, chuyện vui có, buồn cũng có. Chị em mình cũng hiểu hơn về tính cách cũng như tình cảm của nhau goy. Hôm nay em muốn nói với chị cái nàyyyyy" },
-    { shape: "heart", text: "Em thích chị.", big: true }
-  ],
-  headline: "Will you be my girlfriend?",
-  yes: { label: "Yes" },
-  memes: 33,   // số ảnh trong assets/memes (m01.jpg ... m33.jpg), bấm Yes là nổi lên phủ kín màn hình
-  // nút No không bấm được: mỗi lần chạm là nhảy chỗ khác và đổi chữ
-  no: ["No", "Hụt rồi", "Bấm lại xem", "Chắc chưa?", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"],
-  spotifyTrackId: "3Ids3RXurYBgySph53qWnB", // Từng Ngày Yêu Em - buitruonglinh
-  trackName: "Từng Ngày Yêu Em",
-  // muốn chắc chắn phát cả bài từ giây đầu: bỏ file nhạc vào assets rồi điền tên, vd "assets/song.mp3" (khi đó không dùng Spotify nữa)
-  audioFile: "assets/sound.mp3",
-  nowPlaying: { title: "HoangAnh", artist: "", cover: "assets/cover.jpg" },   // hiện trên Dynamic Island / màn khoá khi thoát web mà nhạc vẫn chạy
-  firstMessage: "2026-07-30T21:54:00+07:00",   // thời điểm tin nhắn đầu tiên (năm-tháng-ngày, giờ VN), bộ đếm tính từ đây; để "" là bỏ màn này
-  firstMessagePhoto: "assets/firstmsg.webp",
-  firstMessageLabel: "First message",
-  quiz: { intro: ["Hí lu", "Trước khi vào việc chính, em hỏi chị cái này xíu"],   // các trang trước câu đố, chạm để sang
-    ask: "Đố chị biết mình bắt đầu nhắn với nhau từ bao giờ?", right: "Bingo!", wrong: "Em nhắc chị đấy nhé =)))" },   // đáp án là ngày của firstMessage
-  caption: "iu thíiiii",   // chữ dưới ảnh
-  photo: "assets/hoanganh2.webp"   // ảnh nổi lên trên tường meme ở cuối, bo góc; để "" nếu không dùng
+const LETTER = "Yêu ơi,\nTính tới thời điểm hiện tại thì cta quen nhau cũng lâu phết rồi đấy chứ, chuyện vui có, buồn cũng có. Chị em mình cũng hiểu hơn về tính cách cũng như tình cảm của nhau goy.\n\nHôm nay em muốn nói với chị cái nàyyyyy:";
+const BIG = "EM THÍCH CHỊ";
+const THEN = "Thế nên là....";
+const SONG = "../assets/sound.mp3";
+const FIRST = new Date("2026-07-30T21:54:00+07:00");   // tin nhắn đầu tiên, bộ đếm tính từ đây
+const STORY = "../assets/hoanganh.webp";              // ảnh story của chị (tin nhắn 1 trả lời story này)
+const REF = "../assets/flow/ref.webp";                // ảnh gửi ở tin nhắn 2, cũng là ảnh trên xe thứ hai
+const NO3 = ["Không", "Hụt rồi", "Bấm lại xem", "Có nhà mà", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"];
+const NO4 = ["No", "Hụt rồi", "Bấm lại xem", "Chắc chưa?", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"];
+const MEMES = 33, PHOTO = "../assets/hoanganh2.webp", CAPTION = "iu thíiiii";
+const TAPS = 5;   // số lần chạm tim thì nổ
+/* toạ độ trên ảnh mèo (tỉ lệ 0..1 theo khung ảnh): ô chữ trên tấm bảng, chỗ đặt tim, chỗ phong thư trong tay */
+const SIGN = { x: .37, y: .15, w: .56, h: .4, r: -6 };   // vùng chữ trên bảng nghiêng của cat-sign3.webp
+const OFFER = { x: .5, y: .07 };
+const HOP = {   // mèo đứng (cat-hop): sp = lúc ngồi trên yên xe, gp = lúc đứng dưới đất cạnh xe
+  sp: s => { const h = s.h * .82, w = h / ratio("cat-hop"); return { x: s.x + s.w * .5 - w / 2, y: s.y - s.h * .02, w, h }; },
+  gp: s => { const h = s.h * .82, w = h / ratio("cat-hop"); return { x: Math.max(6, s.x - w * .55), y: s.y + s.h - h, w, h }; },
 };
+const CATENV = { x: .62, y: .35, w: .6 };   // tâm + bề rộng phong thư trong cat-env.webp (tỉ lệ ảnh)
+/* chỗ ngồi trên xe A, thùng xe B (tỉ lệ theo ảnh xe) */
+const SEAT = { x: .06, y: .37, w: .38 };   // miệng thùng xe bán tải
+const BED = { x: .26, y: .42 };
 /* ============================================ */
 
 const $ = id => document.getElementById(id);
-["kicker", "line", "trackName"].forEach(k => $(k).textContent = CONFIG[k]);
-{ const w = CONFIG.title.split(" "), keep = w.splice(-2).join(" "), t = $("title");   // 2 chữ cuối không bị tách dòng
-  t.textContent = w.join(" ") + (w.length ? " " : ""); const sp = document.createElement("span"); sp.className = "nw"; sp.textContent = keep; t.append(sp); }
-$("start").innerHTML = '<span class="lbl"></span><svg class="plane" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>';
-$("start").querySelector(".lbl").textContent = CONFIG.startLabel;
-$("yes").textContent = CONFIG.yes.label;
-$("no").textContent = CONFIG.no[0];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rnd = a => (Math.random() * 2 - 1) * a;
+const env = $("env"), slot = $("slot"), card = $("card"), pol = $("pol"), strip = $("strip"), seal = $("seal");
+let W, H, portrait, opened = false, envIn = false, E, C, P, S;
 
-/* ---------- Đĩa nhạc: điều khiển trình phát Spotify ẩn ---------- */
-let controller = null, playing = false;
-const setPlaying = on => {
-  playing = on;
-  document.querySelector(".player").classList.toggle("playing", on);
-  $("trackState").textContent = on ? "đang phát" : "chạm đĩa để bật nhạc";
-};
-let userPaused = false, heard = false;
-if (CONFIG.audioFile) {            // có file nhạc riêng: phát thẳng file, luôn từ đầu bài
-  const au = new Audio(CONFIG.audioFile); au.loop = true;   // luôn lặp; chỉ người xem chạm đĩa (hoặc nút pause trên Dynamic Island) mới tắt
-  au.addEventListener("ended", () => { if (!userPaused) { au.currentTime = 0; au.play().catch(() => {}); } });   // phòng máy nào lờ loop
-  document.addEventListener("visibilitychange", () => { if (!document.hidden && au.paused && !userPaused && heard) au.play().catch(() => {}); });   // máy tự ngắt (cuộc gọi...) thì quay lại web là phát tiếp
-  ["play", "pause"].forEach(ev => au.addEventListener(ev, () => setPlaying(!au.paused)));
-  au.addEventListener("playing", () => heard = true);
-  controller = { play: () => { if (!userPaused) au.play().catch(() => {}); },
-    togglePlay: () => { userPaused = !au.paused; userPaused ? au.pause() : au.play().catch(() => {}); } };
-  if ("mediaSession" in navigator) {   // thoát web ra: Dynamic Island / màn khoá hiện ảnh bìa + tên
-    navigator.mediaSession.metadata = new MediaMetadata({ title: CONFIG.nowPlaying.title, artist: CONFIG.nowPlaying.artist,
-      artwork: [{ src: CONFIG.nowPlaying.cover, sizes: "512x512", type: "image/jpeg" }] });
-    navigator.mediaSession.setActionHandler("play", () => { userPaused = false; au.play().catch(() => {}); });
-    navigator.mediaSession.setActionHandler("pause", () => { userPaused = true; au.pause(); });
-  }
-  controller.play();
+/* ---------- bố cục: phong thư lúc đóng / mở, thiệp, ảnh, hoa ---------- */
+function layout() {
+  W = innerWidth; H = innerHeight; portrait = W / H < .95;
+  let ew, eh, ex, ey;
+  if (!opened) { ew = Math.min(W * .86, 540, H * .44 * 1.5); eh = ew / 1.5; ex = (W - ew) / 2; ey = H * .5 - eh / 2; }
+  else if (portrait) { ew = Math.min(W * .84, 440, H * .3 * 1.5); eh = ew / 1.5; ex = (W - ew) / 2; ey = H - eh - H * .1; }
+  else { ew = Math.min(W * .36, 520, H * .4 * 1.5); eh = ew / 1.5; ex = W * .56 - ew / 2; ey = H - eh - H * .1; }
+  E = { x: ex, y: ey, w: ew, h: eh };
+  Object.assign(env.style, { left: ex + "px", top: ey + "px", width: ew + "px", height: eh + "px" });
+  Object.assign(seal.style, { left: ex + ew / 2 + "px", top: ey + eh * .58 + "px", width: ew * .27 + "px" });
+  Object.assign(slot.style, { left: ex + "px", width: ew + "px", height: ey + eh * .97 + "px" });
+  $("capBot").style.top = ey + eh + 26 + "px";
+  const R = Math.max(W, H) * 1.3;
+  for (const id of ["rays", "glow"]) Object.assign($(id).style, { left: ex + ew / 2 + "px", top: ey + eh / 2 + "px", width: (id === "rays" ? R : ew * 2.2) + "px", height: (id === "rays" ? R : ew * 2.2) + "px" });
+  // thiệp
+  if (portrait) { const cw = Math.min(W * .88, 440), ct = Math.max(16, H * .045); C = { x: (W - cw) / 2, y: ct, w: cw, h: ey - eh * .42 - ct, r: -1.5 }; }
+  else { const cw = Math.min(W * .3, 400), ch = Math.min(H * .7, 540); C = { x: ex - cw * .78, y: H * .06, w: cw, h: ch, r: -4 }; }
+  // ảnh (toạ độ trong #slot)
+  const pw = ew * (portrait ? .36 : .32), sw = ew * (portrait ? .2 : .19);
+  P = { x: ew * .1, w: pw, h: pw * 1.22, r: -7 }; P.y = ey - P.h * .5; P.tuck = ey + eh * .25;
+  S = { x: ew * .68, w: sw, h: sw * 3.3, r: 7 }; S.y = ey - S.h * .55; S.tuck = ey + eh * .3;
+  for (const [el, o] of [[pol, P], [strip, S]]) Object.assign(el.style, { left: o.x + "px", width: o.w + "px", height: o.h + "px", top: o.y + "px" });
+  pol.style.setProperty("--pw", pw + "px");
+  Object.assign(card.style, { left: C.x + "px", top: C.y + "px", width: C.w + "px", height: C.h + "px" });
+  // hoa hai bên phong thư
+  const fw = ew * (portrait ? .44 : .36);
+  Object.assign($("fl1").style, { width: fw + "px", left: ex - fw * .38 + "px", top: ey + eh - fw * 1.5 * .97 + "px" });
+  Object.assign($("fl2").style, { width: fw + "px", left: ex + ew - fw * .62 + "px", top: ey + eh - fw * 1.5 * .95 + "px" });
+  // ghi chú (màn dọc thì thiệp che mất nên ẩn)
+  $("n1").style.display = $("n2").style.display = portrait ? "none" : "";
+  Object.assign($("n1").style, { left: ex + S.x - 24 + "px", top: S.y - 56 + "px" });
+  Object.assign($("n2").style, { left: ex + P.x - 10 + "px", top: P.y - 56 + "px" });
+  if (opened && card.classList.contains("out")) card.style.transform = `rotate(${C.r}deg)`;
+  fitBig();
 }
-let rewound = false;
-window.onSpotifyIframeApiReady = api => {
-  if (CONFIG.audioFile) return;
-  api.createController($("spotify"), { uri: "spotify:track:" + CONFIG.spotifyTrackId, width: 300, height: 80 }, c => {
-    controller = c;
-    c.play();   // thử tự bật ngay khi tải xong (trình duyệt có thể chặn tới lần chạm đầu tiên)
-    c.addListener("playback_update", e => {
-      const d = e.data;
-      if (!rewound && !d.isPaused) { rewound = true; if (d.position > 1500) c.seek(0); }   // lần phát đầu: tua về đầu bài
-      // người chưa đăng nhập Spotify chỉ nghe được đoạn ngắn: hết đoạn thì phát lại từ đầu
-      if (d.isPaused && d.duration && d.position >= d.duration - 400) { c.seek(0); c.play(); return; }
-      setPlaying(!d.isPaused && !d.isBuffering);
-    });
-  });
-};
-$("disc").addEventListener("click", () => { if (controller) controller.togglePlay(); });
-// trình duyệt chặn tự phát khi chưa có thao tác: chạm lần đầu ở bất kỳ đâu là nhạc lên
-const firstTouch = e => {
-  if (e.target.closest("#disc, .player")) return;
-  if (controller && !playing) controller.play();
-  if (controller) ["pointerdown", "keydown"].forEach(ev => removeEventListener(ev, firstTouch, true));
-};
-["pointerdown", "keydown"].forEach(ev => addEventListener(ev, firstTouch, true));
-fetch("https://open.spotify.com/oembed?url=" + encodeURIComponent("https://open.spotify.com/track/" + CONFIG.spotifyTrackId))
-  .then(r => r.json()).then(d => { if (d.thumbnail_url) $("cover").src = d.thumbnail_url; }).catch(() => {});
-</script>
-<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 
+/* thiệp nằm trong phong thư -> ánh xạ từ vị trí cuối về lòng phong thư */
+const tucked = (dy) => { const s = E.w * .84 / C.w, cx = E.x + E.w / 2, cy = E.y + E.h * .55 + dy;
+  return `translate(${cx - (C.x + C.w / 2)}px, ${cy - (C.y + C.h / 2)}px) scale(${s})`; };
+const tuckClip = (dy) => { const s = E.w * .84 / C.w, bot = E.y + E.h * .55 + dy + C.h * s / 2;   // cắt phần thư thò ra dưới đáy phong bì
+  return `inset(-30px -30px ${Math.max(0, (bot - (E.y + E.h * .97)) / s)}px -30px)`; };
+
+/* ---------- nhạc ---------- */
+const au = new Audio(SONG); au.loop = true;
+let userPaused = false, heard = false;
+const setMusic = on => { userPaused = !on; on ? au.play().catch(() => {}) : au.pause(); };
+const showPlaying = () => { const on = !au.paused;
+  document.querySelector(".player").classList.toggle("playing", on); $("trackState").textContent = on ? "đang phát" : "chạm đĩa để bật nhạc"; };
+au.addEventListener("play", showPlaying); au.addEventListener("pause", showPlaying);
+au.addEventListener("playing", () => heard = true);
+au.addEventListener("ended", () => { if (!userPaused) { au.currentTime = 0; au.play().catch(() => {}); } });   // phòng máy nào lờ loop
+document.addEventListener("visibilitychange", () => { if (!document.hidden && au.paused && !userPaused && heard) au.play().catch(() => {}); });
+$("disc").onclick = () => setMusic(au.paused);
+if ("mediaSession" in navigator) {   // thoát web ra: Dynamic Island / màn khoá hiện ảnh bìa + tên
+  navigator.mediaSession.metadata = new MediaMetadata({ title: "HoangAnh", artist: "",
+    artwork: [{ src: new URL("../assets/cover.jpg", location.href).href, sizes: "512x512", type: "image/jpeg" }] });
+  navigator.mediaSession.setActionHandler("play", () => setMusic(true));
+  navigator.mediaSession.setActionHandler("pause", () => setMusic(false));
+}
+
+/* ---------- tiện ích ---------- */
+const imgs = {};
+for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign3","cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=${n == "car-a" ? 4 : 3}`; imgs[n] = i; }
+for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
+const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
+const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
+  { duration: dur, easing, fill: "forwards" }).finished;
+function flashOn(dur = 500) { return $("flash").animate([{ opacity: 0 }, { opacity: 1 }], { duration: dur, fill: "forwards", easing: "ease-in" }).finished; }
+function flashOff(dur = 900) { return $("flash").animate([{ opacity: 1 }, { opacity: 0 }], { duration: dur, fill: "forwards", easing: "ease-out" }).finished; }
+function say(text, x, y) { const s = $("say"); s.textContent = text; s.style.left = x + "px"; s.style.top = y + "px"; s.classList.remove("on"); s.getBoundingClientRect(); s.classList.add("on"); }
+const unsay = () => $("say").classList.remove("on");
+function puff(x, y, dir = 1) {             // bụi khói sau bánh xe
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement("div"); d.className = "dust"; d.style.left = x + "px"; d.style.top = y + "px"; document.body.append(d);
+    d.animate([{ transform: "translate(-50%,-50%) scale(.3)", opacity: .95 }, { transform: `translate(${-50 + dir * (40 + i * 18)}%, ${-50 - 30 - i * 14}%) scale(${1.2 + i * .25})`, opacity: 0 }],
+      { duration: 650 + i * 70, delay: i * 45, easing: "ease-out", fill: "both" }).finished.then(() => d.remove());
+  }
+}
+
+/* ---------- nút "không" chạy trốn (như bản cũ) ---------- */
+let lastDodge = -1e9;
+function dodger(no, yes, texts) {
+  let n = 0;
+  const d = e => {
+    e.preventDefault();
+    const r = no.getBoundingClientRect();
+    if (!no.classList.contains("run")) {
+      no.style.left = r.left + "px"; no.style.top = r.top + "px";
+      const gap = document.createElement("span"); gap.className = "gap-no"; gap.style.width = r.width + "px"; no.after(gap);
+      no.classList.add("run"); no.getBoundingClientRect();
+      requestAnimationFrame(() => requestAnimationFrame(() => { gap.style.width = "0px"; }));
+      gap.addEventListener("transitionend", () => gap.remove(), { once: true });
+    }
+    n++; lastDodge = performance.now();
+    no.textContent = texts[n % texts.length];
+    const w = no.offsetWidth, h = no.offsetHeight, pad = 16, maxX = innerWidth - w - pad, maxY = innerHeight - h - 70;
+    let x, y, t = 0;
+    do { x = pad + Math.random() * (maxX - pad); y = pad + Math.random() * (maxY - pad); } while (Math.hypot(x - r.left, y - r.top) < 160 && ++t < 20);
+    no.style.left = x + "px"; no.style.top = y + "px"; no.style.rotate = rnd(15) + "deg";
+    yes.style.setProperty("--g", Math.min(1 + n * .12, 2.2));
+  };
+  no.addEventListener("pointerdown", d);
+  no.addEventListener("click", e => { e.preventDefault(); if (e.detail === 0) d(e); });
+}
+dodger($("khong"), $("co"), NO3);
+dodger($("no"), $("yes"), NO4);
+const tooSoon = () => performance.now() - lastDodge < 700;   // vừa né No xong thì chạm nhầm vào Yes không tính
+
+/* =================== MÀN 1: cốc cốc, mở cửa =================== */
+let doorBusy = false;
+$("door").addEventListener("click", async () => {
+  if (doorBusy) return; doorBusy = true;
+  setMusic(true);
+  const door = $("door"), r = door.getBoundingClientRect();
+  $("s1").querySelector(".hint").classList.remove("on");
+  for (let i = 0; i < 3; i++) {                     // gõ 3 cái
+    door.animate([{ translate: "-50% -50%" }, { translate: "calc(-50% + 4px) calc(-50% + 1px)" }, { translate: "calc(-50% - 3px) -50%" }, { translate: "-50% -50%" }], { duration: 180 });
+    const b = document.createElement("div"); b.className = "bang"; b.textContent = "cốc!";
+    b.style.left = r.left + (i % 2 ? r.width * .72 : r.width * .02) + "px"; b.style.top = r.top + r.height * (.3 + i * .14) + "px"; $("s1").append(b);
+    b.animate([{ opacity: 0, scale: .4 }, { opacity: 1, scale: 1.15, offset: .3 }, { opacity: 0, scale: 1, translate: "0 -18px" }], { duration: 900, fill: "forwards" }).finished.then(() => b.remove());
+    await wait(330);
+  }
+  await wait(250);
+  $("s1").querySelector(".knock").style.opacity = 0;
+  door.classList.add("open");                         // hai cánh cửa mở vào trong, ánh sáng tràn ra
+  await wait(1300);
+  const zoom = { duration: 1600, easing: "cubic-bezier(.6,0,.4,1)", fill: "forwards" };   // lao qua khung cửa vào nền xanh
+  door.animate([{ transform: "scale(1)" }, { transform: `scale(${Math.max(W / r.width, H / r.height) * 1.6})` }], zoom);
+  $("s1").querySelector(".step").animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(60px) scale(3)" }], { duration: 500, fill: "forwards" });
+  await wait(1500);
+  $("s2").style.transition = "none"; $("s2").classList.add("on");   // nền xanh của màn 2 trùng với nền sau cửa → chuyển liền mạch
+  $("s1").style.transition = "none"; $("s1").classList.remove("on");
+  scene2();
+});
+
+/* =================== MÀN 2: tin nhắn rồi lên xe =================== */
+const msgs = $("msgs");
+function addRow(side, html) {
+  const row = document.createElement("div"); row.className = "row " + side;
+  row.innerHTML = (side === "her" ? `<img class="av" src="../assets/flow/avatar.webp" alt="">` : "") + `<div class="col">${html}</div>`;
+  msgs.append(row);
+  row.animate([{ transform: "translateY(14px) scale(.92)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 380, easing: "cubic-bezier(.3,1.4,.5,1)" });
+  return row;
+}
+function carW() { return Math.min(W * .9, 480, H * .42 / ratio("car-a")); }
+let memoRide = null, s2ready = false, ticker = null;
+function tick() {
+  let s = Math.max(0, Math.floor((Date.now() - FIRST) / 1000));
+  const d = Math.floor(s / 86400); s %= 86400;
+  const p = v => String(v).padStart(2, "0");
+  $("cD").textContent = d; $("cH").textContent = p(Math.floor(s / 3600)); $("cM").textContent = p(Math.floor(s / 60) % 60); $("cS").textContent = p(s % 60);
+}
+async function scene2() {
+  layout();
+  await wait(1000);
+  const stamp = t => { const s = document.createElement("p"); s.className = "stamp"; s.textContent = t; msgs.append(s);
+    s.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500 }); };
+  stamp("21:54 30 THG 7"); await wait(400);
+  const t1 = addRow("me", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1100); t1.remove();
+  addRow("me", `<small class="rep">Bạn đã trả lời tin của HoangAnh</small><div class="bub">Thích vậy chị em đi với</div>`);
+  await wait(1200);
+  stamp("22:39 30 THG 7"); await wait(500);
+  const t2 = addRow("her", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1500); t2.remove();
+  addRow("her", `<img class="pic dora" src="../assets/flow/dora.webp" alt=""><div class="bub">Oke, lên iem ơi</div>`);
+  await wait(1500);
+  const cap = document.createElement("p"); cap.className = "s2cap"; cap.textContent = "Đi thôyyy"; msgs.append(cap);
+  cap.animate([{ transform: "scale(.3) rotate(-8deg)", opacity: 0 }, { transform: "scale(1.12) rotate(3deg)", opacity: 1, offset: .6 }, { transform: "scale(1) rotate(-2deg)", opacity: 1 }], { duration: 700, easing: "ease-out", fill: "forwards" });
+  await wait(2000);
+  $("phone").classList.add("bare");                       // nền chat tan đi, lộ ra bầu trời + con đường
+  await wait(900);
+
+  // xe A chạy vào giữa
+  const carA = $("carA"), cw = carW(), ch = cw * ratio("car-a"), ground = H * .965;
+  Object.assign(carA.style, { width: cw + "px", top: ground - ch + "px" });
+  Object.assign($("seat").style, { left: SEAT.x * 100 + "%", top: SEAT.y * 100 + "%", width: SEAT.w * 100 + "%", height: "1px" });
+  $("tow").style.top = ch * .42 + "px";
+  const towW = $("tow").offsetWidth + 10, mid = (W - cw) / 2;
+  carA.classList.add("go");
+  const inA = moveX(carA, -cw - towW - 20, mid, 1900, "cubic-bezier(.2,.7,.3,1)"); carA.classList.add("show");
+  await inA;
+  carA.classList.remove("go");
+  puff(mid + cw * .1, ground - 6, -1);
+
+  // tất cả chất lên xe
+  const seat = $("seat"), items = [...msgs.children];
+  let stackH = 0;
+  for (const [i, el] of items.entries()) {
+    const r = el.getBoundingClientRect(), sr = seat.getBoundingClientRect();
+    const k = Math.min(1, sr.width * 1.3 / r.width, ch * .55 / r.height);
+    const lx = sr.width * (.04 + Math.random() * .2), ly = -stackH * .6 - r.height * k;   // toạ độ trong ghế xe
+    const tx = sr.left + lx - r.left, ty = sr.top + ly - r.top;
+    const rot = rnd(12);
+    await wait(i ? 160 : 0);
+    el.style.transformOrigin = "0 0";
+    const a = el.animate([{ transform: "none" }, { transform: `translate(${tx * .5}px, ${ty - H * .12}px) scale(${(1 + k) / 2}) rotate(${rot / 2}deg)`, offset: .5 },
+      { transform: `translate(${tx}px, ${ty}px) scale(${k}) rotate(${rot}deg)` }], { duration: 800, easing: "cubic-bezier(.4,0,.4,1)", fill: "forwards" });
+    a.finished.then(() => {
+      const ph = document.createElement("div"); ph.style.cssText = `height:${r.height}px; flex:none`; el.before(ph);   // giữ chỗ để mấy tin còn lại không nhảy
+      seat.append(el); a.cancel();
+      el.style.cssText = `left:${lx}px; top:${ly}px; width:${r.width}px; height:${r.height}px; transform:scale(${k}) rotate(${rot}deg)`;
+      carA.animate([{ transform: `translate(${mid}px, 3px)` }, { transform: `translate(${mid}px, 0)` }], { duration: 200 });
+    });
+    stackH += r.height * k;
+  }
+  await wait(1300);
+  // phóng đi, kéo theo băng rôn
+  carA.classList.add("go"); puff(mid + cw * .05, ground - 6, -1);
+  await moveX(carA, mid, W + towW + 40, 4300, "cubic-bezier(.5,0,.75,1)");
+  carA.style.display = "none";
+
+  // xe B chở ảnh + bộ đếm
+  const carB = $("carB"), bw = cw * .95, bh = bw * ratio("car-b"), memo = $("memo");
+  Object.assign(carB.style, { width: bw + "px", top: ground - bh + "px" });
+  tick(); ticker = setInterval(tick, 1000);
+  const mw = memo.offsetWidth, mh = memo.offsetHeight, ms = Math.min(.42, bw * .34 / mw);
+  memo.style.visibility = "visible";
+  const ride = () => {          // ảnh nằm trên thùng xe, chạy theo xe
+    const r = carB.getBoundingClientRect();
+    memo.style.left = r.left + r.width * BED.x - mw / 2 + "px"; memo.style.top = r.top + r.height * BED.y - mh + "px";
+    memo.style.transform = `scale(${ms}) rotate(-4deg)`;
+    memoRide = requestAnimationFrame(ride);
+  };
+  ride();
+  carB.classList.add("go");
+  const midB = (W - bw) / 2 - bw * .1;
+  const inB = moveX(carB, -bw - 30, midB, 2200, "cubic-bezier(.2,.7,.3,1)"); carB.classList.add("show");
+  await inB;
+  carB.classList.remove("go");
+  // xe nảy lên, hất ảnh bay lên giữa màn
+  cancelAnimationFrame(memoRide);
+  const L = parseFloat(memo.style.left), T = parseFloat(memo.style.top);
+  carB.animate([{ transform: `translate(${midB}px, 0) rotate(0)` }, { transform: `translate(${midB}px, -26px) rotate(-4deg)`, offset: .35 }, { transform: `translate(${midB}px, 0) rotate(1deg)`, offset: .7 }, { transform: `translate(${midB}px, 0)` }],
+    { duration: 520, easing: "ease-out" });
+  puff(midB + bw * .15, ground - 6, -1); puff(midB + bw * .8, ground - 6, 1);
+  await wait(140);
+  const dx = (W - mw) / 2 - L, dy = Math.max(12, (H * .86 - mh) / 2) - T;
+  await memo.animate([
+    { transform: `translate(0, 0) scale(${ms}) rotate(-4deg)` },
+    { transform: `translate(${dx * .5}px, ${dy - H * .18}px) scale(.75) rotate(-200deg)`, offset: .45 },
+    { transform: `translate(${dx}px, ${dy + 16}px) scale(1.04) rotate(-358deg)`, offset: .78 },
+    { transform: `translate(${dx}px, ${dy - 8}px) scale(.99) rotate(-360deg)`, offset: .9 },
+    { transform: `translate(${dx}px, ${dy}px) scale(1) rotate(-360deg)` }], { duration: 1500, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards" }).finished;
+  carB.classList.add("go");
+  moveX(carB, midB, W + 40, 2200, "cubic-bezier(.5,0,.75,1)");
+  await wait(1600);
+  $("s2hint").classList.add("on"); s2ready = true;
+}
+$("s2").addEventListener("click", () => {
+  if (!s2ready) return; s2ready = false;
+  $("s2").style.transition = ""; $("s2").classList.remove("on");
+  setTimeout(() => clearInterval(ticker), 1000);
+  scene3();
+});
+
+/* =================== MÀN 3: shipper mèo giao thư =================== */
+let K = {};   // vị trí mèo hiện tại
+function placeCat(kind) {
+  const cat = $("cat"), img = $("catImg");
+  img.src = `../assets/flow/${kind}.webp?v=3`;
+  let w, h;
+  if (kind === "cat-scooter" || kind === "scooter-empty") { w = Math.min(W * .8, 440, H * .32 / ratio(kind)); h = w * ratio(kind); K = { x: (W - w) / 2, y: H * .56 - h / 2 }; }
+  else { h = Math.min(H * .6, 560); w = h / ratio(kind); if (w > W * .92) { w = W * .92; h = w * ratio(kind); } K = { x: (W - w) / 2, y: Math.max(14, H * .43 - h / 2) }; }
+  Object.assign(cat.style, { width: w + "px", height: h + "px", left: K.x + "px", top: K.y + "px" });
+  K.w = w; K.h = h; cat.style.visibility = "visible";
+  return K;
+}
+async function scene3() {
+  await wait(700);
+  const cat = $("cat"), k = placeCat("cat-scooter");
+  cat.classList.add("go");
+  await cat.animate([{ transform: `translateX(${W - k.x + 30}px)` }, { transform: "translateX(-14px)", offset: .85 }, { transform: "none" }], { duration: 1700, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" }).finished;
+  cat.classList.remove("go");
+  puff(k.x + k.w * .85, k.y + k.h * .95, 1);
+  say("Alooo HoangAnh có nhà khônggg?", W / 2, k.y - 12);
+  const ask = $("ask3"); ask.style.top = k.y + k.h + 18 + "px";
+  await wait(500); ask.classList.add("on");
+}
+$("co").addEventListener("click", async () => {
+  if (tooSoon()) return;
+  $("ask3").classList.remove("on"); $("khong").style.opacity = 0; $("khong").style.pointerEvents = "none";
+  unsay();
+  // mèo nhảy xuống xe: xe trống đứng lại, mèo bật lên rồi đáp xuống đất cạnh xe
+  const cat = $("cat"), hop = $("hop");
+  cat.getAnimations().forEach(a => a.cancel());
+  const S0 = placeCat("scooter-empty"), sp = HOP.sp(S0), gp = HOP.gp(S0);
+  Object.assign(hop.style, { width: sp.w + "px", height: sp.h + "px", left: sp.x + "px", top: sp.y + "px", visibility: "visible" });
+  const dx = gp.x - sp.x, dy = gp.y - sp.y;
+  cat.animate([{ transform: "none" }, { transform: "translateY(5px)", offset: .25 }, { transform: "none" }], { duration: 420, delay: 120 });   // xe nhún khi mèo bật
+  await hop.animate([
+    { transform: "none" },
+    { transform: "translateY(10px) scale(1.06,.9)", offset: .14 },
+    { transform: `translate(${dx * .55}px, ${Math.min(dy, 0) - H * .1}px) rotate(-14deg)`, offset: .55 },
+    { transform: `translate(${dx}px, ${dy + 6}px) scale(1.08,.88) rotate(0)`, offset: .86 },
+    { transform: `translate(${dx}px, ${dy}px)` }], { duration: 900, easing: "cubic-bezier(.35,.6,.4,1)", fill: "forwards" }).finished;
+  puff(gp.x + gp.w * .5, gp.y + gp.h, -1); puff(gp.x + gp.w * .5, gp.y + gp.h, 1);
+  await wait(350);
+  // dắt xe sang bên, mèo lôi thư ra giơ cao
+  cat.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(40px)" }], { duration: 400, fill: "forwards" });
+  await hop.animate([{ opacity: 1, transform: `translate(${dx}px, ${dy}px)` }, { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(.7)` }], { duration: 260, fill: "forwards" }).finished;
+  hop.getAnimations().forEach(a => a.cancel()); hop.style.visibility = "hidden";
+  cat.getAnimations().forEach(a => a.cancel());
+  placeCat("cat-env");
+  puff(K.x + K.w * .2, K.y + K.h * .9, 1);
+  await cat.animate([{ transform: "translateY(40px) scale(.5)", opacity: 0 }, { transform: "translateY(-12px) scale(1.04)", opacity: 1, offset: .7 }, { transform: "none", opacity: 1 }],
+    { duration: 600, easing: "cubic-bezier(.3,.7,.3,1)", fill: "forwards" }).finished;
+  say("HoangAnh có thư nè", W / 2, K.y - 12);
+  const n = $("nhan"); n.style.top = Math.min(H - 70, K.y + K.h + 10) + "px"; n.classList.add("on");
+});
+$("nhan").addEventListener("click", async () => {
+  const n = $("nhan"); n.classList.remove("on"); n.style.pointerEvents = "none";
+  unsay();
+  document.body.classList.remove("pre");
+  $("cat").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }).finished.then(() => { const c = $("cat"); c.getAnimations().forEach(a => a.cancel()); c.style.visibility = "hidden"; });
+  env.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });   // thư hiện ra tại chỗ, không bay nhảy
+  seal.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });
+  setTimeout(() => {   // thư tới nơi: dấu sáp phát sáng, bấm mở được luôn
+    envIn = true; if (opened) return;
+    $("glow").classList.add("on");
+    $("capBot").textContent = "(chạm vào dấu sáp để mở thư nhé)";
+    document.body.classList.add("sealReady"); $("capBot").style.opacity = "";
+  }, 500);
+});
+
+/* ---------- gõ chữ trong thư ---------- */
+let typing = null, typeDone = null;
+function fitBig() {
+  const b = $("big"); if (!b.textContent) return;
+  b.style.fontSize = ""; const max = b.parentElement.clientWidth - 44;
+  let fs = parseFloat(getComputedStyle(b).fontSize);
+  while (b.scrollWidth > max && fs > 20) { fs -= 2; b.style.fontSize = fs + "px"; }
+}
+const SEG = [["text", LETTER], ["big", BIG], ["then", THEN]];
+// co chữ để cả bức thư (kể cả chữ ký) nằm gọn trong thiệp, khỏi phải cuộn
+function fitCard() {
+  if (typing) return;
+  const inn = card.querySelector(".in"), saved = SEG.map(([id]) => $(id).textContent);
+  for (const [id, s] of SEG) $(id).textContent = s;
+  let k = 1; card.style.setProperty("--k", 1); fitBig();
+  while (inn.scrollHeight > inn.clientHeight + 1 && k > .5) { k -= .02; card.style.setProperty("--k", k); fitBig(); }
+  SEG.forEach(([id], i) => $(id).textContent = saved[i]); fitBig();
+}
+addEventListener("resize", () => setTimeout(fitCard, 50));
+function finishType() {
+  for (const [id, s] of SEG) $(id).textContent = s;
+  fitBig(); $("sign").classList.add("on"); typing = null; typeDone?.();
+}
+function typeLetter() {
+  return new Promise(res => {
+    typeDone = res;
+    const caret = document.createElement("span"); caret.className = "caret";
+    let seg = 0, i = 0;
+    const inn = card.querySelector(".in");
+    const step = () => {
+      const [id, s] = SEG[seg], el = $(id);
+      if (i === 0) { el.textContent = ""; el.append(caret); if (id === "big") { el.style.fontSize = ""; } }
+      if (i >= s.length) {
+        if (++seg >= SEG.length) { caret.remove(); finishType(); return; }
+        i = 0; typing = setTimeout(step, 700); return;
+      }
+      caret.before(s[i++]);
+      if (id === "big") fitBig();
+      if (inn.scrollHeight - inn.scrollTop - inn.clientHeight < 120) inn.scrollTop = inn.scrollHeight;
+      const ch = s[i - 1]; typing = setTimeout(step, id === "big" ? 140 : ch === "\n" ? 380 : /[,.!?:]/.test(ch) ? 220 : 42);
+    };
+    step();
+  });
+}
+card.addEventListener("click", () => { if (typing) { clearTimeout(typing); finishType(); card.querySelector(".in").scrollTop = 1e6; } });
+
+/* ---------- mở thư ---------- */
+seal.addEventListener("click", async () => {
+  if (opened || !envIn) return; opened = true;
+  env.getAnimations().forEach(a => a.cancel()); document.body.classList.add("sealReady");
+  setMusic(true);
+  $("rays").classList.remove("on"); $("glow").classList.remove("on");
+  document.body.classList.add("opened");
+  layout();                                 // phong thư trượt xuống chỗ mới
+  await wait(1000);
+  env.classList.add("opened");
+  await wait(450); env.querySelector(".flap").classList.add("behind");
+  await wait(350);
+  card.style.visibility = "visible";
+  const a1 = card.animate([{ transform: tucked(0), clipPath: tuckClip(0) }, { transform: tucked(-E.h * .85), clipPath: tuckClip(-E.h * .85) }], { duration: 1000, easing: "cubic-bezier(.4,0,.3,1)", fill: "forwards" });
+  await a1.finished;
+  card.classList.add("out");
+  const a2 = card.animate([{ transform: tucked(-E.h * .85), clipPath: tuckClip(-E.h * .85) }, { clipPath: "inset(-30px -30px 0px -30px)", offset: .35 }, { transform: `rotate(${C.r}deg)`, clipPath: "inset(-30px -30px 0px -30px)" }], { duration: 1100, easing: "cubic-bezier(.3,.8,.3,1)", fill: "forwards" });
+  setTimeout(() => { $("fl1").classList.add("on"); }, 300);
+  setTimeout(() => { $("fl2").classList.add("on"); }, 500);
+  await a2.finished;
+  a1.cancel(); a2.cancel(); card.style.transform = `rotate(${C.r}deg)`;
+  await document.fonts.ready; fitCard();
+  await typeLetter();
+  await wait(3200);
+  scene4();
+});
+
+/* =================== MÀN 4: mèo quay lại giơ bảng =================== */
+async function scene4() {
+  $("dim").classList.add("on");
+  await wait(700);
+  const cat = $("cat"); cat.style.transform = ""; cat.getAnimations().forEach(a => a.cancel());
+  let k = placeCat("cat-scooter"); cat.classList.add("flip", "go");
+  await cat.animate([{ transform: `translateX(${-k.x - k.w - 30}px)` }, { transform: "translateX(14px)", offset: .85 }, { transform: "none" }], { duration: 1600, easing: "cubic-bezier(.2,.7,.3,1)" }).finished;
+  cat.classList.remove("go");
+  puff(k.x + k.w * .1, k.y + k.h * .95, -1);
+  await wait(300);
+  // xuống xe, giơ bảng
+  cat.classList.remove("flip");
+  k = placeCat("cat-sign3");
+  cat.animate([{ transform: "translateY(30px) scale(.85)", opacity: 0 }, { transform: "translateY(-10px) scale(1.03)", opacity: 1, offset: .6 }, { transform: "none", opacity: 1 }], { duration: 600, easing: "ease-out" });
+  const st = $("signTxt");
+  Object.assign(st.style, { left: SIGN.x * 100 + "%", top: SIGN.y * 100 + "%", width: SIGN.w * 100 + "%", height: SIGN.h * 100 + "%", transform: `rotate(${SIGN.r}deg)` });
+  st.style.fontSize = "80px"; const sp = st.firstElementChild;   // chữ to nhất mà vẫn vừa bảng, không xuống dòng lung tung
+  for (let fs = 80; (sp.offsetWidth > st.clientWidth * .9 || sp.offsetHeight > st.clientHeight * .92) && fs > 14; fs -= 1) st.style.fontSize = fs + "px";
+  setTimeout(() => st.classList.add("on"), 450);
+  const ask = $("ask4"); ask.style.top = Math.min(H - 70, k.y + k.h + 16) + "px";
+  await wait(1100); ask.classList.add("on");
+}
+/* ---------- Chữ bằng hạt (bê nguyên từ bản chính): hạt bay về xếp thành chữ, lấp lánh, rồi tan như bụi ---------- */
+const ptx = $("ptx"), pg = ptx.getContext("2d");
+const dotSprites = ["#ffffff", "#ffe2ee", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff"].map(c => {
+  const k = document.createElement("canvas"); k.width = k.height = 32;
+  const g = k.getContext("2d"), r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  r.addColorStop(0, "#fff"); r.addColorStop(.25, c); r.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32); return k;
+});
+let ptGroups = [], ptDpr = 1, ptLoop = false;
+function fitPtx() { ptDpr = Math.min(2, devicePixelRatio || 1); ptx.width = innerWidth * ptDpr; ptx.height = innerHeight * ptDpr; }
+fitPtx();
+function samplePts(el) {
+  const W = innerWidth, H = innerHeight, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const g = cv.getContext("2d", { willReadFrequently: true }); g.fillStyle = "#fff"; g.textBaseline = "alphabetic";
+  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), rg = document.createRange();
+  let fs = 16;
+  for (let n; (n = tw.nextNode());) {
+    const cs = getComputedStyle(n.parentElement); g.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily; fs = parseFloat(cs.fontSize);
+    const m = g.measureText("Hg"), asc = m.fontBoundingBoxAscent || fs * .8, desc = m.fontBoundingBoxDescent || fs * .2;
+    let off = 0;
+    for (const ch of n.data) {
+      if (ch.trim()) {
+        rg.setStart(n, off); rg.setEnd(n, off + ch.length);
+        const r = rg.getClientRects()[0];
+        if (r) g.fillText(ch, r.left, r.top + (r.height - asc - desc) / 2 + asc);
+      }
+      off += ch.length;
+    }
+  }
+  const box = el.getBoundingClientRect(), x0 = Math.max(0, Math.floor(box.left - fs)), y0 = Math.max(0, Math.floor(box.top - fs));
+  const x1 = Math.min(W, Math.ceil(box.right + fs)), y1 = Math.min(H, Math.ceil(box.bottom + fs));
+  if (x1 <= x0 || y1 <= y0) return [];
+  const d = g.getImageData(x0, y0, x1 - x0, y1 - y0).data, w = x1 - x0, h = y1 - y0;
+  let pts = [], step = Math.max(1.6, fs / 13);
+  for (let k = 0; k < 4; k++) {
+    pts = [];
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      const jx = Math.min(w - 1, Math.max(0, Math.round(x + (Math.random() - .5) * step * .6))), jy = Math.min(h - 1, Math.max(0, Math.round(y + (Math.random() - .5) * step * .6)));
+      if (d[(jy * w + jx) * 4 + 3] > 110) pts.push([x0 + jx, y0 + jy]);
+    }
+    if (pts.length < 3200) break; step *= 1.25;
+  }
+  return pts.map(([x, y]) => ({ x, y, r: step * (.55 + Math.pow(Math.random(), 4) * .9), c: Math.floor(Math.random() * dotSprites.length) }));
+}
+function ptext(el, from) {
+  ptOut(el); el.classList.add("ghost");
+  const now = performance.now() / 1000, pts = samplePts(el), cx = from ? from[0] : innerWidth / 2, cy = from ? from[1] : innerHeight / 2;
+  const left = pts.reduce((m, q) => Math.min(m, q.x), 1e9);
+  pts.forEach(q => {
+    const a = Math.random() * 6.2832, R = from ? Math.random() * 40 : Math.max(innerWidth, innerHeight) * (.35 + Math.random() * .5);
+    q.sx = cx + Math.cos(a) * R; q.sy = cy + Math.sin(a) * R;
+    q.dl = (q.x - left) / innerWidth * .9 + Math.random() * .5;
+    q.s = Math.random(); q.vx = (Math.random() - .5) * 260; q.vy = -60 - Math.random() * 240;
+  });
+  ptGroups.push({ el, pts, t0: now, out: 0, rev: pts.reduce((m, q) => Math.max(m, q.dl), 0) + .9 });
+  if (!ptLoop) { ptLoop = true; requestAnimationFrame(drawPtx); }
+}
+function ptOut(el) { const now = performance.now() / 1000; el.classList.add("ghost"); ptGroups.forEach(G => { if (G.el === el && !G.out) G.out = now; }); }
+addEventListener("resize", () => {
+  fitPtx();
+  const live = ptGroups.filter(G => !G.out); ptGroups = ptGroups.filter(G => G.out);
+  live.forEach(G => { ptext(G.el); ptGroups[ptGroups.length - 1].t0 -= 10; G.el.classList.remove("ghost"); });
+});
+function drawPtx(nowMs) {
+  const t = nowMs / 1000;
+  pg.setTransform(ptDpr, 0, 0, ptDpr, 0, 0); pg.clearRect(0, 0, innerWidth, innerHeight);
+  ptGroups = ptGroups.filter(G => !G.out || t - G.out < 1.6);
+  if (!ptGroups.length) { ptLoop = false; return; }
+  pg.globalCompositeOperation = "lighter";
+  for (const G of ptGroups) {
+    const lt = t - G.t0, ot = G.out ? t - G.out : 0;
+    if (!G.out && lt > G.rev && G.el.classList.contains("ghost")) G.el.classList.remove("ghost");
+    const dim = G.out ? 1 : 1 - Math.min(1, Math.max(0, (lt - G.rev) / .9)) * .8;
+    for (const q of G.pts) {
+      let g = Math.min(1, Math.max(0, (lt - q.dl) / 1.1)); g = 1 - Math.pow(1 - g, 3);
+      if (g <= 0) continue;
+      const sw = (1 - g) * 2.4 * (q.s - .5);
+      let x = q.sx + (q.x - q.sx) * g + Math.sin(g * 3.14) * sw * 60, y = q.sy + (q.y - q.sy) * g - Math.sin(g * 3.14) * sw * 40;
+      x += Math.sin(t * 1.7 + q.s * 40) * .7; y += Math.cos(t * 1.3 + q.s * 31) * .7 - Math.max(0, Math.sin(t * 2.2 - q.x * .012)) * 2.2;
+      let a = (.55 + .45 * Math.sin(t * (1.5 + q.s * 3) + q.s * 50)) * (.75 + .25 * Math.sin(t * 2.6 - q.x * .02)) * Math.min(1, g * 1.6);
+      if (ot) { x += q.vx * ot; y += q.vy * ot + 120 * ot * ot; a *= Math.max(0, 1 - ot / 1.5); }
+      const r = q.r * (1 + (1 - g) * 1.5);
+      pg.globalAlpha = a * dim; pg.drawImage(dotSprites[q.c], x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
+    }
+  }
+  pg.globalAlpha = 1; pg.globalCompositeOperation = "source-over";
+  requestAnimationFrame(drawPtx);
+}
+
+let taps = 0, heartOn = false;
+$("yes").addEventListener("click", async () => {
+  if (tooSoon()) return;
+  $("ask4").classList.remove("on"); $("no").style.opacity = 0; $("no").style.pointerEvents = "none";
+  $("signTxt").classList.remove("on");
+  $("cat").animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(24px) scale(.9)" }], { duration: 700, easing: "ease-in", fill: "forwards" });
+  $("night").classList.add("on");
+  const o = HeartGL.start();
+  const om = $("omg"); om.style.top = Math.min(H - 190, o.bottom + 10) + "px"; om.style.visibility = "visible";
+  ptext(om, [W / 2, o.cy]);              // hạt phụt ra từ giữa tim rồi xếp thành OMG / she said YES
+  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 50, om.getBoundingClientRect().bottom + 12) + "px";
+  setTimeout(() => { th.classList.add("on"); heartOn = true; $("stars").classList.add("tap"); }, 3800);
+});
+$("stars").addEventListener("click", () => {
+  if (!heartOn) return;
+  taps++;
+  if (taps < TAPS) {
+    HeartGL.poke();
+    $("tapHint").textContent = ["", "nữa nào", "nữa đi", "sắp rồi...", "1 cái nữa thôi!"][taps] || "";
+    return;
+  }
+  heartOn = false; $("tapHint").classList.remove("on"); $("stars").classList.remove("tap");
+  HeartGL.boom();
+  setTimeout(() => ptOut($("omg")), 1550);   // tim nổ thì chữ tan ra như bụi
+  setTimeout(() => {
+    $("flash").animate([{ opacity: 0 }, { opacity: 1, offset: .25 }, { opacity: 0 }], { duration: 1100, easing: "ease-out" });
+    secret = [W / 2, H / 2];
+    memeWall();
+  }, 1600);
+});
+
+/* ---------- pháo bụi, tim bay, tường meme (như bản cũ) ---------- */
+const fx = $("fx"), fg = fx.getContext("2d"); let dpr = 1;
+const fitFx = () => { dpr = Math.min(2, devicePixelRatio || 1); fx.width = innerWidth * dpr; fx.height = innerHeight * dpr; };
+fitFx(); addEventListener("resize", fitFx);
+const HEART = new Path2D("M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z");
+const COLORS = ["#fff4c2", "#ffd36b", "#ff8fb4", "#ffffff", "#ffb3cb", "#c9f2ff"];
+let glints = [], flyers = [], secret = [0, 0];
+function burst(x, y, n = 90, big = false) {
+  const now = performance.now() / 1000;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * 6.2832, v = (big ? 80 : 40) + Math.pow(Math.random(), .6) * (big ? 420 : 240);
+    glints.push({ x, y, t: now, life: .9 + Math.random() * 1.1, r: 1.4 + Math.random() * (big ? 3.6 : 2.6), c: COLORS[i % COLORS.length], vx: Math.cos(a) * v, vy: Math.sin(a) * v - 30 });
+  }
+  loop();
+}
+const bez = (p, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * p[0][i] + 3 * u * u * t * p[1][i] + 3 * u * t * t * p[2][i] + t * t * t * p[3][i]); };
+function fly() {
+  const now = performance.now() / 1000, x0 = W * (.1 + Math.random() * .8), x1 = x0 + rnd(W * .35);
+  flyers.push({ t0: now, dur: 3.4 + Math.random() * 1.6, s: 36 + Math.random() * 30, ph: Math.random() * 6, tilt: rnd(.3),
+    p: [[x0, H + 60], [x0 + rnd(W * .5), H * .66], [x1 + rnd(W * .5), H * .33], [x1, -80]] });
+  loop();
+}
+let looping = false;
+function loop() { if (!looping) { looping = true; requestAnimationFrame(draw); } }
+function draw(ms) {
+  const t = ms / 1000;
+  fg.setTransform(dpr, 0, 0, dpr, 0, 0); fg.clearRect(0, 0, innerWidth, innerHeight);
+  glints = glints.filter(q => t - q.t < q.life); flyers = flyers.filter(f => t - f.t0 < f.dur);
+  for (const q of glints) {
+    const a = (t - q.t) / q.life, dt = t - q.t, r = q.r * (1 - a * .5);
+    const x = q.x + q.vx * (1 - Math.exp(-3 * dt)) / 3, y = q.y + q.vy * (1 - Math.exp(-3 * dt)) / 3 + 40 * dt * dt;
+    fg.globalAlpha = (1 - a) * .95; fg.fillStyle = q.c; fg.shadowColor = q.c; fg.shadowBlur = 8;
+    fg.beginPath(); fg.arc(x, y, r, 0, 6.283); fg.fill();
+  }
+  fg.globalAlpha = 1; fg.shadowBlur = 0;
+  for (const f of flyers) {
+    const u = (t - f.t0) / f.dur, [x, y] = bez(f.p, u), beat = 1 + Math.pow(Math.max(0, Math.sin(t * 6 + f.ph)), 8) * .16, k = f.s / 64 * beat;
+    fg.save(); fg.translate(x, y); fg.rotate(f.tilt + Math.sin(t * 2.2 + f.ph) * .2); fg.scale(k, k); fg.translate(-32, -30);
+    const gr = fg.createRadialGradient(22, 18, 2, 32, 30, 42); gr.addColorStop(0, "#ffe0ea"); gr.addColorStop(.4, "#ff7aa5"); gr.addColorStop(1, "#d6336c");
+    fg.shadowColor = "rgba(255,90,150,.9)"; fg.shadowBlur = 24 * k; fg.fillStyle = gr; fg.fill(HEART);
+    fg.shadowBlur = 0; fg.strokeStyle = "rgba(255,255,255,.55)"; fg.lineWidth = 1.5; fg.stroke(HEART);
+    fg.restore();
+  }
+  if (glints.length || flyers.length) requestAnimationFrame(draw); else looping = false;
+}
+const memeSrc = i => "../assets/memes/m" + String(i % MEMES + 1).padStart(2, "0") + ".jpg";
+function memeWall() {
+  const box = $("memes"); box.style.pointerEvents = "auto";
+  const WW = innerWidth + 48, HH = innerHeight + 48, cell = Math.max(96, Math.min(170, innerWidth / 4));
+  const nx = Math.ceil(WW / cell), ny = Math.ceil(HH / cell), w = WW / nx, h = HH / ny, total = nx * ny;
+  const cells = [...Array(total).keys()].sort(() => Math.random() - .5), pics = [...Array(MEMES).keys()].sort(() => Math.random() - .5);
+  let n = 0;
+  const timer = setInterval(() => {
+    if (n >= total) {
+      clearInterval(timer);
+      setTimeout(() => {
+        const hero = new Image(); hero.className = "hero"; hero.alt = ""; hero.style.setProperty("--r0", "-30deg");
+        hero.onload = () => { box.append(hero); hero.getBoundingClientRect(); hero.classList.add("up");
+          setTimeout(() => {
+            const cap = document.createElement("div"); cap.className = "mcap"; cap.textContent = CAPTION;
+            cap.addEventListener("click", () => { cap.animate([{ scale: 1 }, { scale: 1.18 }, { scale: 1 }], { duration: 260 }); fly(); if (Math.random() < .5) setTimeout(fly, 180); });
+            box.append(cap); cap.getBoundingClientRect(); cap.classList.add("up");
+            for (let i = 0; i < 6; i++) setTimeout(fly, i * 350);
+          }, 2200);
+        };
+        hero.src = PHOTO;
+      }, 900);
+      return;
+    }
+    const c = cells[n], img = new Image();
+    img.src = memeSrc(pics[n % pics.length]); img.alt = "";
+    Object.assign(img.style, { width: 100 / nx + "%", height: 100 / ny + "%", left: (c % nx) * 100 / nx + "%", top: Math.floor(c / nx) * 100 / ny + "%" });
+    img.style.setProperty("--r0", rnd(200) + "deg"); img.style.setProperty("--r", rnd(5) + "deg");
+    img.style.setProperty("--dx", secret[0] + 24 - ((c % nx) + .5) * w + "px"); img.style.setProperty("--dy", secret[1] + 24 - (Math.floor(c / nx) + .5) * h + "px");
+    box.append(img); img.getBoundingClientRect(); img.classList.add("up");
+    n++;
+  }, Math.max(28, 2600 / total));
+}
+
+addEventListener("resize", layout);
+layout();
+</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }</script>
 <script type="module">
 import * as THREE from "three";
-
+// tim hạt, phong ấn và sao chổi: bê nguyên từ bản chính (index.html)
 const COUNT = innerWidth < 700 ? 16000 : 26000;
 const gauss = () => (Math.random() + Math.random() + Math.random() + Math.random() - 2) * .87;   // xấp xỉ phân bố chuẩn
 const CAM_Z = 60, FOV = 50;
-const renderer = new THREE.WebGLRenderer({ canvas: $("gl"), antialias: false, alpha: true });
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("stars"), antialias: false, alpha: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
 const scene3 = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 400);
@@ -660,83 +1340,57 @@ const stars = new THREE.Group();
 }
 scene3.add(stars);
 
-let current = "cloud", morphStart = 0, morphDur = 1, heartT0 = 0, straight = 0;
-function morph(name, dur = 4600) {
-  if (name === current) return;
-  from.array.set(to.array); to.array.set(shapeOf(name));
-  from.needsUpdate = to.needsUpdate = true;
-  if (name === "heart") heartT0 = performance.now() / 1000;
-  {   // mây đang quay: "đóng băng" góc quay vào vị trí hạt rồi đưa góc về 0, hạt bay thẳng từ chỗ đang đứng về hình mới, không quay ngược lại
-    const r = points.rotation.y, c = Math.cos(r), sn = Math.sin(r), A = from.array;
-    for (let i = 0; i < A.length; i += 3) { const x = A[i], z = A[i + 2]; A[i] = x * c + z * sn; A[i + 2] = -x * sn + z * c; }
-    points.rotation.y = 0;
-  }
-  current = name; morphStart = performance.now(); morphDur = dur; uniforms.uP.value = 0;
-}
+/* ---------- bản thư: tim bay từ 4 phía vào, vòng render y như bản chính ---------- */
+let current = "", morphStart = 0, morphDur = 1, heartT0 = 0, straight = 0, running = false;
 function resize() {
   renderer.setSize(innerWidth, innerHeight, false);
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   uniforms.uPx.value = renderer.getPixelRatio() * innerHeight * .0062;
 }
 resize();
-to.array.set(cloud()); from.array.set(to.array); to.needsUpdate = from.needsUpdate = true;
-addEventListener("resize", () => { resize(); const c = current; current = ""; morph(c, 900); });
-
-const mouse = { x: 0, y: 0 };
+addEventListener("resize", () => { resize(); if (current === "heart") to.array.set(heart()); });
+const mouse = { x: 0, y: 0 }, look = { x: 0, y: 0 };
 addEventListener("pointermove", e => { if (e.pointerType === "mouse") { mouse.x = e.clientX / innerWidth - .5; mouse.y = e.clientY / innerHeight - .5; } });
-
-// cảm biến điện thoại: nghiêng máy = xoay đám hạt + trượt nền + ảnh lệch theo; lắc máy = tim giật mạnh, trang cuối bay tim/máy bay
-const tilt = { x: 0, y: 0, b0: null, g0: null }, look = { x: 0, y: 0 };
-const clamp1 = v => Math.max(-1, Math.min(1, v));
-let lastShake = 0;
-function onTilt(e) {
-  if (e.gamma == null) return;
-  if (tilt.b0 == null) { tilt.b0 = e.beta; tilt.g0 = e.gamma; }   // lấy tư thế cầm máy lúc đầu làm gốc
-  tilt.b0 += (e.beta - tilt.b0) * .004; tilt.g0 += (e.gamma - tilt.g0) * .004;   // gốc trôi chậm theo, đổi tư thế cầm không bị lệch mãi
-  tilt.x = clamp1((e.gamma - tilt.g0) / 30) * .5; tilt.y = clamp1((e.beta - tilt.b0) / 30) * .5;
-}
-function onShake(e) {
-  const a = e.acceleration || e.accelerationIncludingGravity; if (!a) return;
-  const g = e.acceleration ? 0 : 9.8, m = Math.abs(Math.hypot(a.x || 0, a.y || 0, a.z || 0) - g), now = performance.now();
-  if (m < 14 || now - lastShake < 700) return;
-  lastShake = now; flinch = .18;
-  if (document.querySelector("#memes .cap")) { fly(); fly(); setTimeout(fly, 160); }
-}
-function enableSensors() {   // iPhone bắt hỏi quyền, phải gọi ngay trong lúc chạm
-  const ask = C => C && typeof C.requestPermission === "function" ? C.requestPermission().catch(() => "denied") : Promise.resolve("granted");
-  ask(window.DeviceOrientationEvent).then(r => r === "granted" && addEventListener("deviceorientation", onTilt));
-  ask(window.DeviceMotionEvent).then(r => r === "granted" && addEventListener("devicemotion", onShake));
-}
 let burstStart = -1e9, flinch = 0, lastT = 0, glowT = 0;
-const secretPos = new THREE.Vector3(), secretXY = [innerWidth / 2, innerHeight / 2];
-renderer.setAnimationLoop(now => {
+function edges() {            // bụi sao xuất phát ngoài mép màn hình, chia đều 4 phía
+  const a = new Float32Array(COUNT * 3), v = view();
+  for (let i = 0; i < COUNT; i++) {
+    const side = i % 4, m = v.h * (.08 + Math.random() * .3);
+    let x, y;
+    if (side === 0) { x = rnd(v.w / 2); y = v.h / 2 + m; }
+    else if (side === 1) { x = v.w / 2 + m; y = rnd(v.h / 2); }
+    else if (side === 2) { x = rnd(v.w / 2); y = -v.h / 2 - m; }
+    else { x = -v.w / 2 - m; y = rnd(v.h / 2); }
+    a.set([x, y, gauss() * 6], i * 3);
+  }
+  return a;
+}
+function frame(now) {
   const t = now / 1000;
   uniforms.uTime.value = t;
   const dt = Math.min(.05, t - (lastT || t)); lastT = t;
   if (current === "heart" && heartFlow) { flowHeart(heartFlow, to.array, dt); to.needsUpdate = true; }
   uniforms.uP.value = Math.min(1, (now - morphStart) / morphDur);
-  const b = (now - burstStart) / 1000;                       // nổ ra rồi thu về trong ~2.4 giây
-  uniforms.uGlow.value += (glowT * (.85 + .15 * Math.sin(t * 9)) - uniforms.uGlow.value) * (1 - Math.exp(-dt * 4));   // cả trái tim sáng rực, phập phồng
+  const b = (now - burstStart) / 1000;
+  uniforms.uGlow.value += (glowT * (.85 + .15 * Math.sin(t * 9)) - uniforms.uGlow.value) * (1 - Math.exp(-dt * 4));
   uniforms.uBurst.value = b < 2.4 ? Math.sin(Math.min(1, b / 2.4) * Math.PI) * (1 - b / 2.4 * .3) : 0;
   straight += ((glowT > 0 || sealBreak > 0 ? 1 : 0) - straight) * (1 - Math.exp(-dt * 3));
-  const hl = t - heartT0, sw = Math.min(1, hl / 4) * (1 - straight);   // tim hiện ra thẳng giữa rồi mới lắc nhẹ; bấm Yes thì đứng thẳng lại
-  const spin = current === "cloud" ? t * .12 : current === "heart" ? Math.sin(hl * .45) * .3 * sw : 0;   // tim tự lắc qua lại để lộ độ phồng
-  look.x += (mouse.x + tilt.x - look.x) * .08; look.y += (mouse.y + tilt.y - look.y) * .08;
-  const lk = current === "heart" ? 1 - straight : 1;
+  const hl = t - heartT0, sw = Math.min(1, hl / 4) * (1 - straight);
+  const spin = current === "heart" ? Math.sin(hl * .45) * .3 * sw : 0;
+  look.x += (mouse.x - look.x) * .08; look.y += (mouse.y - look.y) * .08;
+  const lk = 1 - straight;
   points.rotation.y += (spin + look.x * .9 * lk - points.rotation.y) * .05;
   points.rotation.x += (look.y * .6 * lk - points.rotation.x) * .05;
   stars.position.set(-look.x * 14, look.y * 10, 0);
-  document.documentElement.style.setProperty("--lx", look.x.toFixed(3));
-  document.documentElement.style.setProperty("--ly", look.y.toFixed(3));
   let s = 1;
   if (current === "heart") s += Math.pow(Math.max(0, Math.sin(t * 5.2)), 10) * .04 + Math.pow(Math.max(0, Math.sin(t * 5.2 - 1)), 10) * .02;
   flinch *= .9; s += flinch;
   points.scale.setScalar(s);
-  if (heartFlow) {                                  // phong ấn nằm ở tâm trái tim, quay theo tim
-    sealIn += ((sealOn ? 1 : 0) - sealIn) * (1 - Math.exp(-dt * 1.5));   // hiện dần theo thời gian thật, máy chậm cũng vậy
+  if (heartFlow) {
+    sealIn += ((sealOn ? 1 : 0) - sealIn) * (1 - Math.exp(-dt * 1.5));
     const bk = sealBreak > 0 ? (now - sealBreak) / 1000 : 0, charge = bk > 0 ? Math.min(1, bk / .65) : 0, blow = bk > .65 ? Math.min(1, (bk - .65) / .7) : 0;
     const pk = Math.max(0, 1 - (now - sealPoke) / 650);
-    sealSpin += dt * (1 + charge * charge * 16 + pk * 4);   // sắp vỡ thì quay điên cuồng
+    sealSpin += dt * (1 + charge * charge * 16 + pk * 4);
     orb.rotation.y = sealSpin * .5;
     streaks.forEach(g => g.children[0].rotation.z += dt * g.children[0].userData.v * (1 + charge * 3 + pk * 2));
     suck(dt, 1 + charge * 4 + pk * 2);
@@ -744,7 +1398,7 @@ renderer.setAnimationLoop(now => {
     seal.position.set(heartFlow.s * rnd(shake), heartFlow.oy - 3 * heartFlow.s + heartFlow.s * rnd(shake), 0);
     seal.rotation.z = Math.sin(now / 45) * pk * .18;
     seal.scale.setScalar(heartFlow.s * (1 + charge * .18 + blow * 2.6));
-    core.scale.setScalar((SR * 2.4 + Math.sin(t * 23) * .5 + Math.sin(t * 5.2) * .8) * (.2 + .8 * orbU.uGather.value) + charge * 12 + pk * 3);   // lõi chói, rung lẹt xẹt
+    core.scale.setScalar((SR * 2.4 + Math.sin(t * 23) * .5 + Math.sin(t * 5.2) * .8) * (.2 + .8 * orbU.uGather.value) + charge * 12 + pk * 3);
     const op = Math.min(1, sealIn * 1.3) * (1 - blow);
     sealMats.forEach(([m, base, col]) => { m.opacity = Math.min(1, base * op * (1 + charge * 1.2 + pk * .5)); m.color.lerpColors(col, WHITE, charge * .8); });
     orbU.uTime.value = t; orbU.uSpin.value = sealSpin; orbU.uGather.value = sealOn || sealBreak > 0 ? Math.min(1, orbU.uGather.value + dt / 3.8) : 0; orbU.uOp.value = op * (1 + pk * .4); orbU.uCharge.value = charge;
@@ -752,410 +1406,29 @@ renderer.setAnimationLoop(now => {
     halo.position.set(0, heartFlow.oy - .5 * heartFlow.s, 0); halo.scale.setScalar(heartFlow.s * (1 + blow * 1.4));
     if (halo.visible) flowComets(dt * (1 + charge * 4));
     haloU.uOp.value = Math.min(1, sealIn * 1.3) * (1 - blow) * .85; halo.visible = haloU.uOp.value > .004;
-    seal.getWorldPosition(secretPos).project(camera);
-    secretXY[0] = (secretPos.x + 1) / 2 * innerWidth; secretXY[1] = (1 - secretPos.y) / 2 * innerHeight;
   }
   renderer.render(scene3, camera);
-  drawPtx(now);
-  drawFx(now);
-});
-
-/* ---------- Kịch bản ---------- */
-const wait = ms => new Promise(r => setTimeout(r, ms));
-const show = id => document.querySelectorAll(".scene").forEach(s => s.classList.toggle("active", s.id === id));
-let skip = null;
-const hold = ms => new Promise(r => { const t = setTimeout(r, ms); skip = () => { clearTimeout(t); r(); }; });
-$("s2").addEventListener("click", () => skip && skip());
-$("sm").addEventListener("click", () => skip && skip());
-$("si").addEventListener("click", () => skip && skip());
-if (CONFIG.firstMessage) {         // bộ đếm chạy theo giờ thật, tính từ tin nhắn đầu tiên
-  const t0 = new Date(CONFIG.firstMessage).getTime(), cells = ["ngày", "giờ", "phút", "giây"].map(label => {
-    const d = document.createElement("div"), b = document.createElement("b"), s = document.createElement("span");
-    s.textContent = label; d.append(b, s); $("count").append(d); return b;
-  });
-  const tick = () => {
-    const s = Math.max(0, Math.floor((Date.now() - t0) / 1000));
-    [Math.floor(s / 86400), Math.floor(s / 3600) % 24, Math.floor(s / 60) % 60, s % 60].forEach((v, i) => cells[i].textContent = i ? String(v).padStart(2, "0") : v);
-  };
-  tick(); setInterval(tick, 1000);
-  $("mimg").src = CONFIG.firstMessagePhoto; $("mlabel").textContent = CONFIG.firstMessageLabel;
+  if (b > 2.6 && b < 1e6) { renderer.setAnimationLoop(null); renderer.clear(); running = false; }   // nổ xong thì tắt hẳn
 }
-const spell = (el, text) => {      // tách chữ thành từng ký tự bay vào; trả về số ký tự để biết bao lâu thì hiện xong
-  el.replaceChildren(); let k = 0;
-  text.split("\n").forEach((line, li) => {
-    if (li) el.append(document.createElement("br"));
-    line.split(" ").filter(Boolean).forEach(word => {   // giữ nguyên từ để xuống dòng không cắt giữa chữ
-      const w = document.createElement("span"); w.className = "w";
-      for (const ch of word) { const c = document.createElement("span"); c.className = "ch"; c.style.setProperty("--i", k++); c.textContent = ch; w.append(c); }
-      el.append(w, " "); k++;
-    });
-  });
-  return k;
+window.HeartGL = {
+  start() {                     // trả về toạ độ màn hình của đáy tim để đặt dòng nhắc
+    to.array.set(heart()); from.array.set(edges()); from.needsUpdate = to.needsUpdate = true;
+    current = "heart"; heartT0 = performance.now() / 1000; morphStart = performance.now(); morphDur = 4600; uniforms.uP.value = 0;
+    sealOn = true;
+    if (!running) { running = true; renderer.setAnimationLoop(frame); }
+    camera.updateMatrixWorld();
+    const p = new THREE.Vector3(0, -15.5 * heartFlow.s + heartFlow.oy, 0).project(camera);
+    const c = new THREE.Vector3(0, heartFlow.oy, 0).project(camera);
+    return { bottom: (1 - p.y) / 2 * innerHeight, cy: (1 - c.y) / 2 * innerHeight };
+  },
+  poke() { sealPoke = performance.now(); flinch = -.06; },
+  boom() {                      // y như lúc bấm Yes bên bản chính: tim bừng sáng, phong ấn quay nhanh, trắng loá rồi tim nổ tung
+    glowT = 1; flinch = .2;
+    setTimeout(() => { sealBreak = performance.now(); }, 900);
+    setTimeout(() => { burstStart = performance.now(); flinch = .25; glowT = 0; }, 1550);
+    setTimeout(() => sealOn = false, 2400);
+  }
 };
-const subtitle = text => { $("sub").classList.remove("bye", "ghost"); return spell($("sub"), text); };
-// chờ người xem chạm mới sang trang; chỉ nhận chạm sau khi chữ đã hiện xong (ready ms)
-const tap = (ready, hint = true) => new Promise(r => {
-  skip = null;
-  setTimeout(() => {
-    if (hint) $("tap").classList.add("on");
-    skip = () => { skip = null; $("tap").classList.remove("on"); r(); };
-  }, ready);
-});
-
-/* ---------- Chữ bằng hạt: lấy mẫu từng ký tự đúng chỗ của chữ thật, hạt bay về xếp thành chữ, lấp lánh như trái tim ---------- */
-const ptx = $("ptx"), pg = ptx.getContext("2d");
-const dotSprites = ["#ffffff", "#ffe2ee", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff"].map(c => {
-  const k = document.createElement("canvas"); k.width = k.height = 32;
-  const g = k.getContext("2d"), r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
-  r.addColorStop(0, "#fff"); r.addColorStop(.25, c); r.addColorStop(1, "rgba(0,0,0,0)");
-  g.fillStyle = r; g.fillRect(0, 0, 32, 32); return k;
-});
-let ptGroups = [], ptDpr = 1;
-function fitPtx() { ptDpr = Math.min(2, devicePixelRatio || 1); ptx.width = innerWidth * ptDpr; ptx.height = innerHeight * ptDpr; }
-fitPtx();
-function samplePts(el) {
-  const W = innerWidth, H = innerHeight, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
-  const g = cv.getContext("2d", { willReadFrequently: true }); g.fillStyle = "#fff"; g.textBaseline = "alphabetic";
-  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), rg = document.createRange();
-  let fs = 16;
-  for (let n; (n = tw.nextNode());) {
-    const cs = getComputedStyle(n.parentElement); g.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily; fs = parseFloat(cs.fontSize);
-    const m = g.measureText("Hg"), asc = m.fontBoundingBoxAscent || fs * .8, desc = m.fontBoundingBoxDescent || fs * .2;
-    let off = 0;
-    for (const ch of n.data) {
-      if (ch.trim()) {
-        rg.setStart(n, off); rg.setEnd(n, off + ch.length);
-        const r = rg.getClientRects()[0];
-        if (r) g.fillText(ch, r.left, r.top + (r.height - asc - desc) / 2 + asc);
-      }
-      off += ch.length;
-    }
-  }
-  const box = el.getBoundingClientRect(), x0 = Math.max(0, Math.floor(box.left - fs)), y0 = Math.max(0, Math.floor(box.top - fs));
-  const x1 = Math.min(W, Math.ceil(box.right + fs)), y1 = Math.min(H, Math.ceil(box.bottom + fs));
-  if (x1 <= x0 || y1 <= y0) return [];
-  const d = g.getImageData(x0, y0, x1 - x0, y1 - y0).data, w = x1 - x0, h = y1 - y0;
-  let pts = [], step = Math.max(1.6, fs / 13);
-  for (let k = 0; k < 4; k++) {        // quá nhiều hạt thì giãn lưới ra cho nhẹ máy
-    pts = [];
-    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
-      const jx = Math.min(w - 1, Math.max(0, Math.round(x + (Math.random() - .5) * step * .6))), jy = Math.min(h - 1, Math.max(0, Math.round(y + (Math.random() - .5) * step * .6)));
-      if (d[(jy * w + jx) * 4 + 3] > 110) pts.push([x0 + jx, y0 + jy]);
-    }
-    if (pts.length < 3200) break; step *= 1.25;
-  }
-  return pts.map(([x, y]) => ({ x, y, r: step * (.55 + Math.pow(Math.random(), 4) * .9), c: Math.floor(Math.random() * dotSprites.length) }));
-}
-function ptext(el, from) {           // from: [x,y] nơi hạt phụt ra (mặc định bay từ khắp màn hình về)
-  ptOut(el); el.classList.add("ghost");
-  const now = performance.now() / 1000, pts = samplePts(el), cx = from ? from[0] : innerWidth / 2, cy = from ? from[1] : innerHeight / 2;
-  const left = pts.reduce((m, q) => Math.min(m, q.x), 1e9);
-  pts.forEach(q => {
-    const a = Math.random() * 6.2832, R = from ? Math.random() * 40 : Math.max(innerWidth, innerHeight) * (.35 + Math.random() * .5);
-    q.sx = cx + Math.cos(a) * R; q.sy = cy + Math.sin(a) * R;
-    q.dl = (q.x - left) / innerWidth * .9 + Math.random() * .5;    // chữ hiện dần từ trái sang phải
-    q.s = Math.random(); q.vx = (Math.random() - .5) * 260; q.vy = -60 - Math.random() * 240;
-  });
-  ptGroups.push({ el, pts, t0: now, out: 0, rev: pts.reduce((m, q) => Math.max(m, q.dl), 0) + .9 });
-}
-function ptOut(el) { const now = performance.now() / 1000; el.classList.add("ghost"); ptGroups.forEach(G => { if (G.el === el && !G.out) G.out = now; }); }
-addEventListener("resize", () => {   // xoay máy: xếp lại chữ theo bố cục mới, không bay lại từ đầu
-  fitPtx();
-  const live = ptGroups.filter(G => !G.out); ptGroups = ptGroups.filter(G => G.out);
-  live.forEach(G => { ptext(G.el); ptGroups[ptGroups.length - 1].t0 -= 10; G.el.classList.remove("ghost"); });
-});
-function drawPtx(nowMs) {
-  const t = nowMs / 1000;
-  pg.setTransform(ptDpr, 0, 0, ptDpr, 0, 0); pg.clearRect(0, 0, innerWidth, innerHeight);
-  ptGroups = ptGroups.filter(G => !G.out || t - G.out < 1.6);
-  if (!ptGroups.length) return;
-  pg.globalCompositeOperation = "lighter";
-  for (const G of ptGroups) {
-    const lt = t - G.t0, ot = G.out ? t - G.out : 0;
-    if (!G.out && lt > G.rev && G.el.classList.contains("ghost")) G.el.classList.remove("ghost");   // chữ thật hiện ra cho dễ đọc
-    const dim = G.out ? 1 : 1 - Math.min(1, Math.max(0, (lt - G.rev) / .9)) * .8;   // hạt mờ dần thành lớp lấp lánh
-    for (const q of G.pts) {
-      let g = Math.min(1, Math.max(0, (lt - q.dl) / 1.1)); g = 1 - Math.pow(1 - g, 3);
-      if (g <= 0) continue;
-      const sw = (1 - g) * 2.4 * (q.s - .5);   // bay vòng cung về chỗ
-      let x = q.sx + (q.x - q.sx) * g + Math.sin(g * 3.14) * sw * 60, y = q.sy + (q.y - q.sy) * g - Math.sin(g * 3.14) * sw * 40;
-      x += Math.sin(t * 1.7 + q.s * 40) * .7; y += Math.cos(t * 1.3 + q.s * 31) * .7 - Math.max(0, Math.sin(t * 2.2 - q.x * .012)) * 2.2;   // sóng nhấp nhô chạy dọc dòng chữ
-      let a = (.55 + .45 * Math.sin(t * (1.5 + q.s * 3) + q.s * 50)) * (.75 + .25 * Math.sin(t * 2.6 - q.x * .02)) * Math.min(1, g * 1.6);
-      if (ot) { x += q.vx * ot; y += q.vy * ot + 120 * ot * ot; a *= Math.max(0, 1 - ot / 1.5); }   // tan ra như bụi
-      const r = q.r * (1 + (1 - g) * 1.5);
-      pg.globalAlpha = a * dim; pg.drawImage(dotSprites[q.c], x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
-    }
-  }
-  pg.globalAlpha = 1; pg.globalCompositeOperation = "source-over";
-}
-
-document.fonts.ready.then(() => document.body.classList.add("ready"));   // script tải xong mới hiện nút, khỏi bấm hụt
-function launch(e) {
-  const b = $("start"), br = b.getBoundingClientRect(), pr = b.querySelector(".plane").getBoundingClientRect();
-  const rip = document.createElement("span"); rip.className = "rip";   // gợn sáng loang ra từ chỗ ngón tay chạm
-  rip.style.left = ((e && e.clientX ? e.clientX : br.left + br.width / 2) - br.left) + "px"; rip.style.top = ((e && e.clientY ? e.clientY : br.top + br.height / 2) - br.top) + "px";
-  b.append(rip); b.classList.add("go");
-  const now = performance.now() / 1000, W = innerWidth, H = innerHeight, x = pr.left + pr.width / 2, y = pr.top + pr.height / 2;
-  // lao ra một đoạn, nhào lộn đúng một vòng tròn gọn, rồi tăng tốc vút thẳng ra khỏi màn
-  const R = Math.min(W, H) * .13, h = -.4, L1 = 46, L2 = 2 * Math.PI * R, L3 = Math.hypot(W, H), Lt = L1 + L2 + L3;
-  const ax = x + Math.cos(h) * L1, ay = y + Math.sin(h) * L1, dur = 4.4;
-  const path = u => {
-    let q = Lt * Math.pow(u, 1.25);                          // chậm lúc đầu, nhanh dần nhẹ khi thoát
-    if (q < L1) return [x + Math.cos(h) * q, y + Math.sin(h) * q];
-    q -= L1;
-    if (q < L2) { const f = q / R; return [ax + R * (Math.sin(h) - Math.sin(h - f)), ay + R * (Math.cos(h - f) - Math.cos(h))]; }
-    q -= L2; return [ax + Math.cos(h) * q, ay + Math.sin(h) * q];
-  };
-  flyers.push({ k: "plane", t0: now, dur, s: 34, fn: path });
-  for (let i = 0; i < 70; i++) {    // viền nút vỡ ra thành bụi sáng
-    const a = Math.random() * 6.2832, ex = br.left + br.width / 2 + Math.cos(a) * br.width / 2, ey = br.top + br.height / 2 + Math.sin(a) * br.height / 2;
-    glints.push({ x: ex, y: ey, t: now, life: .8 + Math.random() * .8, r: 1.4 + Math.random() * 2.4,
-      c: Math.floor(Math.random() * dotSprites.length), vx: Math.cos(a) * (30 + Math.random() * 90), vy: Math.sin(a) * (20 + Math.random() * 60) - 20 });
-  }
-  const uLoop = Math.pow((L1 + L2) / Lt, 1 / 1.25);   // trả về số giây tới lúc máy bay khuất hẳn khỏi màn
-  for (let u = uLoop; u < 1; u += .005) { const [px, py] = path(u); if (px < -40 || px > W + 40 || py < -40 || py > H + 40) return u * dur; }
-  return dur;
-}
-$("start").addEventListener("click", async event => {
-  enableSensors();
-  if (controller && !playing) controller.play();   // chạm là nhạc lên
-  for (let i = 0; i < CONFIG.memes; i++) new Image().src = "assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
-  const gone = launch(event) * 1000; await wait(900); show(""); await wait(Math.max(0, gone + 1000 - 900 - 350));   // trang đầu mờ đi, máy bay khuất hẳn ~1s thì ảnh hiện (ảnh có .35s trễ sẵn)
-  if (CONFIG.firstMessage) {
-    for (const [i, text] of (CONFIG.quiz.intro || []).entries()) {   // Hí lu → em hỏi chị cái này xíu
-      if (i) { $("intro").style.opacity = 0; await wait(450); }
-      $("intro").style.opacity = ""; $("intro").classList.toggle("big", text.length < 12);
-      const n = spell($("intro"), text); show("si");
-      await tap((.9 + n * .055) * 1000 + 700);
-    }
-    show("sq"); qpick.sync();                      // câu đố: cuộn chọn ngày rồi bấm Chốt
-    const ans = await new Promise(r => $("qok").addEventListener("click", () => r(qpick.value()), { once: true }));
-    $("verdict").textContent = ans === CONFIG.firstMessage.slice(0, 10) ? CONFIG.quiz.right : CONFIG.quiz.wrong;
-    show("sc"); $("cnt").innerHTML = [1, 2, 3].map((n, i) => `<span style="--n:${i}">${n}...</span>`).join("");
-    await wait(4400);
-    show("sm"); await tap(1800, false);
-  }
-  show("s2");
-  for (const step of CONFIG.steps) {
-    morph(step.shape);
-    $("sub").classList.toggle("big", !!step.big); $("sub").classList.toggle("letter", !!step.letter); $("s2").classList.toggle("mid", !!step.mid);
-    const n = subtitle(step.text);
-    await tap((step.letter ? .5 + n * .014 : .9 + n * .055) * 1000 + 900);
-  }
-  $("sub").classList.add("bye");
-  morph("heart");
-  show("s3");
-  setTimeout(() => ptext($("headline")), 1200);
-  sealOn = true;                                   // quả cầu tụ lại cùng lúc với trái tim
-  await wait(5200);
-  $("yes").classList.add("show"); $("no").classList.add("show");
-}, { once: true });
-
-$("headline").textContent = CONFIG.headline;
-// bánh xe chọn ngày: mỗi cột cuộn có nấc, ô nằm giữa là ô được chọn; chạm vào ô nào thì cuộn tới ô đó
-const qpick = (() => {
-  const ROW = 48, yNow = new Date().getFullYear(), cols = {}, pad = n => String(n).padStart(2, "0");
-  const items = { d: [...Array(31)].map((_, i) => [i + 1, pad(i + 1)]), m: [...Array(12)].map((_, i) => [i + 1, "tháng " + (i + 1)]),
-    y: [...Array(7)].map((_, i) => [yNow - 6 + i, String(yNow - 6 + i)]) };
-  const start = { d: 1, m: 1, y: yNow };
-  document.querySelectorAll("#qdate .wheel").forEach(w => {
-    const k = w.dataset.k, list = items[k], track = document.createElement("div"); track.className = "track";
-    const cells = list.map(([, label]) => { const d = document.createElement("div"), t = document.createElement("span"); t.textContent = label; d.append(t); track.append(d); return d; });
-    w.append(track);
-    const n = list.length, at = p => ((Math.round(p) % n) + n) % n;   // cuộn vòng: hết cuối thì quay lại đầu
-    let pos = list.findIndex(([v]) => v === start[k]), anim = 0, drag = null;
-    const draw = () => {          // vị trí tính theo số ô (có thể lẻ); ô càng xa giữa càng nhỏ, mờ và nghiêng như bánh xe
-      cells.forEach((c, i) => {
-        const o = ((i - pos) % n + n * 1.5) % n - n / 2, d = Math.min(3, Math.abs(o));   // khoảng cách tới ô giữa, đi đường vòng ngắn nhất
-        c.style.visibility = Math.abs(o) > 3 ? "hidden" : "";
-        c.style.opacity = 1 - d * .28; c.style.transform = `translateY(${o * ROW}px) scale(${1.14 - d * .12}) rotateX(${o * -18}deg)`; c.classList.toggle("on", d < .5); });
-    };
-    const go = to => {            // trôi mượt về đúng một ô
-      cancelAnimationFrame(anim); to = Math.round(to);
-      const from = pos, t0 = performance.now(), dur = 220 + Math.min(600, Math.abs(to - from) * 90);
-      const step = now => { const u = Math.min(1, (now - t0) / dur); pos = from + (to - from) * (1 - Math.pow(1 - u, 3)); draw(); if (u < 1) anim = requestAnimationFrame(step); };
-      anim = requestAnimationFrame(step);
-    };
-    w.addEventListener("pointerdown", e => {
-      cancelAnimationFrame(anim); try { w.setPointerCapture(e.pointerId); } catch {}
-      drag = { y: e.clientY, p: pos, t: performance.now(), v: 0, moved: 0, ly: e.clientY };
-    });
-    w.addEventListener("pointermove", e => {
-      if (!drag) return;
-      const now = performance.now(), dt = Math.max(1, now - drag.t);
-      drag.v = .8 * ((drag.ly - e.clientY) / ROW / dt) + .2 * drag.v; drag.t = now; drag.ly = e.clientY;   // ô / ms
-      drag.moved = Math.max(drag.moved, Math.abs(e.clientY - drag.y));
-      pos = drag.p + (drag.y - e.clientY) / ROW; draw();
-    });
-    const end = e => {
-      if (!drag) return;
-      const d = drag; drag = null;
-      if (d.moved < 6) {           // chạm nhẹ: nhảy tới ô vừa chạm
-        const r = w.getBoundingClientRect(); go(pos + (e.clientY - (r.top + 96 + ROW / 2)) / ROW); return;
-      }
-      go(pos + (performance.now() - d.t > 80 ? 0 : Math.max(-6, Math.min(6, d.v * 160))));            // vuốt nhanh thì trôi thêm vài ô theo đà
-    };
-    w.addEventListener("pointerup", end); w.addEventListener("pointercancel", end);
-    w.addEventListener("wheel", e => { e.preventDefault(); go(Math.round(pos) + Math.sign(e.deltaY)); }, { passive: false });
-    cols[k] = { list, get: () => at(pos) };
-    draw();
-  });
-  return {
-    sync() {},
-    value() { const g = k => cols[k].list[cols[k].get()][0]; return `${g("y")}-${pad(g("m"))}-${pad(g("d"))}`; },
-  };
-})();
-if (CONFIG.quiz) {
-  spell($("qask"), CONFIG.quiz.ask);
-  $("intro").style.transition = "opacity .4s";
-}
-
-// Nút No: chạm vào là nhảy lung tung, nút Yes to dần, trái tim giật mình
-let dodges = 0, lastDodge = -1e9;
-const dodge = e => {
-  e.preventDefault();
-  const no = $("no"), r = no.getBoundingClientRect();
-  if (!no.classList.contains("run")) {           // lần đầu: ghim tại chỗ rồi mới nhảy
-    no.style.left = r.left + "px"; no.style.top = r.top + "px";
-    // giữ một ô trống đúng cỡ nút No rồi khép lại thật chậm → Yes trượt từ từ vào giữa, không nhảy tót vào dưới ngón tay
-    const gap = document.createElement("span"); gap.className = "gap-no"; gap.style.width = r.width + "px"; no.after(gap);
-    no.classList.add("run"); no.getBoundingClientRect();
-    requestAnimationFrame(() => requestAnimationFrame(() => { gap.style.width = "0px"; }));
-    gap.addEventListener("transitionend", () => gap.remove(), { once: true });
-  }
-  dodges++; lastDodge = performance.now();
-  no.textContent = CONFIG.no[dodges % CONFIG.no.length];
-  const w = no.offsetWidth, h = no.offsetHeight, pad = 16, maxX = innerWidth - w - pad, maxY = innerHeight - h - 120;
-  let x, y, tries = 0;
-  do { x = pad + Math.random() * (maxX - pad); y = pad + Math.random() * (maxY - pad); }
-  while (Math.hypot(x - r.left, y - r.top) < 160 && ++tries < 20);   // nhảy đủ xa chỗ cũ
-  no.style.left = x + "px"; no.style.top = y + "px";
-  no.style.rotate = (Math.random() * 30 - 15) + "deg";
-  $("yes").style.setProperty("--g", Math.min(1 + dodges * .12, 2.2));
-  flinch = -.12;
-};
-$("no").addEventListener("pointerdown", dodge);
-$("no").addEventListener("click", e => { e.preventDefault(); if (e.detail === 0) dodge(e); });   // bấm bằng bàn phím (Enter/Space)
-
-addEventListener("pointerdown", e => {              // chạm vào phong ấn trước khi bấm Yes: nó rung lên nhưng không mở
-  if (!sealOn || sealBreak > 0 || e.target.closest("button, .player")) return;
-  if (Math.hypot(e.clientX - secretXY[0], e.clientY - secretXY[1]) > 80) return;
-  sealPoke = performance.now(); flinch = -.06;
-});
-const memeSrc = i => "assets/memes/m" + String(i % CONFIG.memes + 1).padStart(2, "0") + ".jpg";
-/* ---------- Tim và máy bay giấy cuối trang: vẽ trên canvas, có quầng sáng và vệt lấp lánh ---------- */
-const fx = $("fx"), fg = fx.getContext("2d");
-const fitFx = () => { fx.width = innerWidth * ptDpr; fx.height = innerHeight * ptDpr; };
-fitFx(); addEventListener("resize", fitFx);
-const HEART = new Path2D("M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z");
-const PLANE = [new Path2D("M4 30 60 6 30 38Z"), new Path2D("M30 38 60 6 44 58Z"), new Path2D("M30 38 60 6 24 34 28 52Z")];
-let flyers = [], glints = [];
-const bez = (p, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * p[0][i] + 3 * u * u * t * p[1][i] + 3 * u * t * t * p[2][i] + t * t * t * p[3][i]); };
-function fly() {                 // tim bay lên lắc lư như bóng bay; máy bay lượn đường cong qua màn, để lại vệt chấm
-  const W = innerWidth, H = innerHeight, now = performance.now() / 1000;
-  if (Math.random() < .5) {
-    const x0 = W * (.1 + Math.random() * .8), x1 = x0 + rnd(W * .35);
-    flyers.push({ k: "heart", t0: now, dur: 3.4 + Math.random() * 1.6, s: 36 + Math.random() * 30, ph: Math.random() * 6, tilt: rnd(.3),
-      p: [[x0, H + 60], [x0 + rnd(W * .5), H * .66], [x1 + rnd(W * .5), H * .33], [x1, -80]] });
-  } else {
-    const L = Math.random() < .5, y0 = H * (.3 + Math.random() * .6), y1 = H * (.05 + Math.random() * .5);
-    flyers.push({ k: "plane", t0: now, dur: 2.8 + Math.random() * 1.2, s: 50 + Math.random() * 24,
-      p: [[L ? -80 : W + 80, y0], [W * (L ? .35 : .65), y0 - H * (.25 + Math.random() * .3)], [W * (L ? .6 : .4), y1 + H * (.25 + Math.random() * .3)], [L ? W + 80 : -80, y1]] });
-  }
-}
-function burst(x, y) {           // pháo hoa bụi sáng nhỏ: toả tròn ra rồi rơi nhẹ, tắt dần
-  const now = performance.now() / 1000;
-  for (let i = 0; i < 90; i++) {
-    const a = Math.random() * 6.2832, v = 40 + Math.pow(Math.random(), .6) * 220;
-    glints.push({ x, y, t: now, life: .9 + Math.random() * 1.1, r: 1.2 + Math.random() * 2.6, c: Math.floor(Math.random() * dotSprites.length),
-      vx: Math.cos(a) * v, vy: Math.sin(a) * v - 30 });
-  }
-}
-function drawFx(nowMs) {
-  const t = nowMs / 1000;
-  fg.setTransform(ptDpr, 0, 0, ptDpr, 0, 0); fg.clearRect(0, 0, innerWidth, innerHeight);
-  if (!flyers.length && !glints.length) return;
-  glints = glints.filter(q => t - q.t < q.life);
-  for (const q of glints) {         // bụi lấp lánh rơi lại phía sau
-    const a = (t - q.t) / q.life, r = q.r * (1 - a * .5), dt = t - q.t;
-    fg.globalAlpha = (1 - a) * .95; fg.drawImage(dotSprites[q.c], q.x + q.vx * (1 - Math.exp(-3 * dt)) / 3 - r * 1.6, q.y + q.vy * (1 - Math.exp(-3 * dt)) / 3 + 40 * dt * dt - r * 1.6, r * 3.2, r * 3.2);
-  }
-  fg.globalAlpha = 1;
-  flyers = flyers.filter(f => t - f.t0 < f.dur);
-  for (const f of flyers) {
-    const u = (t - f.t0) / f.dur, P = f.fn || (v => bez(f.p, v)), [x, y] = P(u), [x2, y2] = P(Math.min(1, u + .01));
-    fg.save(); fg.translate(x, y);
-    if (f.k === "heart") {
-      const beat = 1 + Math.pow(Math.max(0, Math.sin(t * 6 + f.ph)), 8) * .16, k = f.s / 64 * beat;
-      fg.rotate(f.tilt + Math.sin(t * 2.2 + f.ph) * .2); fg.scale(k, k); fg.translate(-32, -30);
-      const gr = fg.createRadialGradient(22, 18, 2, 32, 30, 42);
-      gr.addColorStop(0, "#ffe0ea"); gr.addColorStop(.4, "#ff7aa5"); gr.addColorStop(1, "#d6336c");
-      fg.shadowColor = "rgba(255,90,150,.9)"; fg.shadowBlur = 24 * k; fg.fillStyle = gr; fg.fill(HEART);
-      fg.shadowBlur = 0; fg.strokeStyle = "rgba(255,255,255,.55)"; fg.lineWidth = 1.5; fg.stroke(HEART);
-      fg.fillStyle = "rgba(255,255,255,.8)"; fg.beginPath(); fg.ellipse(17, 16, 6.5, 3.4, -.65, 0, 6.283); fg.fill();
-      fg.beginPath(); fg.arc(26.5, 11.5, 1.8, 0, 6.283); fg.fill();
-    } else {
-      const k = f.s / 64;
-      fg.rotate(Math.atan2(y2 - y, x2 - x) + Math.PI / 4); fg.scale(k, k * (.88 + .12 * Math.sin(t * 5 + f.t0))); fg.translate(-32, -32);   // chao cánh nhẹ
-      fg.shadowColor = "rgba(255,130,180,.8)"; fg.shadowBlur = 18 * k;
-      fg.fillStyle = "#ffffff"; fg.fill(PLANE[0]); fg.shadowBlur = 0;
-      fg.fillStyle = "#ffe4ee"; fg.fill(PLANE[1]);
-      fg.fillStyle = "#ffb3cb"; fg.fill(PLANE[2]);
-      fg.strokeStyle = "rgba(214,51,108,.55)"; fg.lineWidth = 1.4; fg.lineJoin = "round";
-      PLANE.forEach(P => fg.stroke(P));
-    }
-    fg.restore();
-  }
-}
-
-function memeWall() {              // ảnh từ sâu trong nền nổi dần lên, phủ kín cả màn hình
-  const W = innerWidth + 48, H = innerHeight + 48, cell = Math.max(96, Math.min(170, innerWidth / 4));
-  const nx = Math.ceil(W / cell), ny = Math.ceil(H / cell), w = W / nx, h = H / ny, total = nx * ny;
-  const cells = [...Array(total).keys()].sort(() => Math.random() - .5), pics = [...Array(CONFIG.memes).keys()].sort(() => Math.random() - .5);
-  let n = 0;
-  const timer = setInterval(() => {
-    if (n >= total) {
-      clearInterval(timer);
-      if (CONFIG.photo) setTimeout(() => {           // tường meme kín rồi thì ảnh chị nổi lên chính giữa
-        const hero = new Image(); hero.className = "hero"; hero.alt = "";
-        hero.style.setProperty("--r0", "-30deg");
-        hero.style.setProperty("--dx", secretXY[0] - innerWidth / 2 + "px"); hero.style.setProperty("--dy", secretXY[1] - innerHeight / 2 + "px");
-        hero.onload = () => { $("memes").append(hero); hero.getBoundingClientRect(); hero.classList.add("up");
-          if (CONFIG.caption) setTimeout(() => {
-            const cap = document.createElement("div"); cap.className = "cap"; cap.textContent = CONFIG.caption;
-            cap.addEventListener("click", () => {   // mỗi lần bấm bay ra 1-2 cái
-              cap.animate([{ scale: 1 }, { scale: 1.18 }, { scale: 1 }], { duration: 260 });
-              fly(); if (Math.random() < .5) setTimeout(fly, 180);
-            });
-            $("memes").append(cap); cap.getBoundingClientRect(); cap.classList.add("up");
-          }, 2200);
-        };
-        hero.src = CONFIG.photo;
-      }, 900);
-      return;
-    }
-    const c = cells[n], img = new Image();
-    img.src = memeSrc(pics[n % pics.length]); img.alt = "";
-    Object.assign(img.style, { width: 100 / nx + "%", height: 100 / ny + "%", left: (c % nx) * 100 / nx + "%", top: Math.floor(c / nx) * 100 / ny + "%" });
-    img.style.setProperty("--r0", rnd(200) + "deg"); img.style.setProperty("--r", rnd(5) + "deg");
-    img.style.setProperty("--dx", secretXY[0] + 24 - ((c % nx) + .5) * w + "px"); img.style.setProperty("--dy", secretXY[1] + 24 - (Math.floor(c / nx) + .5) * h + "px");
-    $("memes").append(img);
-    img.getBoundingClientRect();
-    img.classList.add("up");
-    n++;
-  }, Math.max(28, 2600 / total));
-}
-
-$("yes").addEventListener("click", e => {
-  if (performance.now() - lastDodge < 700) { e.preventDefault(); return; }   // vừa bấm No xong thì chạm nhầm vào Yes không tính
-  $("no").style.display = "none";
-  ptOut($("headline")); show("");                 // câu hỏi tan thành bụi
-  glowT = 1; flinch = .2;   // cả trái tim bừng sáng
-  $("omg").style.visibility = "visible"; ptext($("omg"), secretXY.slice());   // OMG she said YES: hạt phụt ra từ tim rồi xếp thành chữ
-  setTimeout(() => { sealBreak = performance.now(); }, 2600);     // phong ấn quay nhanh dần, trắng loá rồi vỡ
-  setTimeout(() => { burstStart = performance.now(); flinch = .25; glowT = 0; ptOut($("omg")); memeWall(); }, 3250);   // trái tim nổ tung, meme phụt ra
-  setTimeout(() => sealOn = false, 4100);
-});
 </script>
 </body>
 </html>
