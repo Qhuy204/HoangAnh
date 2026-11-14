@@ -270,6 +270,13 @@
   #night.on { opacity:1; pointer-events:auto; }
   #stars { position:fixed; inset:0; width:100%; height:100%; z-index:22; pointer-events:none; }
   #stars.tap { pointer-events:auto; cursor:pointer; }
+  /* OMG she said YES: chữ bằng hạt y bản chính */
+  #ptx { position:fixed; inset:0; width:100%; height:100%; z-index:23; pointer-events:none; }
+  #omg { position:fixed; z-index:23; left:0; right:0; margin:0; padding:0 24px; text-align:center; pointer-events:none; visibility:hidden;
+    font:700 clamp(40px, 11vw, 76px)/1.1 "Quicksand", sans-serif; color:#f3ead9; text-shadow:0 0 14px rgba(255,77,140,.55), 0 0 32px rgba(255,77,140,.25);
+    transition:color .9s ease, text-shadow .9s ease; }
+  #omg small { display:block; font-size:.62em; }
+  .ghost, .ghost * { color:transparent !important; text-shadow:none !important; transition:none !important; }
 
   /* núi meme cuối cùng */
   #memes { position:fixed; inset:-24px; z-index:35; overflow:hidden; pointer-events:none; }
@@ -348,6 +355,7 @@
   <ellipse cx="17" cy="16" rx="6.5" ry="3.4" transform="rotate(-37 17 16)" fill="rgba(255,255,255,.8)"/><circle cx="26.5" cy="11.5" r="1.8" fill="rgba(255,255,255,.8)"/></svg></button>
 <div id="night"></div><canvas id="stars"></canvas>
 <p class="hint" id="tapHint"></p>
+<canvas id="ptx"></canvas><p id="omg" class="ghost">OMG<small>she said YES</small></p>
 
 <!-- màn 1: cái cửa -->
 <section class="scr on" id="s1">
@@ -830,6 +838,95 @@ async function scene4() {
   const ask = $("ask4"); ask.style.top = Math.min(H - 70, k.y + k.h + 16) + "px";
   await wait(1100); ask.classList.add("on");
 }
+/* ---------- Chữ bằng hạt (bê nguyên từ bản chính): hạt bay về xếp thành chữ, lấp lánh, rồi tan như bụi ---------- */
+const ptx = $("ptx"), pg = ptx.getContext("2d");
+const dotSprites = ["#ffffff", "#ffe2ee", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff"].map(c => {
+  const k = document.createElement("canvas"); k.width = k.height = 32;
+  const g = k.getContext("2d"), r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  r.addColorStop(0, "#fff"); r.addColorStop(.25, c); r.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32); return k;
+});
+let ptGroups = [], ptDpr = 1, ptLoop = false;
+function fitPtx() { ptDpr = Math.min(2, devicePixelRatio || 1); ptx.width = innerWidth * ptDpr; ptx.height = innerHeight * ptDpr; }
+fitPtx();
+function samplePts(el) {
+  const W = innerWidth, H = innerHeight, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const g = cv.getContext("2d", { willReadFrequently: true }); g.fillStyle = "#fff"; g.textBaseline = "alphabetic";
+  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), rg = document.createRange();
+  let fs = 16;
+  for (let n; (n = tw.nextNode());) {
+    const cs = getComputedStyle(n.parentElement); g.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily; fs = parseFloat(cs.fontSize);
+    const m = g.measureText("Hg"), asc = m.fontBoundingBoxAscent || fs * .8, desc = m.fontBoundingBoxDescent || fs * .2;
+    let off = 0;
+    for (const ch of n.data) {
+      if (ch.trim()) {
+        rg.setStart(n, off); rg.setEnd(n, off + ch.length);
+        const r = rg.getClientRects()[0];
+        if (r) g.fillText(ch, r.left, r.top + (r.height - asc - desc) / 2 + asc);
+      }
+      off += ch.length;
+    }
+  }
+  const box = el.getBoundingClientRect(), x0 = Math.max(0, Math.floor(box.left - fs)), y0 = Math.max(0, Math.floor(box.top - fs));
+  const x1 = Math.min(W, Math.ceil(box.right + fs)), y1 = Math.min(H, Math.ceil(box.bottom + fs));
+  if (x1 <= x0 || y1 <= y0) return [];
+  const d = g.getImageData(x0, y0, x1 - x0, y1 - y0).data, w = x1 - x0, h = y1 - y0;
+  let pts = [], step = Math.max(1.6, fs / 13);
+  for (let k = 0; k < 4; k++) {
+    pts = [];
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      const jx = Math.min(w - 1, Math.max(0, Math.round(x + (Math.random() - .5) * step * .6))), jy = Math.min(h - 1, Math.max(0, Math.round(y + (Math.random() - .5) * step * .6)));
+      if (d[(jy * w + jx) * 4 + 3] > 110) pts.push([x0 + jx, y0 + jy]);
+    }
+    if (pts.length < 3200) break; step *= 1.25;
+  }
+  return pts.map(([x, y]) => ({ x, y, r: step * (.55 + Math.pow(Math.random(), 4) * .9), c: Math.floor(Math.random() * dotSprites.length) }));
+}
+function ptext(el, from) {
+  ptOut(el); el.classList.add("ghost");
+  const now = performance.now() / 1000, pts = samplePts(el), cx = from ? from[0] : innerWidth / 2, cy = from ? from[1] : innerHeight / 2;
+  const left = pts.reduce((m, q) => Math.min(m, q.x), 1e9);
+  pts.forEach(q => {
+    const a = Math.random() * 6.2832, R = from ? Math.random() * 40 : Math.max(innerWidth, innerHeight) * (.35 + Math.random() * .5);
+    q.sx = cx + Math.cos(a) * R; q.sy = cy + Math.sin(a) * R;
+    q.dl = (q.x - left) / innerWidth * .9 + Math.random() * .5;
+    q.s = Math.random(); q.vx = (Math.random() - .5) * 260; q.vy = -60 - Math.random() * 240;
+  });
+  ptGroups.push({ el, pts, t0: now, out: 0, rev: pts.reduce((m, q) => Math.max(m, q.dl), 0) + .9 });
+  if (!ptLoop) { ptLoop = true; requestAnimationFrame(drawPtx); }
+}
+function ptOut(el) { const now = performance.now() / 1000; el.classList.add("ghost"); ptGroups.forEach(G => { if (G.el === el && !G.out) G.out = now; }); }
+addEventListener("resize", () => {
+  fitPtx();
+  const live = ptGroups.filter(G => !G.out); ptGroups = ptGroups.filter(G => G.out);
+  live.forEach(G => { ptext(G.el); ptGroups[ptGroups.length - 1].t0 -= 10; G.el.classList.remove("ghost"); });
+});
+function drawPtx(nowMs) {
+  const t = nowMs / 1000;
+  pg.setTransform(ptDpr, 0, 0, ptDpr, 0, 0); pg.clearRect(0, 0, innerWidth, innerHeight);
+  ptGroups = ptGroups.filter(G => !G.out || t - G.out < 1.6);
+  if (!ptGroups.length) { ptLoop = false; return; }
+  pg.globalCompositeOperation = "lighter";
+  for (const G of ptGroups) {
+    const lt = t - G.t0, ot = G.out ? t - G.out : 0;
+    if (!G.out && lt > G.rev && G.el.classList.contains("ghost")) G.el.classList.remove("ghost");
+    const dim = G.out ? 1 : 1 - Math.min(1, Math.max(0, (lt - G.rev) / .9)) * .8;
+    for (const q of G.pts) {
+      let g = Math.min(1, Math.max(0, (lt - q.dl) / 1.1)); g = 1 - Math.pow(1 - g, 3);
+      if (g <= 0) continue;
+      const sw = (1 - g) * 2.4 * (q.s - .5);
+      let x = q.sx + (q.x - q.sx) * g + Math.sin(g * 3.14) * sw * 60, y = q.sy + (q.y - q.sy) * g - Math.sin(g * 3.14) * sw * 40;
+      x += Math.sin(t * 1.7 + q.s * 40) * .7; y += Math.cos(t * 1.3 + q.s * 31) * .7 - Math.max(0, Math.sin(t * 2.2 - q.x * .012)) * 2.2;
+      let a = (.55 + .45 * Math.sin(t * (1.5 + q.s * 3) + q.s * 50)) * (.75 + .25 * Math.sin(t * 2.6 - q.x * .02)) * Math.min(1, g * 1.6);
+      if (ot) { x += q.vx * ot; y += q.vy * ot + 120 * ot * ot; a *= Math.max(0, 1 - ot / 1.5); }
+      const r = q.r * (1 + (1 - g) * 1.5);
+      pg.globalAlpha = a * dim; pg.drawImage(dotSprites[q.c], x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
+    }
+  }
+  pg.globalAlpha = 1; pg.globalCompositeOperation = "source-over";
+  requestAnimationFrame(drawPtx);
+}
+
 let taps = 0, heartOn = false;
 $("yes").addEventListener("click", async () => {
   if (tooSoon()) return;
@@ -838,7 +935,9 @@ $("yes").addEventListener("click", async () => {
   $("cat").animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(24px) scale(.9)" }], { duration: 700, easing: "ease-in", fill: "forwards" });
   $("night").classList.add("on");
   const o = HeartGL.start();
-  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 60, o.bottom + 20) + "px";
+  const om = $("omg"); om.style.top = Math.min(H - 190, o.bottom + 10) + "px"; om.style.visibility = "visible";
+  ptext(om, [W / 2, o.cy]);              // hạt phụt ra từ giữa tim rồi xếp thành OMG / she said YES
+  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 50, om.getBoundingClientRect().bottom + 12) + "px";
   setTimeout(() => { th.classList.add("on"); heartOn = true; $("stars").classList.add("tap"); }, 3800);
 });
 $("stars").addEventListener("click", () => {
@@ -851,6 +950,7 @@ $("stars").addEventListener("click", () => {
   }
   heartOn = false; $("tapHint").classList.remove("on"); $("stars").classList.remove("tap");
   HeartGL.boom();
+  setTimeout(() => ptOut($("omg")), 1550);   // tim nổ thì chữ tan ra như bụi
   setTimeout(() => {
     $("flash").animate([{ opacity: 0 }, { opacity: 1, offset: .25 }, { opacity: 0 }], { duration: 1100, easing: "ease-out" });
     secret = [W / 2, H / 2];
@@ -1315,7 +1415,8 @@ window.HeartGL = {
     if (!running) { running = true; renderer.setAnimationLoop(frame); }
     camera.updateMatrixWorld();
     const p = new THREE.Vector3(0, -15.5 * heartFlow.s + heartFlow.oy, 0).project(camera);
-    return { bottom: (1 - p.y) / 2 * innerHeight };
+    const c = new THREE.Vector3(0, heartFlow.oy, 0).project(camera);
+    return { bottom: (1 - p.y) / 2 * innerHeight, cy: (1 - c.y) / 2 * innerHeight };
   },
   poke() { sealPoke = performance.now(); flinch = -.06; },
   boom() {                      // y như lúc bấm Yes bên bản chính: tim bừng sáng, phong ấn quay nhanh, trắng loá rồi tim nổ tung
