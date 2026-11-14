@@ -111,30 +111,31 @@
   #flash { position:fixed; inset:0; z-index:45; pointer-events:none; opacity:0; background:radial-gradient(circle at 50% 50%, #fff, #fff6e0 55%, #ffe1ea); }
 
   /* màn 1: cái cửa */
-  #s1 .dbg { position:absolute; inset:0; background:#f2dfe2 url(../assets/flow/door-bg.webp) center/cover no-repeat; }
-  @media (min-aspect-ratio: 1/1) { #s1 .dbg { background-image:url(../assets/flow/door-bg-wide.webp); } }
-  .knock { position:absolute; left:0; right:0; top:max(5vh, 22px); margin:0; text-align:center; padding:0 16px; pointer-events:none;
-    font:400 clamp(30px, 9vw, 54px)/1.08 "Patrick Hand", cursive; color:#d23f6c;
-    text-shadow:-2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff, 0 3px 0 #fff, 0 6px 16px rgba(80,30,50,.35); transition:opacity .6s; }
-  .knock span { display:inline-block; color:#8a5bd6; animation:knockT 1.6s ease-in-out infinite; }
+  #s1 { background:#000; }
+  #s1 .dbg { position:absolute; inset:0; background:radial-gradient(ellipse 60% 45% at 50% 58%, #1c1712 0, #000 70%); }
+  .knock { position:absolute; left:0; right:0; top:max(6vh, 26px); margin:0; text-align:center; padding:0 16px; pointer-events:none;
+    font:400 clamp(30px, 9vw, 54px)/1.08 "Patrick Hand", cursive; color:#f6efe6; text-shadow:0 4px 18px rgba(0,0,0,.8); transition:opacity .6s; }
+  .knock span { display:inline-block; color:#ffb3c7; animation:knockT 1.6s ease-in-out infinite; }
   @keyframes knockT { 0%, 60%, 100% { rotate:0deg; } 66% { rotate:-5deg; } 72% { rotate:5deg; } 78% { rotate:-3deg; } 84% { rotate:0deg; } }
-  #door { position:absolute; left:50%; top:56%; width:min(56vw, 33vh, 330px); aspect-ratio:2/3; translate:-50% -50%; cursor:pointer;
-    perspective:900px; border-radius:6px; background:#fff3d6;
-    box-shadow:0 0 0 7px #fbf3e4, 0 0 0 11px #c99a5b, 0 0 0 14px #fbf3e4, 0 22px 60px rgba(70,30,50,.45); transform-origin:50% 50%; }
-  #door .light { position:absolute; inset:0; border-radius:6px; background:radial-gradient(circle at 50% 55%, #fff 0, #fff4cf 35%, #ffc9d8 80%); }
-  #door .leaf { position:absolute; top:0; bottom:0; width:50%; background:url(../assets/flow/door.webp) 0 0/200% 100% no-repeat;
-    transition:transform 1.7s cubic-bezier(.55,0,.2,1), filter 1.7s; backface-visibility:hidden; box-shadow:inset 0 0 0 1px rgba(90,50,30,.15); }
-  #door .leaf.l { left:0; transform-origin:0 50%; border-radius:6px 0 0 6px; }
-  #door .leaf.r { right:0; background-position:100% 0; transform-origin:100% 50%; border-radius:0 6px 6px 0; }
-  #door.open .leaf.l { transform:rotateY(82deg); filter:brightness(.7); }
-  #door.open .leaf.r { transform:rotateY(-82deg); filter:brightness(.7); }
+  /* cửa gỗ nâu một cánh, khung gỗ tối; mở ra là thấy nền xanh bên trong */
+  #door { position:absolute; left:50%; top:56%; width:min(52vw, 31vh, 300px); aspect-ratio:2/3; translate:-50% -50%; cursor:pointer;
+    perspective:1100px; background:#6c7b50 url(../assets/letter/bg.webp) center/cover;
+    box-shadow:0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 30px 80px rgba(255,220,170,.08); transform-origin:50% 50%; }
+  #door .light { position:absolute; inset:0; background:radial-gradient(circle at 50% 50%, rgba(255,250,225,.55), rgba(255,240,200,0) 70%); opacity:0; transition:opacity 1.4s; }
+  #door.open .light { opacity:1; }
+  #door .leaf { position:absolute; inset:0; background:#6b4226 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; transform-origin:0 50%;
+    transition:transform 1.8s cubic-bezier(.55,0,.2,1), filter 1.8s; box-shadow:inset 0 0 0 1px rgba(0,0,0,.35); }
+  #door .leaf.r { display:none; }
+  #door.open .leaf.l { transform:rotateY(78deg); filter:brightness(.55); }
+  #s1 .step { position:absolute; left:50%; translate:-50% 0; top:calc(56% + min(52vw, 31vh, 300px) * .75 + 12px); width:calc(min(52vw, 31vh, 300px) + 60px); height:10px;
+    border-radius:3px; background:linear-gradient(#4a2e1b, #24150c); box-shadow:0 10px 30px rgba(0,0,0,.6); }
   .bang { position:absolute; z-index:3; pointer-events:none; font:400 clamp(24px, 7vw, 34px) "Patrick Hand", cursive; color:#fff; text-shadow:0 2px 0 #c2456c, 0 0 12px rgba(194,69,108,.6); }
-  #s1 .hint { top:calc(56% + min(56vw, 33vh, 330px) * .75 + 30px); }
+  #s1 .hint { top:calc(56% + min(52vw, 31vh, 300px) * .75 + 40px); color:#d9cfc4; }
 
-  /* màn 2: tin nhắn */
-  #s2 { background:#bfe3f5; }
-  #sky { position:absolute; inset:0; background:#bfe3f5 url(../assets/flow/sky.webp) center bottom/cover no-repeat; }
-  @media (min-aspect-ratio: 1/1) { #sky { background-image:url(../assets/flow/sky-wide.webp); } }
+  /* màn 2: tin nhắn — nền xanh giống bức thư */
+  #s2 { background:#6c7b50; }
+  #sky { position:absolute; inset:0; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #sky { background-image:url(../assets/letter/bg-wide.webp); } }
   .phone { position:absolute; top:0; bottom:0; left:50%; translate:-50% 0; width:min(100%, 460px); background:#fff; display:flex; flex-direction:column;
     font-family:"Quicksand", sans-serif; color:#111; transition:background .8s, box-shadow .8s; box-shadow:0 0 40px rgba(0,0,0,.18); }
   .phone header { display:flex; align-items:center; gap:10px; padding:calc(12px + env(safe-area-inset-top)) 14px 12px; border-bottom:1px solid #eee; transition:opacity .6s; }
@@ -163,7 +164,7 @@
   .s2cap { align-self:center; margin:18px 0 0; font:400 clamp(28px, 8.4vw, 40px)/1.05 "Patrick Hand", cursive; color:#ff4f8b; text-align:center; white-space:nowrap;
     text-shadow:0 2px 0 #fff, 0 0 14px rgba(255,255,255,.9); will-change:transform; }
   .phone.bare .bub, .phone.bare .dots { box-shadow:0 4px 14px rgba(40,60,90,.18); }
-  .phone.bare .rep { color:#24425c; font-weight:700; }
+  .phone.bare .rep { color:#fff; font-weight:700; text-shadow:0 1px 6px rgba(0,0,0,.5); }
 
   .car { position:absolute; left:0; will-change:transform; z-index:3; visibility:hidden; }
   .car.show { visibility:visible; }
@@ -184,7 +185,7 @@
   #memo .lbl { margin-top:8px; font:400 20px "Patrick Hand", cursive; color:#c2456c; }
   #memo .days { font:700 34px/1.1 "Quicksand", sans-serif; color:#ff4f8b; }
   #memo .hms { font:700 18px "Quicksand", sans-serif; letter-spacing:.06em; color:#3b2b33; font-variant-numeric:tabular-nums; }
-  #s2 .hint { bottom:calc(22px + env(safe-area-inset-bottom)); color:#24425c; text-shadow:0 0 10px #fff; }
+  #s2 .hint { bottom:calc(22px + env(safe-area-inset-bottom)); }
 
   /* shipper mèo */
   #cat { position:absolute; z-index:21; left:0; top:0; pointer-events:none; visibility:hidden; will-change:transform; }
@@ -300,6 +301,7 @@
   <div class="dbg"></div>
   <h1 class="knock"><span>Cốc cốc cốc,</span><br>mở cửa cho em đê</h1>
   <div id="door" role="button" aria-label="Mở cửa"><div class="light"></div><div class="leaf l"></div><div class="leaf r"></div></div>
+  <div class="step"></div>
   <p class="hint on">(chạm vào cửa nha)</p>
 </section>
 
@@ -399,7 +401,7 @@ mb.onclick = () => setMusic(au.paused);
 
 /* ---------- tiện ích ---------- */
 const imgs = {};
-for (const n of ["cat-scooter", "cat-sign", "cat-offer", "cat-paw", "car-a", "car-b", "sky", "door"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp`; imgs[n] = i; }
+for (const n of ["cat-scooter", "cat-sign", "cat-offer", "cat-paw", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp`; imgs[n] = i; }
 for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
 const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
 const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
@@ -462,16 +464,15 @@ $("door").addEventListener("click", async () => {
   await wait(250);
   $("s1").querySelector(".knock").style.opacity = 0;
   door.classList.add("open");                         // hai cánh cửa mở vào trong, ánh sáng tràn ra
-  door.animate([{ boxShadow: "0 0 0 7px #fbf3e4, 0 0 0 11px #c99a5b, 0 0 0 14px #fbf3e4, 0 22px 60px rgba(70,30,50,.45)" },
-    { boxShadow: "0 0 0 7px #fbf3e4, 0 0 0 11px #e8c27a, 0 0 0 14px #fbf3e4, 0 0 160px 60px rgba(255,236,190,.95)" }], { duration: 1600, fill: "forwards" });
-  await wait(900);
-  door.animate([{ transform: "scale(1)" }, { transform: "scale(7)" }], { duration: 1500, easing: "cubic-bezier(.6,0,.4,1)", fill: "forwards" });   // lao qua cửa
-  $("s1").querySelector(".dbg").animate([{ transform: "scale(1)", filter: "brightness(1)" }, { transform: "scale(2.4)", filter: "brightness(1.6)" }], { duration: 1500, easing: "cubic-bezier(.6,0,.4,1)", fill: "forwards" });
-  await wait(900);
-  await flashOn(600);
-  $("s1").classList.remove("on");
-  $("s2").classList.add("on"); $("s2").style.transition = "none";
-  flashOff(1000);
+  door.animate([{ boxShadow: "0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 30px 80px rgba(255,220,170,.08)" },
+    { boxShadow: "0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 0 140px 50px rgba(190,220,150,.45)" }], { duration: 1600, fill: "forwards" });
+  await wait(1300);
+  const zoom = { duration: 1600, easing: "cubic-bezier(.6,0,.4,1)", fill: "forwards" };   // lao qua khung cửa vào nền xanh
+  door.animate([{ transform: "scale(1)" }, { transform: `scale(${Math.max(W / r.width, H / r.height) * 1.6})` }], zoom);
+  $("s1").querySelector(".step").animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(60px) scale(3)" }], { duration: 500, fill: "forwards" });
+  await wait(1500);
+  $("s2").style.transition = "none"; $("s2").classList.add("on");   // nền xanh của màn 2 trùng với nền sau cửa → chuyển liền mạch
+  $("s1").style.transition = "none"; $("s1").classList.remove("on");
   scene2();
 });
 
