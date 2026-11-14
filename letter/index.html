@@ -152,7 +152,7 @@
   /* bề dày cánh cửa: mép tự do + mặt sau */
   #door .leaf .edge { position:absolute; top:0; bottom:0; right:0; width:var(--th, 14px); transform-origin:100% 50%; transform:rotateY(-90deg);
     background:linear-gradient(90deg, #8a5a33, #6d4424 40%, #4c2e17); box-shadow:inset 0 0 0 1px rgba(0,0,0,.4); }
-  #door .leaf .edge.t { top:0; bottom:auto; left:0; right:0; width:auto; height:var(--th, 14px); transform-origin:50% 0; transform:rotateX(90deg); background:#3d2512; }
+  #door .leaf .edge.t { top:0; bottom:auto; left:0; right:0; width:auto; height:var(--th, 14px); transform-origin:50% 0; transform:rotateX(-90deg); background:#3d2512; }   /* âm = dày về phía sau, khớp mép bên + mặt sau, không lòi ra trước */
   #door .leaf .back { position:absolute; inset:0; transform:translateZ(calc(var(--th, 14px) * -1)) rotateY(180deg); background:#4f3019 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; filter:brightness(.5); backface-visibility:hidden; }
   #door .leaf.r { display:none; }
   #door.open .leaf.l { transform:rotateY(-78deg); }   /* âm = cánh cửa đi vào trong (ra xa người xem) */
