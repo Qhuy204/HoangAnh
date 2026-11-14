@@ -657,7 +657,7 @@ $("co").addEventListener("click", async () => {
   puff(K.x + K.w * .2, K.y + K.h * .9, 1);
   await cat.animate([{ transform: "translateY(40px) scale(.5)", opacity: 0 }, { transform: "translateY(-12px) scale(1.04)", opacity: 1, offset: .7 }, { transform: "none", opacity: 1 }],
     { duration: 600, easing: "cubic-bezier(.3,.7,.3,1)", fill: "forwards" }).finished;
-  say("Đây chính là bức thư nè", W / 2, K.y - 12);
+  say("HoangAnh có thư nè", W / 2, K.y - 12);
   const n = $("nhan"); n.style.top = Math.min(H - 70, K.y + K.h + 10) + "px"; n.classList.add("on");
 });
 $("nhan").addEventListener("click", async () => {
