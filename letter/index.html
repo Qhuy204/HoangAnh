@@ -255,7 +255,7 @@
   #dim { position:fixed; inset:0; z-index:19; background:rgba(40,48,30,.5); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 1s; }
   #dim.on { opacity:1; pointer-events:auto; }
   #tapHint { z-index:23; }
-  #night { position:fixed; inset:0; z-index:22; background:radial-gradient(ellipse at 50% 44%, #1e1026, #0b0711 72%); opacity:0; pointer-events:none; transition:opacity 1.4s; }
+  #night { position:fixed; inset:0; z-index:22; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; opacity:0; pointer-events:none; transition:opacity 1.4s; }
   #night.on { opacity:1; pointer-events:auto; }
   #stars { position:fixed; inset:0; width:100%; height:100%; z-index:22; pointer-events:none; }
   #stars.tap { pointer-events:auto; cursor:pointer; }
@@ -812,121 +812,26 @@ $("yes").addEventListener("click", async () => {
   $("signTxt").classList.remove("on");
   $("cat").animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(24px) scale(.9)" }], { duration: 700, easing: "ease-in", fill: "forwards" });
   $("night").classList.add("on");
-  const o = starHeart();
-  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 60, o.cy + o.s * 21 + 12) + "px";
+  const o = HeartGL.start();
+  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 60, o.bottom + 20) + "px";
   setTimeout(() => { th.classList.add("on"); heartOn = true; $("stars").classList.add("tap"); }, 3800);
 });
 $("stars").addEventListener("click", () => {
-  if (!heartOn || !SH) return;
-  taps++; SH.kick = 1;
+  if (!heartOn) return;
+  taps++;
   if (taps < TAPS) {
-    SH.grow = 1 + taps * .05;
+    HeartGL.poke();
     $("tapHint").textContent = ["", "nữa nào", "nữa đi", "sắp rồi...", "1 cái nữa thôi!"][taps] || "";
     return;
   }
   heartOn = false; $("tapHint").classList.remove("on"); $("stars").classList.remove("tap");
-  SH.boom = performance.now() / 1000;
+  HeartGL.boom();
   setTimeout(() => {
     $("flash").animate([{ opacity: 0 }, { opacity: 1, offset: .25 }, { opacity: 0 }], { duration: 1100, easing: "ease-out" });
     secret = [W / 2, H / 2];
     memeWall();
-  }, 450);
+  }, 1600);
 });
-
-/* ---------- tim bụi sao: bụi bay từ 4 phía vào thành tim (dáng tim + màu như bản chính) ---------- */
-const SC = $("stars"), sg = SC.getContext("2d");
-const SPAL = ["#ffffff", "#ffe9d6", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff", "#8fb8ff", "#ff4d7d"];
-const SPR = SPAL.map(c => {   // mỗi màu một hạt sáng: lõi trắng, quầng màu mờ dần
-  const s = document.createElement("canvas"); s.width = s.height = 64;
-  const g = s.getContext("2d"), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  r.addColorStop(0, "#fff"); r.addColorStop(.16, c); r.addColorStop(.42, c + "55"); r.addColorStop(1, c + "00");
-  g.fillStyle = r; g.fillRect(0, 0, 64, 64); return s;
-});
-const gss = () => (Math.random() + Math.random() + Math.random() + Math.random() - 2) * .87;
-let SH = null;
-function starHeart() {
-  const N = W < 700 ? 2800 : 4200, BG = W < 700 ? 280 : 420, dp = Math.min(2, devicePixelRatio || 1);
-  SC.width = W * dp; SC.height = H * dp;
-  // viền tim kiểu emoji (giống bản chính): nửa phải là các đường Bézier trong hệ 32x32, nửa trái lật đối xứng
-  const R = [[16, 7, 17.6, 3.4, 20.4, 2, 23.5, 2], [23.5, 2, 27.8, 2, 31, 5.2, 31, 10], [31, 10, 31, 17.5, 23.5, 23.6, 18.6, 28.2], [18.6, 28.2, 17.7, 29.1, 16.9, 29.6, 16, 29.6]];
-  const bz = (c, t) => { const u = 1 - t; return [0, 1].map(j => u * u * u * c[j] + 3 * u * u * t * c[2 + j] + 3 * u * t * t * c[4 + j] + t * t * t * c[6 + j]); };
-  const half = []; R.forEach(c => { for (let i = 0; i < 80; i++) half.push(bz(c, i / 80)); }); half.push([16, 29.6]);
-  const P = [...half, ...half.slice(0, -1).reverse().map(([x, y]) => [32 - x, y])].map(([x, y]) => [(x - 16) * 1.07, (y - 15.6) * 1.07]);
-  const NP = P.length - 1, cum = new Float32Array(NP + 1);
-  for (let i = 1; i <= NP; i++) cum[i] = cum[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
-  const M = 1024, T = new Float32Array(M * 2);
-  for (let m = 0, j = 0; m < M; m++) {
-    const L = m / M * cum[NP]; while (j < NP - 1 && cum[j + 1] < L) j++;
-    const f = (L - cum[j]) / (cum[j + 1] - cum[j] || 1);
-    T[m * 2] = P[j][0] + (P[j + 1][0] - P[j][0]) * f; T[m * 2 + 1] = P[j][1] + (P[j + 1][1] - P[j][1]) * f;
-  }
-  const F = () => new Float32Array(N), FB = () => new Float32Array(BG);
-  const o = { N, BG, dp, T, M, s: Math.min(W * .4, H * .24) / 17, cx: W / 2, cy: H * .44, t0: performance.now() / 1000, grow: 1, g: 1, kick: 0, boom: 0,
-    sx: F(), sy: F(), L: F(), k: F(), kind: new Uint8Array(N), jx: F(), jy: F(), ph: F(), f1: F(), f2: F(), d: F(), du: F(), cv: F(), sz: F(), al: F(), c: new Uint8Array(N), vx: F(), vy: F(),
-    bx: FB(), by: FB(), bs: FB(), ba: FB(), bp: FB(), bc: new Uint8Array(BG) };
-  for (let i = 0; i < N; i++) {
-    const side = i % 4, m = 30 + Math.random() * H * .25;   // xuất phát ngoài mép màn hình, chia đều 4 phía
-    if (side === 0) { o.sx[i] = Math.random() * W; o.sy[i] = -m; }
-    else if (side === 1) { o.sx[i] = W + m; o.sy[i] = Math.random() * H; }
-    else if (side === 2) { o.sx[i] = Math.random() * W; o.sy[i] = H + m; }
-    else { o.sx[i] = -m; o.sy[i] = Math.random() * H; }
-    o.d[i] = Math.random() * 1.6; o.du[i] = 1.7 + Math.random() * 1.3; o.cv[i] = gss() * o.s * 9;
-    const u = Math.random();
-    if (u < .68) { const c = Math.random() * 2 - 1; o.k[i] = Math.sqrt(1 - c * c) * (1 - Math.abs(gss()) * .035); o.kind[i] = 0; }   // vỏ tim (dày ở viền)
-    else if (u < .84) { o.k[i] = Math.pow(Math.random(), .6) * .95; o.kind[i] = 1; }                                                // bụi trong lòng
-    else { o.k[i] = 1.05 + Math.pow(Math.random(), 1.8) * .5; o.kind[i] = 2; }                                                    // quầng ngoài
-    o.L[i] = Math.random(); o.jx[i] = gss() * o.s * .25; o.jy[i] = gss() * o.s * .25; o.ph[i] = Math.random() * 6.283;
-    o.f1[i] = .25 + Math.random() * .75; o.f2[i] = .25 + Math.random() * .75;
-    o.sz[i] = 3 + Math.pow(Math.random(), 5) * 15; o.al[i] = o.sz[i] > 10 ? .22 : .4 + Math.random() * .55;
-    o.c[i] = Math.random() * SPAL.length | 0;
-  }
-  for (let j = 0; j < BG; j++) {   // bụi sao rải khắp nền, vài hạt to mờ như đốm sáng
-    o.bx[j] = Math.random() * W; o.by[j] = Math.random() * H; o.bs[j] = 2 + Math.pow(Math.random(), 6) * 26;
-    o.ba[j] = o.bs[j] > 9 ? .14 + Math.random() * .2 : .25 + Math.random() * .6; o.bp[j] = Math.random() * 6.283; o.bc[j] = Math.random() * SPAL.length | 0;
-  }
-  SH = o; requestAnimationFrame(starDraw);
-  return o;
-}
-function starDraw(ms) {
-  const o = SH; if (!o) return;
-  const t = performance.now() / 1000, e = t - o.t0, { T, M, s, cx, cy } = o;
-  sg.setTransform(o.dp, 0, 0, o.dp, 0, 0); sg.globalCompositeOperation = "source-over"; sg.globalAlpha = 1; sg.clearRect(0, 0, W, H);
-  sg.globalCompositeOperation = "lighter";
-  const b = o.boom ? t - o.boom : -1, out = b < 0 ? 1 : Math.max(0, 1 - b / 1.6);
-  const fade = Math.min(1, e / 1.4) * out;
-  for (let j = 0; j < o.BG; j++) {
-    const tw = .55 + .45 * Math.sin(t * (1 + (o.bp[j] % 1.5)) + o.bp[j] * 7), d = o.bs[j];
-    sg.globalAlpha = o.ba[j] * tw * fade;
-    sg.drawImage(SPR[o.bc[j]], o.bx[j] + Math.sin(t * .2 + o.bp[j]) * 8 - d, o.by[j] + Math.cos(t * .17 + o.bp[j]) * 8 - d, d * 2, d * 2);
-  }
-  o.g += (o.grow - o.g) * .08; o.kick *= .9;
-  const p = (Math.sin(t * 5.2) + 1) / 2, beat = Math.pow(p, 8) + .55 * Math.pow((Math.sin(t * 5.2 - 1.1) + 1) / 2, 10) + o.kick * .8;
-  const wan = (f, ph) => Math.sin(t * f + ph) + .55 * Math.sin(t * f * 2.17 + ph * 2.9) + .3 * Math.sin(t * f * 3.73 + ph * 1.7);
-  for (let i = 0; i < o.N; i++) {
-    const u = (e - o.d[i]) / o.du[i]; if (u <= 0) continue;
-    const ph = o.ph[i], kind = o.kind[i];
-    let L = o.L[i] + wan(o.f1[i] * .5, ph * 1.3) * .006; L -= Math.floor(L);
-    const q = L * M, m = Math.floor(q) % M, n = (m + 1) % M, f = q - Math.floor(q);
-    let k = o.k[i];
-    if (kind === 2) k *= 1 + beat * .09; else k *= 1 - beat * .06 * (1.2 - k);
-    const amp = kind === 2 ? 1.6 : 1, x = T[m * 2] + (T[n * 2] - T[m * 2]) * f, y = T[m * 2 + 1] + (T[n * 2 + 1] - T[m * 2 + 1]) * f;
-    const tx = cx + (x * k * s + o.jx[i] + wan(o.f1[i], ph) * s * .45 * amp) * o.g, ty = cy + (y * k * s + o.jy[i] + wan(o.f2[i], ph * 1.9) * s * .45 * amp) * o.g;
-    let px = tx, py = ty, a = o.al[i];
-    if (u < 1) {   // đang bay vào: đường cong lượn, tới nơi chậm dần
-      const qq = 1 - Math.pow(1 - u, 3), dx = tx - o.sx[i], dy = ty - o.sy[i], len = Math.hypot(dx, dy) || 1, sw = Math.sin(qq * Math.PI) * o.cv[i];
-      px = o.sx[i] + dx * qq - dy / len * sw; py = o.sy[i] + dy * qq + dx / len * sw; a *= Math.min(1, u * 4);
-    }
-    if (b >= 0) {   // nổ tung khi chạm đủ
-      if (!o.vx[i] && !o.vy[i]) { const dx = px - cx, dy = py - cy, l = Math.hypot(dx, dy) || 1, v = 250 + Math.random() * 750; o.vx[i] = dx / l * v; o.vy[i] = dy / l * v; }
-      const r = (1 - Math.exp(-2.5 * b)) / 2.5; px += o.vx[i] * r; py += o.vy[i] * r; a *= out;
-    }
-    const d = o.sz[i] * (1 + o.kick * .25 + (o.g - 1) * .5);
-    sg.globalAlpha = Math.min(1, a * (1 + o.kick * .5));
-    sg.drawImage(SPR[o.c[i]], px - d, py - d, d * 2, d * 2);
-  }
-  if (b > 1.8) { SH = null; sg.setTransform(1, 0, 0, 1, 0, 0); sg.clearRect(0, 0, SC.width, SC.height); return; }
-  requestAnimationFrame(starDraw);
-}
 
 /* ---------- pháo bụi, tim bay, tường meme (như bản cũ) ---------- */
 const fx = $("fx"), fg = fx.getContext("2d"); let dpr = 1;
@@ -1009,6 +914,392 @@ function memeWall() {
 
 addEventListener("resize", layout);
 layout();
+</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }</script>
+<script type="module">
+import * as THREE from "three";
+// tim hạt, phong ấn và sao chổi: bê nguyên từ bản chính (index.html)
+const COUNT = innerWidth < 700 ? 16000 : 26000;
+const gauss = () => (Math.random() + Math.random() + Math.random() + Math.random() - 2) * .87;   // xấp xỉ phân bố chuẩn
+const CAM_Z = 60, FOV = 50;
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("stars"), antialias: false, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+const scene3 = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 400);
+camera.position.z = CAM_Z;
+
+/* ---------- Các hình mà đám hạt xếp thành ---------- */
+const view = () => { const h = 2 * CAM_Z * Math.tan(FOV * Math.PI / 360); return { w: h * camera.aspect, h }; };
+const rnd = (a = 1) => (Math.random() - .5) * 2 * a;
+
+function cloud() {            // đám bụi sao lúc mở đầu
+  const a = new Float32Array(COUNT * 3);
+  for (let i = 0; i < COUNT; i++) {
+    const r = 12 + Math.cbrt(Math.random()) * 38, t = Math.random() * 6.283, p = Math.acos(rnd());
+    a.set([r * Math.sin(p) * Math.cos(t), r * Math.cos(p) * .7, r * Math.sin(p) * Math.sin(t)], i * 3);
+  }
+  return a;
+}
+function moon() {             // trăng khuyết, quanh có bụi sáng
+  const a = new Float32Array(COUNT * 3), v = view(), R = Math.min(v.w * .36, v.h * .2);
+  for (let i = 0; i < COUNT; i++) {
+    let x, y;
+    if (Math.random() < .12) { x = gauss() * R * 1.3; y = gauss() * R * 1.3; }
+    else do { x = rnd(R); y = rnd(R); } while (Math.hypot(x, y) > R || Math.hypot(x - R * .42, y - R * .12) < R * .88);
+    a.set([x - R * .15, y + v.h * .16, gauss() * R * .07], i * 3);
+  }
+  return a;
+}
+function heart() {            // tinh vân hình tim: viền mờ như khói sao, lòng tim rải bụi, ngoài rìa có quầng bụi loãng
+  const a = new Float32Array(COUNT * 3), v = view(), s = Math.min(v.w * .4, v.h * .26) / 17;
+  // viền tim kiểu emoji ❤️: nửa phải vẽ bằng các đường cong Bézier (hệ 32x32, y hướng xuống), hông phình ra, đít bo tròn; nửa trái lật đối xứng
+  const R = [[16, 7, 17.6, 3.4, 20.4, 2, 23.5, 2], [23.5, 2, 27.8, 2, 31, 5.2, 31, 10], [31, 10, 31, 17.5, 23.5, 23.6, 18.6, 28.2], [18.6, 28.2, 17.7, 29.1, 16.9, 29.6, 16, 29.6]];
+  const bez = (c, t) => { const u = 1 - t; return [0, 1].map(j => u * u * u * c[j] + 3 * u * u * t * c[2 + j] + 3 * u * t * t * c[4 + j] + t * t * t * c[6 + j]); };
+  const half = []; R.forEach(c => { for (let i = 0; i < 120; i++) half.push(bez(c, i / 120)); }); half.push([16, 29.6]);
+  const P = [...half, ...half.slice(0, -1).reverse().map(([x, y]) => [32 - x, y])].map(([x, y]) => [(x - 16) * 1.07, -(y - 15.6) * 1.07]);
+  const N = P.length - 1, cum = new Float32Array(N + 1);   // bảng chiều dài cung để hạt rải đều dọc viền
+  for (let i = 1; i <= N; i++) cum[i] = cum[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
+  const M = 2048, T = new Float32Array(M * 2);   // lấy mẫu lại viền đều theo chiều dài cung, để hạt chạy dọc viền với tốc độ đều
+  for (let m = 0, j = 0; m < M; m++) {
+    const L = m / M * cum[N]; while (j < N - 1 && cum[j + 1] < L) j++;
+    const f = (L - cum[j]) / (cum[j + 1] - cum[j] || 1);
+    T[m * 2] = P[j][0] + (P[j + 1][0] - P[j][0]) * f; T[m * 2 + 1] = P[j][1] + (P[j + 1][1] - P[j][1]) * f;
+  }
+  // kiểu trái tim hạt trend 2022: hạt dày đặc ở viền, thưa dần vào lòng, ngoài có quầng lấp lánh; đập thì lòng co lại, quầng nở ra.
+  // thêm chiều sâu: hạt trong lòng nằm trên mặt trước/sau của một trái tim bơm phồng, nên xoay nghiêng là thấy khối.
+  const PUFF = 10.5;  // độ dày khối (nửa bề ngang tim là 16)
+  const st = { T, M, s, oy: v.h * .12, L: new Float32Array(COUNT), k: new Float32Array(COUNT), sp: new Float32Array(COUNT), kind: new Uint8Array(COUNT),
+    jx: new Float32Array(COUNT), jy: new Float32Array(COUNT), z: new Float32Array(COUNT), ph: new Float32Array(COUNT), t: 0,
+    r: new Float32Array(COUNT), th: new Float32Array(COUNT), fq: new Float32Array(COUNT * 3), pz: PUFF * s };
+  // trái tim là một khối phồng kín (vỏ cong đều như quả bóng), hạt rải đều trên vỏ: nhìn thẳng thì viền tự sáng dày, xoay ngang vẫn là khối tròn, không lộ vòng viền phẳng
+  for (let i = 0; i < COUNT; i++) {
+    const u = Math.random(), c = Math.random() * 2 - 1, kc = Math.sqrt(1 - c * c);   // điểm đều trên vỏ: c là cao độ trước-sau
+    let k, z, kind;
+    if (u < .72) { const r = 1 - Math.abs(gauss()) * .035; kind = u < .3 ? 0 : 1; k = kc * r; z = c * PUFF * r; }   // vỏ
+    else if (u < .84) { const r = Math.pow(Math.random(), .6) * .95; kind = 1; k = kc * r; z = c * PUFF * r; }      // bụi trong lòng
+    else { const r = 1.06 + Math.pow(Math.random(), 1.8) * .42; kind = 2; k = kc * r; z = c * PUFF * r; }           // quầng ngoài, cũng bao quanh khối
+    st.L[i] = Math.random(); st.k[i] = k; st.kind[i] = kind; st.z[i] = z * s; st.ph[i] = Math.random() * 6.2832;
+    st.jx[i] = gauss() * .18; st.jy[i] = gauss() * .18;
+    st.r[i] = kc > 1e-4 ? k / kc : 1;                                              // bán kính trên vỏ
+    st.th[i] = Math.asin(c);                                                       // góc trước-sau trên vỏ
+    for (let j = 0; j < 3; j++) st.fq[i * 3 + j] = .25 + Math.random() * .75;   // mỗi hạt một nhịp trôi riêng → không hạt nào đi cùng hướng với hạt nào
+  }
+  heartFlow = st; flowHeart(st, a, 0);
+  return a;
+}
+let heartFlow = null;
+function flowHeart(st, a, dt) {   // mỗi khung hình: hạt chạy dọc viền, tim đập (lòng co, quầng nở), quầng lấp lánh
+  st.t += dt;
+  const t = performance.now() / 1000, { T, M, s, oy } = st;   // cùng đồng hồ với nhịp đập ở vòng render
+  const p = (Math.sin(t * 5.2) + 1) / 2, beat = Math.pow(p, 8) + .55 * Math.pow((Math.sin(t * 5.2 - 1.1) + 1) / 2, 10);   // thình… thịch
+  // hạt không chạy vòng quanh viền nữa: mỗi hạt giữ chỗ của mình trên khối tim rồi trôi lang thang
+  // trái phải, lên xuống, ra trước vào sau theo nhịp riêng (tổng vài sóng lệch tần số nên nhìn như ngẫu nhiên)
+  const wan = (f, ph) => Math.sin(t * f + ph) + .55 * Math.sin(t * f * 2.17 + ph * 2.9) + .3 * Math.sin(t * f * 3.73 + ph * 1.7);
+  for (let i = 0; i < COUNT; i++) {
+    const ph = st.ph[i], f0 = st.fq[i * 3], f1 = st.fq[i * 3 + 1], f2 = st.fq[i * 3 + 2], kind = st.kind[i];
+    let L = st.L[i] + wan(f0 * .5, ph * 1.3) * .01; L -= Math.floor(L);           // nhích qua nhích lại dọc viền một chút, không đi hết vòng
+    const q = L * M, m = Math.floor(q) % M, n = (m + 1) % M, f = q - Math.floor(q);
+    const th = st.th[i] + wan(f1 * .6, ph * 2.3) * .32;                             // lúc ra mặt trước, lúc lùi ra sau
+    let k = Math.abs(Math.cos(th)) * st.r[i], zf = 1;
+    if (kind === 2) { const g = 1 + (beat * .09 + .025 * Math.sin(t * 2.3 + ph)) / Math.max(.3, k); k *= g; zf = g; }   // quầng nở ra theo nhịp, rung nhẹ
+    else { const c = 1 - beat * .07 * (1.2 - k); k *= c; zf = c; }                     // lòng co vào theo nhịp, gần tâm co nhiều hơn
+    const x = T[m * 2] + (T[n * 2] - T[m * 2]) * f, y = T[m * 2 + 1] + (T[n * 2 + 1] - T[m * 2 + 1]) * f;
+    const amp = kind === 2 ? 1.6 : 1;                                                // quầng ngoài trôi xa hơn
+    a[i * 3] = x * k * s + st.jx[i] + wan(f0, ph) * s * .55 * amp;
+    a[i * 3 + 1] = (y * k - .5) * s + oy + st.jy[i] + wan(f1, ph * 1.9) * s * .55 * amp;
+    a[i * 3 + 2] = Math.sin(th) * st.pz * st.r[i] * zf + wan(f2, ph * 3.1) * s * 1.6 * amp;
+  }
+}
+const shapeOf = name => name === "cloud" ? cloud() : name === "moon" ? moon() : heart();
+
+/* ---------- Đám hạt + shader biến hình ---------- */
+const geo = new THREE.BufferGeometry();
+const from = new THREE.BufferAttribute(new Float32Array(COUNT * 3), 3), to = new THREE.BufferAttribute(new Float32Array(COUNT * 3), 3);
+const seed = new Float32Array(COUNT), size = new Float32Array(COUNT), color = new Float32Array(COUNT * 3);
+const PALETTE = ["#ffffff", "#ffe9d6", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff", "#8fb8ff"].map(c => new THREE.Color(c));
+for (let i = 0; i < COUNT; i++) {
+  seed[i] = Math.random(); size[i] = .32 + Math.pow(Math.random(), 5) * 2.2;
+  const c = PALETTE[Math.floor(Math.random() * PALETTE.length)]; color.set([c.r, c.g, c.b], i * 3);
+}
+geo.setAttribute("position", to);           // three cần "position"; shader dùng aFrom -> position
+geo.setAttribute("aFrom", from);
+geo.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
+geo.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+geo.setAttribute("aColor", new THREE.BufferAttribute(color, 3));
+const uniforms = { uP: { value: 1 }, uTime: { value: 0 }, uPx: { value: 1 }, uBurst: { value: 0 }, uGlow: { value: 0 } };
+const mat = new THREE.ShaderMaterial({
+  uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `
+    attribute vec3 aFrom; attribute float aSeed; attribute float aSize; attribute vec3 aColor;
+    uniform float uP, uTime, uPx, uBurst, uGlow;
+    varying vec3 vColor; varying float vTw;
+    void main() {
+      float p = clamp(uP * 1.45 - aSeed * .45, 0., 1.);      // mỗi hạt xuất phát lệch nhau một chút
+      p = p * p * (3. - 2. * p);
+      vec3 pos = mix(aFrom, position, p);
+      float mid = sin(p * 3.14159);                           // giữa đường: xoáy và nở ra
+      float a = mid * (1.2 + aSeed * 1.6);
+      pos.xz = mat2(cos(a), -sin(a), sin(a), cos(a)) * pos.xz;
+      pos *= 1. + mid * .3;
+      pos += vec3(sin(uTime * .9 + aSeed * 40.), cos(uTime * .7 + aSeed * 31.), sin(uTime * .8 + aSeed * 17.)) * .16;
+      pos += normalize(pos + vec3(.001)) * uBurst * (10. + aSeed * 46.);   // nổ tung khi bấm Yes
+      vec4 mv = modelViewMatrix * vec4(pos, 1.);
+      gl_Position = projectionMatrix * mv;
+      vTw = .65 + .35 * sin(uTime * (1.5 + aSeed * 3.) + aSeed * 50.);
+      gl_PointSize = aSize * uPx * (60. / -mv.z) * (1. + mid * .6) * (1. + uGlow * .45);
+      vColor = mix(aColor, vec3(1., .86, .93), uGlow * .45);
+    }`,
+  fragmentShader: `
+    uniform float uGlow; varying vec3 vColor; varying float vTw;
+    void main() {
+      float d = length(gl_PointCoord - .5);
+      float a = smoothstep(.5, 0., d);
+      gl_FragColor = vec4(vColor, a * a * .55 * mix(vTw, 1., uGlow * .6) * (1. + uGlow * 1.4));
+    }`
+});
+const points = new THREE.Points(geo, mat);
+points.frustumCulled = false;
+scene3.add(points);
+
+/* ---------- Phong ấn giữa trái tim: cầu năng lượng xoáy, lõi trắng chói, gió cuộn quanh, hạt bị hút vào ---------- */
+const glowTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d"), r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(.22, "rgba(255,190,215,.55)"); r.addColorStop(1, "rgba(255,90,150,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c);
+})();
+const sealMats = [];
+const sealMat = (opt, base) => {
+  const m = opt.isMaterial ? opt : new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, ...opt });
+  m.opacity = 0; sealMats.push([m, base, m.color.clone()]); return m;
+};
+const SR = 5;                       // bán kính quả cầu (nửa bề ngang tim là 16)
+const seal = new THREE.Group(); points.add(seal);
+const orbU = { uTime: { value: 0 }, uOp: { value: 0 }, uCharge: { value: 0 }, uGather: { value: 0 }, uSpin: { value: 0 }, uPx: uniforms.uPx };
+const orb = (() => {               // quả cầu cũng là hạt như trái tim: từ xa bay về tụ thành khối cầu rồi xoáy
+  const N = 1600, tgt = new Float32Array(N * 3), st = new Float32Array(N * 3), d = new Float32Array(N), sd = new Float32Array(N), sz = new Float32Array(N), col = new Float32Array(N * 3);
+  const PAL = ["#ffffff", "#ffe2ee", "#ffb3c8", "#ff6f9c", "#ff6f9c", "#c9a3ff"].map(c => new THREE.Color(c));
+  for (let i = 0; i < N; i++) {
+    const c = Math.random() * 2 - 1, th = Math.random() * 6.2832, kc = Math.sqrt(1 - c * c);
+    const r = SR * (Math.random() < .72 ? 1 - Math.abs(gauss()) * .04 : Math.pow(Math.random(), .5) * .9);   // phần lớn nằm trên vỏ, ít hạt trong lòng
+    tgt.set([kc * Math.cos(th) * r, c * r, kc * Math.sin(th) * r], i * 3);
+    const c2 = Math.random() * 2 - 1, th2 = Math.random() * 6.2832, k2 = Math.sqrt(1 - c2 * c2), r2 = SR * (3 + Math.random() * 5);
+    st.set([k2 * Math.cos(th2) * r2, c2 * r2, k2 * Math.sin(th2) * r2], i * 3);
+    d[i] = Math.random(); sd[i] = Math.random(); sz[i] = .3 + Math.pow(Math.random(), 5) * 1.8;
+    const k = PAL[Math.floor(Math.random() * PAL.length)]; col.set([k.r, k.g, k.b], i * 3);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(tgt, 3)); g.setAttribute("aStart", new THREE.BufferAttribute(st, 3));
+  g.setAttribute("aDelay", new THREE.BufferAttribute(d, 1)); g.setAttribute("aSeed", new THREE.BufferAttribute(sd, 1));
+  g.setAttribute("aSize", new THREE.BufferAttribute(sz, 1)); g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+  const pts = new THREE.Points(g, new THREE.ShaderMaterial({
+    uniforms: orbU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `
+      attribute vec3 aStart, aColor; attribute float aDelay, aSeed, aSize;
+      uniform float uTime, uGather, uSpin, uPx, uCharge;
+      varying vec3 vColor; varying float vA;
+      void main() {
+        float g = clamp((uGather - aDelay * .45) / .55, 0., 1.); g = 1. - pow(1. - g, 3.);
+        vec3 p = mix(aStart, position, g);
+        float a = uSpin * (.7 + aSeed * .8) + p.y * .25 + (1. - g) * 2.5;   // xoáy, càng xa càng cuộn
+        p.xz = mat2(cos(a), -sin(a), sin(a), cos(a)) * p.xz;
+        p *= 1. + .03 * sin(uTime * 5.2 + aSeed * 30.);
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = aSize * uPx * (60. / -mv.z) * (1. + uCharge * .6);
+        vColor = mix(aColor, vec3(1.), uCharge * .75);
+        vA = (.5 + .5 * g) * (.6 + .4 * sin(uTime * 3. + aSeed * 40.));
+      }`,
+    fragmentShader: `
+      uniform float uOp; varying vec3 vColor; varying float vA;
+      void main() { float d = length(gl_PointCoord - .5), a = smoothstep(.5, 0., d); gl_FragColor = vec4(vColor, a * a * .8 * vA * uOp); }`
+  }));
+  pts.frustumCulled = false; return pts;
+})();
+const mkStreakMat = U => new THREE.ShaderMaterial({   // vệt gió cũng là hạt: chấm sáng ở đầu, thưa và mờ dần về đuôi
+  uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `
+    attribute float aA, aSeed, aSize; attribute vec3 aColor;
+    uniform float uTime, uPx, uCharge; varying vec3 vColor; varying float vA;
+    void main() {
+      vec3 p = position + vec3(sin(uTime * 2. + aSeed * 40.), cos(uTime * 1.7 + aSeed * 31.), sin(uTime * 2.3 + aSeed * 17.)) * .12;
+      vec4 mv = modelViewMatrix * vec4(p, 1.);
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = aSize * (.4 + aA * .9) * uPx * (60. / -mv.z) * (1. + uCharge * .6);
+      vColor = mix(aColor, vec3(1.), uCharge * .75); vA = aA * (.65 + .35 * sin(uTime * 4. + aSeed * 50.));
+    }`,
+  fragmentShader: `
+    uniform float uOp; varying vec3 vColor; varying float vA;
+    void main() { float d = length(gl_PointCoord - .5), a = smoothstep(.5, 0., d); gl_FragColor = vec4(vColor, a * a * .9 * vA * uOp); }`
+});
+const streakMat = mkStreakMat(orbU);
+const streakPts = (r, arc, hex, N = 150, w = .22, mat = streakMat) => {
+  const pos = new Float32Array(N * 3), al = new Float32Array(N), sd = new Float32Array(N), sz = new Float32Array(N), col = new Float32Array(N * 3);
+  const c1 = new THREE.Color(hex), c2 = new THREE.Color(0xffffff);
+  for (let i = 0; i < N; i++) {
+    const u = Math.pow(Math.random(), .55), ang = u * arc, rr = r + gauss() * w * (1.3 - u), z = gauss() * w * .8 * (1.3 - u);   // đuôi toả rộng, đầu gọn
+    pos.set([Math.cos(ang) * rr, Math.sin(ang) * rr, z], i * 3);
+    al[i] = Math.pow(u, 1.8); sd[i] = Math.random(); sz[i] = .35 + Math.pow(Math.random(), 4) * 1.1;
+    const k = c1.clone().lerp(c2, u * u * .7); col.set([k.r, k.g, k.b], i * 3);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("aA", new THREE.BufferAttribute(al, 1));
+  g.setAttribute("aSeed", new THREE.BufferAttribute(sd, 1)); g.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
+  g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+  const m = new THREE.Points(g, mat); m.frustumCulled = false; return m;
+};
+const streaks = [...Array(7)].map((_, i) => {
+  const g = new THREE.Group(); g.rotation.set(rnd(1.4), rnd(3.1), rnd(1.4));
+  const m = streakPts(SR * (1.08 + Math.random() * .3), 2 + Math.random() * 1.6, [0xff9ec8, 0xff6f9c, 0xc9a3ff][i % 3]);
+  m.userData.v = (3 + Math.random() * 3) * (i % 4 ? 1 : -1); g.add(m); return g;
+});
+// sao chổi hạt chạy dọc theo viền trái tim (ngoài viền một chút), đuôi thưa và mờ dần
+const haloU = { uTime: orbU.uTime, uPx: orbU.uPx, uCharge: orbU.uCharge, uOp: { value: 0 } };
+const haloMat = mkStreakMat(haloU);
+const halo = new THREE.Group(); points.add(halo); halo.visible = false;
+const comets = [[1.17, .09, .26, 0xffb3d1], [1.17, .09, .26, 0xffffff], [1.32, -.06, .2, 0xc9a3ff]].map(([sc, v, len, hex], ci) => {
+  const N = 150, pos = new Float32Array(N * 3), al = new Float32Array(N), sd = new Float32Array(N), sz = new Float32Array(N), col = new Float32Array(N * 3);
+  const c1 = new THREE.Color(hex), c2 = new THREE.Color(0xffffff), off = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const u = i / N; al[i] = Math.pow(1 - u, 1.6); sd[i] = Math.random(); sz[i] = (.5 + Math.pow(Math.random(), 4) * 1.2) * (1.4 - u * .7);
+    const k = c1.clone().lerp(c2, Math.pow(1 - u, 3) * .8); col.set([k.r, k.g, k.b], i * 3);
+    off.set([gauss() * .35 * (.3 + u), gauss() * .35 * (.3 + u), gauss() * .6 * (.3 + u)], i * 3);   // đuôi toả nhẹ
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("aA", new THREE.BufferAttribute(al, 1));
+  g.setAttribute("aSeed", new THREE.BufferAttribute(sd, 1)); g.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
+  g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+  const m = new THREE.Points(g, haloMat); m.frustumCulled = false; halo.add(m);
+  return { m, pos, off, N, sc, v, len, h: ci === 1 ? .5 : Math.random() };
+});
+function flowComets(dt) {
+  if (!heartFlow) return; const { T, M } = heartFlow;
+  comets.forEach(C => {
+    C.h = (C.h + dt * C.v + 1) % 1;
+    for (let i = 0; i < C.N; i++) {
+      const L = ((C.h - Math.sign(C.v) * i / C.N * C.len) % 1 + 1) % 1, j = Math.floor(L * M) % M;
+      C.pos[i * 3] = T[j * 2] * C.sc + C.off[i * 3]; C.pos[i * 3 + 1] = (T[j * 2 + 1] + .9) * C.sc - .9 + C.off[i * 3 + 1]; C.pos[i * 3 + 2] = C.off[i * 3 + 2];
+    }
+    C.m.geometry.attributes.position.needsUpdate = true;
+  });
+}
+const SN = 180, sparkPos = new Float32Array(SN * 3), sparkS = [...Array(SN)].map(() => ({ r: SR * (1 + Math.random() * 1.3), a: Math.random() * 6.2832, y: rnd(1), v: 2 + Math.random() * 3 }));
+const sparks = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(sparkPos, 3)),
+  sealMat(new THREE.PointsMaterial({ map: glowTex, color: 0xffd6e6, size: .65, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1));
+sparks.frustumCulled = false;
+function suck(dt, k) {               // hạt xoáy vòng rồi bị hút vào cầu, chạm mặt thì sinh lại ở xa
+  sparkS.forEach((q, i) => {
+    q.a += dt * q.v * (SR * 1.6 / q.r) * k; q.r -= dt * SR * .55 * k;
+    if (q.r < SR * .95) { q.r = SR * (1.9 + Math.random() * .5); q.y = rnd(1); }
+    const yy = q.y * Math.sqrt(Math.max(0, 1 - Math.pow(SR / q.r, 2) * .2));
+    sparkPos.set([Math.cos(q.a) * q.r * Math.sqrt(1 - yy * yy), yy * q.r, Math.sin(q.a) * q.r * Math.sqrt(1 - yy * yy)], i * 3);
+  });
+  sparks.geometry.attributes.position.needsUpdate = true;
+}
+const core = new THREE.Sprite(sealMat(new THREE.SpriteMaterial({ map: glowTex, color: 0xffc2dc, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), .6));
+seal.add(core, orb, ...streaks, sparks);
+seal.visible = false;
+let sealOn = false, sealIn = 0, sealSpin = 0, sealPoke = -1e9, sealBreak = -1e9;
+const WHITE = new THREE.Color(1, 1, 1);
+
+// sao nền: nghiêng điện thoại (hoặc rê chuột) là trượt nhẹ ngược chiều, tạo chiều sâu
+const stars = new THREE.Group();
+{
+  const n = 900, p = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) p.set([rnd(140), rnd(100), -40 - Math.random() * 80], i * 3);
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(p, 3));
+  stars.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xbfb6d6, size: .5, transparent: true, opacity: .55, depthWrite: false })));
+}
+scene3.add(stars);
+
+/* ---------- bản thư: tim bay từ 4 phía vào, vòng render y như bản chính ---------- */
+let current = "", morphStart = 0, morphDur = 1, heartT0 = 0, straight = 0, running = false;
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  uniforms.uPx.value = renderer.getPixelRatio() * innerHeight * .0062;
+}
+resize();
+addEventListener("resize", () => { resize(); if (current === "heart") to.array.set(heart()); });
+const mouse = { x: 0, y: 0 }, look = { x: 0, y: 0 };
+addEventListener("pointermove", e => { if (e.pointerType === "mouse") { mouse.x = e.clientX / innerWidth - .5; mouse.y = e.clientY / innerHeight - .5; } });
+let burstStart = -1e9, flinch = 0, lastT = 0, glowT = 0;
+function edges() {            // bụi sao xuất phát ngoài mép màn hình, chia đều 4 phía
+  const a = new Float32Array(COUNT * 3), v = view();
+  for (let i = 0; i < COUNT; i++) {
+    const side = i % 4, m = v.h * (.08 + Math.random() * .3);
+    let x, y;
+    if (side === 0) { x = rnd(v.w / 2); y = v.h / 2 + m; }
+    else if (side === 1) { x = v.w / 2 + m; y = rnd(v.h / 2); }
+    else if (side === 2) { x = rnd(v.w / 2); y = -v.h / 2 - m; }
+    else { x = -v.w / 2 - m; y = rnd(v.h / 2); }
+    a.set([x, y, gauss() * 6], i * 3);
+  }
+  return a;
+}
+function frame(now) {
+  const t = now / 1000;
+  uniforms.uTime.value = t;
+  const dt = Math.min(.05, t - (lastT || t)); lastT = t;
+  if (current === "heart" && heartFlow) { flowHeart(heartFlow, to.array, dt); to.needsUpdate = true; }
+  uniforms.uP.value = Math.min(1, (now - morphStart) / morphDur);
+  const b = (now - burstStart) / 1000;
+  uniforms.uGlow.value += (glowT * (.85 + .15 * Math.sin(t * 9)) - uniforms.uGlow.value) * (1 - Math.exp(-dt * 4));
+  uniforms.uBurst.value = b < 2.4 ? Math.sin(Math.min(1, b / 2.4) * Math.PI) * (1 - b / 2.4 * .3) : 0;
+  straight += ((glowT > 0 || sealBreak > 0 ? 1 : 0) - straight) * (1 - Math.exp(-dt * 3));
+  const hl = t - heartT0, sw = Math.min(1, hl / 4) * (1 - straight);
+  const spin = current === "heart" ? Math.sin(hl * .45) * .3 * sw : 0;
+  look.x += (mouse.x - look.x) * .08; look.y += (mouse.y - look.y) * .08;
+  const lk = 1 - straight;
+  points.rotation.y += (spin + look.x * .9 * lk - points.rotation.y) * .05;
+  points.rotation.x += (look.y * .6 * lk - points.rotation.x) * .05;
+  stars.position.set(-look.x * 14, look.y * 10, 0);
+  let s = 1;
+  if (current === "heart") s += Math.pow(Math.max(0, Math.sin(t * 5.2)), 10) * .04 + Math.pow(Math.max(0, Math.sin(t * 5.2 - 1)), 10) * .02;
+  flinch *= .9; s += flinch;
+  points.scale.setScalar(s);
+  if (heartFlow) {
+    sealIn += ((sealOn ? 1 : 0) - sealIn) * (1 - Math.exp(-dt * 1.5));
+    const bk = sealBreak > 0 ? (now - sealBreak) / 1000 : 0, charge = bk > 0 ? Math.min(1, bk / .65) : 0, blow = bk > .65 ? Math.min(1, (bk - .65) / .7) : 0;
+    const pk = Math.max(0, 1 - (now - sealPoke) / 650);
+    sealSpin += dt * (1 + charge * charge * 16 + pk * 4);
+    orb.rotation.y = sealSpin * .5;
+    streaks.forEach(g => g.children[0].rotation.z += dt * g.children[0].userData.v * (1 + charge * 3 + pk * 2));
+    suck(dt, 1 + charge * 4 + pk * 2);
+    const shake = charge * .5 + pk * .35;
+    seal.position.set(heartFlow.s * rnd(shake), heartFlow.oy - 3 * heartFlow.s + heartFlow.s * rnd(shake), 0);
+    seal.rotation.z = Math.sin(now / 45) * pk * .18;
+    seal.scale.setScalar(heartFlow.s * (1 + charge * .18 + blow * 2.6));
+    core.scale.setScalar((SR * 2.4 + Math.sin(t * 23) * .5 + Math.sin(t * 5.2) * .8) * (.2 + .8 * orbU.uGather.value) + charge * 12 + pk * 3);
+    const op = Math.min(1, sealIn * 1.3) * (1 - blow);
+    sealMats.forEach(([m, base, col]) => { m.opacity = Math.min(1, base * op * (1 + charge * 1.2 + pk * .5)); m.color.lerpColors(col, WHITE, charge * .8); });
+    orbU.uTime.value = t; orbU.uSpin.value = sealSpin; orbU.uGather.value = sealOn || sealBreak > 0 ? Math.min(1, orbU.uGather.value + dt / 3.8) : 0; orbU.uOp.value = op * (1 + pk * .4); orbU.uCharge.value = charge;
+    seal.visible = op > .004;
+    halo.position.set(0, heartFlow.oy - .5 * heartFlow.s, 0); halo.scale.setScalar(heartFlow.s * (1 + blow * 1.4));
+    if (halo.visible) flowComets(dt * (1 + charge * 4));
+    haloU.uOp.value = Math.min(1, sealIn * 1.3) * (1 - blow) * .85; halo.visible = haloU.uOp.value > .004;
+  }
+  renderer.render(scene3, camera);
+  if (b > 2.6 && b < 1e6) { renderer.setAnimationLoop(null); renderer.clear(); running = false; }   // nổ xong thì tắt hẳn
+}
+window.HeartGL = {
+  start() {                     // trả về toạ độ màn hình của đáy tim để đặt dòng nhắc
+    to.array.set(heart()); from.array.set(edges()); from.needsUpdate = to.needsUpdate = true;
+    current = "heart"; heartT0 = performance.now() / 1000; morphStart = performance.now(); morphDur = 4600; uniforms.uP.value = 0;
+    sealOn = true;
+    if (!running) { running = true; renderer.setAnimationLoop(frame); }
+    camera.updateMatrixWorld();
+    const p = new THREE.Vector3(0, -15.5 * heartFlow.s + heartFlow.oy, 0).project(camera);
+    return { bottom: (1 - p.y) / 2 * innerHeight };
+  },
+  poke() { sealPoke = performance.now(); flinch = -.06; },
+  boom() {                      // y như lúc bấm Yes bên bản chính: tim bừng sáng, phong ấn quay nhanh, trắng loá rồi tim nổ tung
+    glowT = 1; flinch = .2;
+    setTimeout(() => { sealBreak = performance.now(); }, 900);
+    setTimeout(() => { burstStart = performance.now(); flinch = .25; glowT = 0; }, 1550);
+    setTimeout(() => sealOn = false, 2400);
+  }
+};
 </script>
 </body>
 </html>
