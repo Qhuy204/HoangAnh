@@ -6,3 +6,14 @@ services:
     ports:
       - "8123:80"
     restart: unless-stopped   # Docker bật lên là trang tự chạy lại
+
+  letter:                     # bản phong thư dấu sáp
+    build:
+      context: .
+      args:
+        PAGE: letter/index.html
+    image: hoanganh-letter
+    container_name: hoanganh-letter
+    ports:
+      - "8124:80"
+    restart: unless-stopped
