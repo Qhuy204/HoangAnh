@@ -14,9 +14,10 @@
     -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
   body { background:#6c7b50; font-family:"Cormorant Garamond", Georgia, serif; color:#fff; }
   /* hạt giấy phủ toàn trang */
-  body::after { content:""; position:fixed; inset:0; z-index:20; pointer-events:none; opacity:.22; mix-blend-mode:multiply;
+  body::after { content:""; position:fixed; inset:0; z-index:20; pointer-events:none; opacity:.1; mix-blend-mode:multiply;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .32 0 0 0 0 .22 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  #bg { position:fixed; inset:0; width:100%; height:100%; z-index:0; }
+  #bg { position:fixed; inset:0; z-index:0; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #bg { background-image:url(../assets/letter/bg-wide.webp); } }
 
   .cap { position:absolute; left:0; right:0; z-index:8; text-align:center; padding:0 20px; transition:opacity .6s; pointer-events:none;
     text-shadow:0 1px 10px rgba(30,40,20,.45); }
@@ -28,10 +29,10 @@
   /* ---------- phong thư ---------- */
   #env { position:absolute; transition:left 1s cubic-bezier(.6,0,.3,1), top 1s cubic-bezier(.6,0,.3,1), width 1s cubic-bezier(.6,0,.3,1), height 1s cubic-bezier(.6,0,.3,1); }
   #env > * { position:absolute; inset:0; }
-  .back { z-index:1; border-radius:4px; background:linear-gradient(#ddd2bf, #e9e0cf); box-shadow:0 18px 40px rgba(30,40,20,.45), 0 2px 6px rgba(30,40,20,.3); }
+  .back { z-index:1; border-radius:4px; background:linear-gradient(rgba(150,130,95,.28), rgba(150,130,95,.12)), url(../assets/letter/envelope.webp) center/cover; box-shadow:0 18px 40px rgba(30,40,20,.45), 0 2px 6px rgba(30,40,20,.3); }
   .pocket { z-index:3; width:100%; height:100%; pointer-events:none; filter:drop-shadow(0 -1px 1px rgba(80,70,50,.12)); }
   .flap { z-index:4; transform-origin:50% 0; transform:perspective(900px) rotateX(0deg); transition:transform .9s cubic-bezier(.5,0,.3,1);
-    clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(170deg, #fbf8f1, #efe7d8 70%); }
+    clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(170deg, rgba(255,255,255,.35), rgba(235,225,205,.1) 70%), url(../assets/letter/envelope.webp) 30% 20%/cover; }
   .flapShade { z-index:4; pointer-events:none; clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(rgba(0,0,0,0) 40%, rgba(90,75,50,.12)); transition:opacity .4s; }
   .opened .flap { transform:perspective(900px) rotateX(178deg); }
   .opened .flapShade { opacity:0; }
@@ -39,14 +40,9 @@
 
   /* dấu sáp */
   #seal { position:absolute; z-index:9; left:50%; top:58%; width:21%; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; cursor:pointer;
-    border-radius:47% 53% 50% 46% / 52% 46% 54% 48%;
-    background:radial-gradient(circle at 34% 30%, #d14a3c 0%, #a32222 32%, #7d1414 62%, #560909 100%);
-    box-shadow:0 4px 8px rgba(40,0,0,.45), inset 0 -3px 6px rgba(0,0,0,.35), inset 0 3px 5px rgba(255,170,150,.35);
+    background:url(../assets/letter/seal.webp) center/contain no-repeat; filter:drop-shadow(0 5px 6px rgba(40,10,0,.45));
     animation:pulse 2.2s ease-in-out infinite; transition:transform .5s cubic-bezier(.3,1.6,.5,1), opacity .5s; }
-  #seal::before { content:""; position:absolute; inset:16%; border-radius:50%; box-shadow:inset 0 0 0 2px rgba(60,0,0,.35), 0 0 0 1px rgba(255,160,140,.18), inset 0 2px 4px rgba(0,0,0,.3); }
-  #seal::after { content:"♥"; position:absolute; inset:0; display:grid; place-items:center; font:700 calc(var(--sw) * .36)/1 Georgia, serif; color:#6d0f0f;
-    text-shadow:0 1px 0 rgba(255,150,130,.35), 0 -1px 0 rgba(0,0,0,.35); }
-  @keyframes pulse { 50% { transform:scale(1.07); box-shadow:0 4px 18px rgba(255,120,100,.5), inset 0 -3px 6px rgba(0,0,0,.35), inset 0 3px 5px rgba(255,170,150,.35); } }
+  @keyframes pulse { 50% { transform:scale(1.07); filter:drop-shadow(0 4px 14px rgba(255,130,110,.55)); } }
   .opened #seal { animation:none; transform:scale(1.5) rotate(-20deg); opacity:0; pointer-events:none; }
 
   /* khe chứa ảnh: cắt phần thò xuống dưới đáy phong thư */
@@ -78,6 +74,7 @@
   /* hoa + ghi chú viết tay */
   .flower { position:absolute; z-index:11; pointer-events:none; transform-origin:50% 100%; transform:scale(0); transition:transform 1.1s cubic-bezier(.3,1.4,.5,1); }
   .flower.on { transform:scale(1) rotate(var(--r, 0deg)); }
+  img.flower { height:auto; filter:drop-shadow(0 8px 10px rgba(30,40,20,.35)); }
   .note { position:absolute; z-index:11; pointer-events:none; font:700 clamp(17px, 4.6vw, 22px) "Dancing Script", cursive; color:#fbf8f1; white-space:nowrap;
     text-shadow:0 1px 6px rgba(30,40,20,.5); opacity:0; translate:0 6px; transition:opacity .8s, translate .8s; }
   .note.on { opacity:1; translate:0 0; }
@@ -96,7 +93,7 @@
 </style>
 </head>
 <body>
-<canvas id="bg"></canvas>
+<div id="bg"></div>
 
 <div class="cap" id="capTop">Gửi HoangAnh, có thư của Qhuy nè</div>
 <div class="cap" id="capBot">(chạm vào dấu sáp để mở thư nhé)</div>
@@ -129,26 +126,8 @@
   <div class="sign" id="sign">— Qhuy ♡</div>
 </div></div>
 
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="spathe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c2364a"/><stop offset=".55" stop-color="#8e1b2c"/><stop offset="1" stop-color="#5e0c1a"/></linearGradient>
-    <symbol id="lily" viewBox="0 0 60 160">
-      <path d="M31 160 C30 125 28 100 32 66" stroke="#4c6a35" stroke-width="3.2" fill="none"/>
-      <path d="M31 150 C10 128 6 100 15 84 C22 104 28 126 31 150Z" fill="#5f7f45"/>
-      <path d="M32 68 C14 60 8 36 18 12 C24 24 38 26 50 20 C54 42 46 62 32 68Z" fill="url(#spathe)"/>
-      <path d="M18 12 C24 24 38 26 50 20 C42 30 26 30 18 12Z" fill="#e0607a" opacity=".55"/>
-      <path d="M31 62 C30 50 31 40 34 30" stroke="#e8c45a" stroke-width="2.6" stroke-linecap="round" fill="none"/>
-    </symbol>
-    <symbol id="bouquet" viewBox="0 0 120 170">
-      <use href="#lily" x="6" y="22" width="52" height="139" transform="rotate(-16 32 160)"/>
-      <use href="#lily" x="34" y="0" width="60" height="160"/>
-      <use href="#lily" x="62" y="30" width="48" height="128" transform="rotate(14 86 160)"/>
-      <g fill="#fbf8f1"><circle cx="22" cy="96" r="2.6"/><circle cx="28" cy="90" r="2"/><circle cx="17" cy="88" r="1.8"/><circle cx="96" cy="100" r="2.4"/><circle cx="102" cy="94" r="1.8"/><circle cx="91" cy="92" r="2"/><circle cx="60" cy="112" r="2"/></g>
-    </symbol>
-  </defs>
-</svg>
-<svg class="flower" id="fl1" viewBox="0 0 120 170" style="--r:-8deg"><use href="#bouquet"/></svg>
-<svg class="flower" id="fl2" viewBox="0 0 120 170" style="--r:10deg"><use href="#bouquet"/></svg>
+<img class="flower" id="fl1" src="../assets/letter/lily-left.webp" alt="" style="--r:-6deg">
+<img class="flower" id="fl2" src="../assets/letter/lily-right.webp" alt="" style="--r:6deg">
 
 <div class="note" id="n1">for you ♡<svg viewBox="0 0 34 30" style="left:22px; top:26px"><path d="M4 2 C8 14 16 22 28 24 M22 18 L28 24 L21 28"/></svg></div>
 <div class="note" id="n2">tin nhắn đầu tiên<svg viewBox="0 0 34 30" style="right:8px; top:26px"><path d="M30 2 C26 14 18 22 6 24 M12 18 L6 24 L13 28"/></svg></div>
@@ -165,35 +144,6 @@ const $ = id => document.getElementById(id);
 const env = $("env"), slot = $("slot"), card = $("card"), pol = $("pol"), strip = $("strip"), seal = $("seal");
 let W, H, portrait, opened = false, E, C, P, S;
 
-/* ---------- nền: cành lá vẽ bằng canvas ---------- */
-function drawBg() {
-  const cv = $("bg"), d = Math.min(devicePixelRatio || 1, 2), g = cv.getContext("2d");
-  cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0);
-  const grad = g.createRadialGradient(W / 2, H * .45, 0, W / 2, H * .45, Math.max(W, H) * .75);
-  grad.addColorStop(0, "#8b9a6a"); grad.addColorStop(.6, "#6f7e52"); grad.addColorStop(1, "#56643c");
-  g.fillStyle = grad; g.fillRect(0, 0, W, H);
-  let seed = 11; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
-  const leaf = (x, y, a, l, w, col) => { g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = col; g.beginPath(); g.moveTo(0, 0);
-    g.quadraticCurveTo(l * .45, w, l, 0); g.quadraticCurveTo(l * .45, -w, 0, 0); g.fill(); g.restore(); };
-  const branch = (x0, y0, ang, len, col, sc) => {
-    const cx = x0 + Math.cos(ang) * len * .5 + (rnd() - .5) * len * .5, cy = y0 + Math.sin(ang) * len * .5 + (rnd() - .5) * len * .5;
-    const x1 = x0 + Math.cos(ang) * len, y1 = y0 + Math.sin(ang) * len;
-    g.strokeStyle = col; g.lineWidth = 1.6 * sc; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(cx, cy, x1, y1); g.stroke();
-    for (let t = .08, s = 1; t < 1; t += .065 + rnd() * .03, s = -s) {
-      const u = 1 - t, px = u * u * x0 + 2 * u * t * cx + t * t * x1, py = u * u * y0 + 2 * u * t * cy + t * t * y1;
-      const tx = 2 * u * (cx - x0) + 2 * t * (x1 - cx), ty = 2 * u * (cy - y0) + 2 * t * (y1 - cy), a = Math.atan2(ty, tx);
-      const l = (16 + rnd() * 22) * sc * (1.1 - t * .5); leaf(px, py, a + s * (.7 + rnd() * .4), l, l * .32, col);
-    }
-  };
-  const S0 = Math.max(W, H) / 900;
-  g.filter = "blur(2px)";
-  for (let i = 0; i < 9; i++) { const e = i % 4, x = e === 1 ? W : e === 3 ? 0 : rnd() * W, y = e === 0 ? 0 : e === 2 ? H : rnd() * H;
-    branch(x, y, Math.atan2(H / 2 - y, W / 2 - x) + (rnd() - .5) * 1.4, (220 + rnd() * 260) * S0, "rgba(38,52,26,.22)", 1.6 * S0); }
-  g.filter = "none";
-  for (let i = 0; i < 7; i++) { const e = i % 4, x = e === 1 ? W : e === 3 ? 0 : rnd() * W, y = e === 0 ? 0 : e === 2 ? H : rnd() * H;
-    branch(x, y, Math.atan2(H / 2 - y, W / 2 - x) + (rnd() - .5) * 1.2, (160 + rnd() * 200) * S0, "rgba(225,235,200,.10)", 1.1 * S0); }
-}
-
 /* ---------- bố cục: phong thư lúc đóng / mở, thiệp, ảnh, hoa ---------- */
 function layout() {
   W = innerWidth; H = innerHeight; portrait = W / H < .95;
@@ -203,7 +153,7 @@ function layout() {
   else { ew = Math.min(W * .36, 520, H * .4 * 1.5); eh = ew / 1.5; ex = W * .56 - ew / 2; ey = H - eh - H * .1; }
   E = { x: ex, y: ey, w: ew, h: eh };
   Object.assign(env.style, { left: ex + "px", top: ey + "px", width: ew + "px", height: eh + "px" });
-  Object.assign(seal.style, { left: ex + ew / 2 + "px", top: ey + eh * .58 + "px", width: ew * .21 + "px" });
+  Object.assign(seal.style, { left: ex + ew / 2 + "px", top: ey + eh * .58 + "px", width: ew * .27 + "px" });
   seal.style.setProperty("--sw", ew * .21 + "px");
   Object.assign(slot.style, { left: ex + "px", width: ew + "px", height: ey + eh * .97 + "px" });
   $("capTop").style.top = Math.max(20, ey - 70) + "px";
@@ -219,9 +169,9 @@ function layout() {
   pol.style.setProperty("--pw", pw + "px");
   Object.assign(card.style, { left: C.x + "px", top: C.y + "px", width: C.w + "px", height: C.h + "px" });
   // hoa hai bên phong thư
-  const fw = ew * (portrait ? .36 : .3);
-  Object.assign($("fl1").style, { width: fw + "px", left: ex - fw * .42 + "px", top: ey + eh - fw * 1.42 * .92 + "px" });
-  Object.assign($("fl2").style, { width: fw + "px", left: ex + ew - fw * .58 + "px", top: ey + eh - fw * 1.42 * .9 + "px" });
+  const fw = ew * (portrait ? .44 : .36);
+  Object.assign($("fl1").style, { width: fw + "px", left: ex - fw * .38 + "px", top: ey + eh - fw * 1.5 * .97 + "px" });
+  Object.assign($("fl2").style, { width: fw + "px", left: ex + ew - fw * .62 + "px", top: ey + eh - fw * 1.5 * .95 + "px" });
   // ghi chú (màn dọc thì thiệp che mất nên ẩn)
   $("n1").style.display = $("n2").style.display = portrait ? "none" : "";
   Object.assign($("n1").style, { left: ex + S.x - 24 + "px", top: S.y - 56 + "px" });
@@ -286,8 +236,8 @@ seal.addEventListener("click", async () => {
   typeLetter();
 });
 
-addEventListener("resize", () => { layout(); drawBg(); });
-layout(); drawBg();
+addEventListener("resize", layout);
+layout();
 </script>
 </body>
 </html>
