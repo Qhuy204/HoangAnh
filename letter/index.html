@@ -155,7 +155,7 @@
   #door .leaf .edge.t { top:0; bottom:auto; left:0; right:0; width:auto; height:var(--th, 14px); transform-origin:50% 0; transform:rotateX(-90deg); background:#3d2512; }   /* âm = dày về phía sau, khớp mép bên + mặt sau, không lòi ra trước */
   #door .leaf .back { position:absolute; inset:0; transform:translateZ(calc(var(--th, 14px) * -1)) rotateY(180deg); background:#4f3019 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; filter:brightness(.5); backface-visibility:hidden; }
   #door .leaf.r { display:none; }
-  #door.open .leaf.l { transform:rotateY(-78deg); }   /* âm = cánh cửa đi vào trong (ra xa người xem) */
+  #door.open .leaf.l { transform:rotateY(78deg); }   /* dương = mép tự do lùi ra xa người xem: cửa mở vào trong, không lòi qua khung/bậc thềm */
   #s1 .step { position:absolute; left:50%; translate:-50% 0; top:calc(56% + min(52vw, 31vh, 300px) * .75 + 12px); width:calc(min(52vw, 31vh, 300px) + 60px); height:10px;
     border-radius:3px; background:linear-gradient(#4a2e1b, #24150c); box-shadow:0 10px 30px rgba(0,0,0,.6); }
   .bang { position:absolute; z-index:3; pointer-events:none; font:400 clamp(24px, 7vw, 34px) "Patrick Hand", cursive; color:#fff; text-shadow:0 2px 0 #c2456c, 0 0 12px rgba(194,69,108,.6); }
