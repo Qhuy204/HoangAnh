@@ -6,13 +6,3 @@ services:
     ports:
       - "8123:80"
     restart: unless-stopped   # Docker bật lên là trang tự chạy lại
-  anime:
-    build:
-      context: .
-      args:
-        PAGE: anime/index.html
-    image: hoanganh-anime
-    container_name: hoanganh-anime
-    ports:
-      - "8124:80"
-    restart: unless-stopped
