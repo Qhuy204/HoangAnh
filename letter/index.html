@@ -98,14 +98,24 @@
   .note.on { opacity:1; translate:0 0; }
   .note svg { position:absolute; width:34px; height:30px; fill:none; stroke:#fbf8f1; stroke-width:1.6; stroke-linecap:round; }
 
-  /* nút nhạc */
-  #music { position:fixed; left:14px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:50; display:flex; align-items:center; gap:8px; border:0; border-radius:999px;
-    padding:8px 15px 8px 12px; background:var(--wax); color:#fbeee8; font:italic 600 16px "Cormorant Garamond", serif; box-shadow:0 4px 14px rgba(60,0,0,.35); cursor:pointer; }
-  #music i { display:flex; align-items:flex-end; gap:2px; height:13px; }
-  #music i b { width:3px; height:30%; background:currentColor; border-radius:1px; }
-  #music.on i b { animation:eq .9s ease-in-out infinite; }
-  #music.on i b:nth-child(2) { animation-delay:-.3s; } #music.on i b:nth-child(3) { animation-delay:-.6s; }
-  @keyframes eq { 50% { height:100%; } }
+  /* đĩa nhạc (giống bản chính): góc trên phải, đĩa quay khi đang phát */
+  .player { position:fixed; right:14px; top:calc(14px + env(safe-area-inset-top)); z-index:50; display:flex; flex-direction:row-reverse; align-items:center; gap:10px; }
+  .disc { position:relative; width:44px; height:44px; flex:none; padding:0; border:0; background:none; cursor:pointer; }
+  .vinyl { position:absolute; inset:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:repeating-radial-gradient(circle, #101114 0 2px, #25272d 2px 3px); box-shadow:0 4px 14px rgba(0,0,0,.6), inset 0 0 0 1px #000;
+    animation:spin 3.2s linear infinite; animation-play-state:paused; }
+  .vinyl::before { content:""; position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 20deg, transparent 0 40deg, rgba(255,255,255,.18) 60deg, transparent 80deg 220deg, rgba(255,255,255,.13) 240deg, transparent 260deg); }
+  .vinyl::after { content:""; position:absolute; width:4px; height:4px; border-radius:50%; background:#f3ead9; box-shadow:0 0 0 1px rgba(0,0,0,.5); }
+  .vinyl img { width:44%; height:44%; border-radius:50%; object-fit:cover; background:var(--wax); }
+  .playing .vinyl { animation-play-state:running; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .arm { position:absolute; right:-3px; top:-3px; width:3px; height:26px; border-radius:3px; background:linear-gradient(#e6dfd0, #9a927f); transform-origin:50% 3px; transform:rotate(-12deg);
+    transition:transform .7s cubic-bezier(.34,1.3,.64,1); box-shadow:0 2px 4px rgba(0,0,0,.5); }
+  .arm::before { content:""; position:absolute; left:-3px; top:-2px; width:9px; height:9px; border-radius:50%; background:#8d8573; }
+  .arm::after { content:""; position:absolute; left:-1.5px; bottom:-2px; width:6px; height:8px; border-radius:2px; background:var(--wax); }
+  .playing .arm { transform:rotate(24deg); }
+  .track { display:flex; flex-direction:column; text-align:right; font:400 11px/1.35 "Be Vietnam Pro", system-ui, sans-serif; letter-spacing:.04em; color:#f6efe6; opacity:.8; text-shadow:0 1px 4px rgba(0,0,0,.4); }
+  .track span { opacity:.75; }
 
   /* ---------- các màn phủ toàn trang ---------- */
   .scr { position:fixed; inset:0; z-index:30; opacity:0; visibility:hidden; overflow:hidden; transition:opacity .9s, visibility 0s .9s; }
@@ -145,7 +155,7 @@
   #door .leaf .edge.t { top:0; bottom:auto; left:0; right:0; width:auto; height:var(--th, 14px); transform-origin:50% 0; transform:rotateX(90deg); background:#3d2512; }
   #door .leaf .back { position:absolute; inset:0; transform:translateZ(calc(var(--th, 14px) * -1)) rotateY(180deg); background:#4f3019 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; filter:brightness(.5); backface-visibility:hidden; }
   #door .leaf.r { display:none; }
-  #door.open .leaf.l { transform:rotateY(78deg); }
+  #door.open .leaf.l { transform:rotateY(-78deg); }   /* âm = cánh cửa đi vào trong (ra xa người xem) */
   #s1 .step { position:absolute; left:50%; translate:-50% 0; top:calc(56% + min(52vw, 31vh, 300px) * .75 + 12px); width:calc(min(52vw, 31vh, 300px) + 60px); height:10px;
     border-radius:3px; background:linear-gradient(#4a2e1b, #24150c); box-shadow:0 10px 30px rgba(0,0,0,.6); }
   .bang { position:absolute; z-index:3; pointer-events:none; font:400 clamp(24px, 7vw, 34px) "Patrick Hand", cursive; color:#fff; text-shadow:0 2px 0 #c2456c, 0 0 12px rgba(194,69,108,.6); }
@@ -365,7 +375,10 @@
 <div id="flash"></div>
 <div id="memes"></div>
 <canvas id="fx"></canvas>
-<button id="music" aria-label="Bật / tắt nhạc"><i><b></b><b></b><b></b></i>nhạc</button>
+<div class="player">
+  <button class="disc" id="disc" aria-label="Bật / tắt nhạc"><span class="vinyl"><img alt="" src="../assets/cover.jpg"></span><span class="arm"></span></button>
+  <div class="track"><b>Từng Ngày Yêu Em</b><span id="trackState">chạm đĩa để bật nhạc</span></div>
+</div>
 
 <script>
 /* ============ SỬA NỘI DUNG Ở ĐÂY ============ */
@@ -443,10 +456,21 @@ const tuckClip = (dy) => { const s = E.w * .84 / C.w, bot = E.y + E.h * .55 + dy
 
 /* ---------- nhạc ---------- */
 const au = new Audio(SONG); au.loop = true;
-const mb = $("music");
-const setMusic = on => { on ? au.play().catch(() => {}) : au.pause(); };
-au.addEventListener("play", () => mb.classList.add("on")); au.addEventListener("pause", () => mb.classList.remove("on"));
-mb.onclick = () => setMusic(au.paused);
+let userPaused = false, heard = false;
+const setMusic = on => { userPaused = !on; on ? au.play().catch(() => {}) : au.pause(); };
+const showPlaying = () => { const on = !au.paused;
+  document.querySelector(".player").classList.toggle("playing", on); $("trackState").textContent = on ? "đang phát" : "chạm đĩa để bật nhạc"; };
+au.addEventListener("play", showPlaying); au.addEventListener("pause", showPlaying);
+au.addEventListener("playing", () => heard = true);
+au.addEventListener("ended", () => { if (!userPaused) { au.currentTime = 0; au.play().catch(() => {}); } });   // phòng máy nào lờ loop
+document.addEventListener("visibilitychange", () => { if (!document.hidden && au.paused && !userPaused && heard) au.play().catch(() => {}); });
+$("disc").onclick = () => setMusic(au.paused);
+if ("mediaSession" in navigator) {   // thoát web ra: Dynamic Island / màn khoá hiện ảnh bìa + tên
+  navigator.mediaSession.metadata = new MediaMetadata({ title: "HoangAnh", artist: "",
+    artwork: [{ src: new URL("../assets/cover.jpg", location.href).href, sizes: "512x512", type: "image/jpeg" }] });
+  navigator.mediaSession.setActionHandler("play", () => setMusic(true));
+  navigator.mediaSession.setActionHandler("pause", () => setMusic(false));
+}
 
 /* ---------- tiện ích ---------- */
 const imgs = {};
