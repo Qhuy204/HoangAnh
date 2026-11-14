@@ -290,16 +290,16 @@ const CONFIG = {
   no: ["No", "Hụt rồi", "Bấm lại xem", "Chắc chưa?", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"],
   spotifyTrackId: "3Ids3RXurYBgySph53qWnB", // Từng Ngày Yêu Em - buitruonglinh
   trackName: "Từng Ngày Yêu Em",
-  // muốn chắc chắn phát cả bài từ giây đầu: bỏ file nhạc vào assets rồi điền tên, vd "assets/song.mp3" (khi đó không dùng Spotify nữa)
-  audioFile: "assets/sound.mp3",
-  nowPlaying: { title: "HoangAnh", artist: "", cover: "assets/cover.jpg" },   // hiện trên Dynamic Island / màn khoá khi thoát web mà nhạc vẫn chạy
+  // muốn chắc chắn phát cả bài từ giây đầu: bỏ file nhạc vào assets rồi điền tên, vd "../assets/song.mp3" (khi đó không dùng Spotify nữa)
+  audioFile: "../assets/sound.mp3",
+  nowPlaying: { title: "HoangAnh", artist: "", cover: "../assets/cover.jpg" },   // hiện trên Dynamic Island / màn khoá khi thoát web mà nhạc vẫn chạy
   firstMessage: "2026-07-30T21:54:00+07:00",   // thời điểm tin nhắn đầu tiên (năm-tháng-ngày, giờ VN), bộ đếm tính từ đây; để "" là bỏ màn này
-  firstMessagePhoto: "assets/firstmsg.webp",
+  firstMessagePhoto: "../assets/firstmsg.webp",
   firstMessageLabel: "First message",
   quiz: { intro: ["Hí lu", "Trước khi vào việc chính, em hỏi chị cái này xíu"],   // các trang trước câu đố, chạm để sang
     ask: "Đố chị biết mình bắt đầu nhắn với nhau từ bao giờ?", right: "Bingo!", wrong: "Em nhắc chị đấy nhé =)))" },   // đáp án là ngày của firstMessage
   caption: "iu thíiiii",   // chữ dưới ảnh
-  photo: "assets/hoanganh2.webp"   // ảnh nổi lên trên tường meme ở cuối, bo góc; để "" nếu không dùng
+  photo: "../assets/hoanganh2.webp"   // ảnh nổi lên trên tường meme ở cuối, bo góc; để "" nếu không dùng
 };
 /* ============================================ */
 
@@ -919,7 +919,7 @@ function launch(e) {
 $("start").addEventListener("click", async event => {
   enableSensors();
   if (controller && !playing) controller.play();   // chạm là nhạc lên
-  for (let i = 0; i < CONFIG.memes; i++) new Image().src = "assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
+  for (let i = 0; i < CONFIG.memes; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
   const gone = launch(event) * 1000; await wait(900); show(""); await wait(Math.max(0, gone + 1000 - 900 - 350));   // trang đầu mờ đi, máy bay khuất hẳn ~1s thì ảnh hiện (ảnh có .35s trễ sẵn)
   if (CONFIG.firstMessage) {
     for (const [i, text] of (CONFIG.quiz.intro || []).entries()) {   // Hí lu → em hỏi chị cái này xíu
@@ -1042,7 +1042,7 @@ addEventListener("pointerdown", e => {              // chạm vào phong ấn tr
   if (Math.hypot(e.clientX - secretXY[0], e.clientY - secretXY[1]) > 80) return;
   sealPoke = performance.now(); flinch = -.06;
 });
-const memeSrc = i => "assets/memes/m" + String(i % CONFIG.memes + 1).padStart(2, "0") + ".jpg";
+const memeSrc = i => "../assets/memes/m" + String(i % CONFIG.memes + 1).padStart(2, "0") + ".jpg";
 /* ---------- Tim và máy bay giấy cuối trang: vẽ trên canvas, có quầng sáng và vệt lấp lánh ---------- */
 const fx = $("fx"), fg = fx.getContext("2d");
 const fitFx = () => { fx.width = innerWidth * ptDpr; fx.height = innerHeight * ptDpr; };

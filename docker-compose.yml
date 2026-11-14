@@ -1,19 +1,19 @@
 services:
-  web:
+  web:                        # bản chính hiện tại: phong thư dấu sáp (index.html gốc, GitHub Pages cũng lấy bản này)
     build: .
-    image: hoanganh-web
-    container_name: hoanganh
-    ports:
-      - "8124:80"
-    restart: unless-stopped   # Docker bật lên là trang tự chạy lại
-
-  letter:                     # bản phong thư dấu sáp
-    build:
-      context: .
-      args:
-        PAGE: letter/index.html
     image: hoanganh-letter
     container_name: hoanganh-letter
     ports:
       - "8123:80"
+    restart: unless-stopped   # Docker bật lên là trang tự chạy lại
+
+  v1:                         # bản cũ (v1/index.html)
+    build:
+      context: .
+      args:
+        PAGE: v1/index.html
+    image: hoanganh-web
+    container_name: hoanganh
+    ports:
+      - "8124:80"
     restart: unless-stopped

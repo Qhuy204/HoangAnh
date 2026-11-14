@@ -16,8 +16,8 @@
   /* hạt giấy phủ toàn trang */
   body::after { content:""; position:fixed; inset:0; z-index:20; pointer-events:none; opacity:.1; mix-blend-mode:multiply;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .32 0 0 0 0 .22 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  #bg { position:fixed; inset:0; z-index:0; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; }
-  @media (min-aspect-ratio: 1/1) { #bg { background-image:url(../assets/letter/bg-wide.webp); } }
+  #bg { position:fixed; inset:0; z-index:0; background:#6c7b50 url(assets/letter/bg.webp) center/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #bg { background-image:url(assets/letter/bg-wide.webp); } }
   button { font:inherit; -webkit-tap-highlight-color:transparent; }
 
   .cap { position:absolute; left:0; right:0; z-index:8; text-align:center; padding:0 20px; transition:opacity .6s; pointer-events:none;
@@ -30,10 +30,10 @@
   #env { position:absolute; transition:left 1s cubic-bezier(.6,0,.3,1), top 1s cubic-bezier(.6,0,.3,1), width 1s cubic-bezier(.6,0,.3,1), height 1s cubic-bezier(.6,0,.3,1); }
   #env > * { position:absolute; inset:0; }
   body.pre #env, body.pre #seal { visibility:hidden; }
-  .back { z-index:1; border-radius:4px; background:linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,.3)), url(../assets/letter/envelope2.webp) center/cover; box-shadow:0 18px 40px rgba(30,40,20,.45), 0 2px 6px rgba(30,40,20,.3); }
+  .back { z-index:1; border-radius:4px; background:linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,.3)), url(assets/letter/envelope2.webp) center/cover; box-shadow:0 18px 40px rgba(30,40,20,.45), 0 2px 6px rgba(30,40,20,.3); }
   .pocket { z-index:3; width:100%; height:100%; pointer-events:none; filter:drop-shadow(0 -1px 1px rgba(80,70,50,.12)); }
   .flap { z-index:4; transform-origin:50% 0; transform:perspective(900px) rotateX(0deg); transition:transform .9s cubic-bezier(.5,0,.3,1);
-    clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(170deg, rgba(255,255,255,.5), rgba(255,255,255,.35) 70%), url(../assets/letter/envelope2.webp) 30% 20%/cover; }
+    clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(170deg, rgba(255,255,255,.5), rgba(255,255,255,.35) 70%), url(assets/letter/envelope2.webp) 30% 20%/cover; }
   .flapShade { z-index:4; pointer-events:none; clip-path:polygon(0 0, 100% 0, 50% 60%); background:linear-gradient(rgba(0,0,0,0) 30%, rgba(80,70,50,.3)); transition:opacity .4s; }
   .opened .flap { transform:perspective(900px) rotateX(178deg); }
   .opened .flapShade { opacity:0; }
@@ -42,7 +42,7 @@
 
   /* dấu sáp */
   #seal { position:absolute; z-index:9; left:50%; top:58%; width:21%; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; cursor:pointer;
-    background:url(../assets/letter/seal.webp) center/contain no-repeat; filter:drop-shadow(0 5px 6px rgba(40,10,0,.45));
+    background:url(assets/letter/seal.webp) center/contain no-repeat; filter:drop-shadow(0 5px 6px rgba(40,10,0,.45));
     transition:transform .5s cubic-bezier(.3,1.6,.5,1), opacity .5s; }
   @keyframes pulse { 0%, 100% { transform:scale(1); filter:drop-shadow(0 5px 6px rgba(40,10,0,.45)) drop-shadow(0 0 6px rgba(255,200,150,.35)); }
     50% { transform:scale(1.08); filter:drop-shadow(0 4px 8px rgba(40,10,0,.35)) drop-shadow(0 0 22px rgba(255,214,150,.95)) drop-shadow(0 0 40px rgba(255,150,120,.6)); } }
@@ -135,7 +135,7 @@
   @keyframes knockT { 0%, 60%, 100% { rotate:0deg; } 66% { rotate:-5deg; } 72% { rotate:5deg; } 78% { rotate:-3deg; } 84% { rotate:0deg; } }
   /* cửa gỗ nâu một cánh, khung gỗ tối; mở ra là thấy nền xanh bên trong */
   #door { position:absolute; left:50%; top:56%; width:min(52vw, 31vh, 300px); aspect-ratio:2/3; translate:-50% -50%; cursor:pointer;
-    perspective:1100px; background:#6c7b50 url(../assets/letter/bg.webp) center/cover;
+    perspective:1100px; background:#6c7b50 url(assets/letter/bg.webp) center/cover;
     box-shadow:0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 30px 80px rgba(255,220,170,.08); transform-origin:50% 50%; }
   #door .light { position:absolute; inset:0; background:radial-gradient(circle at 50% 50%, rgba(255,250,225,.55), rgba(255,240,200,0) 70%); opacity:0; transition:opacity 1.4s; }
   #door.open .light { opacity:1; }
@@ -145,7 +145,7 @@
     box-shadow:0 0 0 1px #000, 0 30px 80px rgba(0,0,0,.6); }
   #door .leaf { position:absolute; inset:0; transform-origin:0 50%; transform-style:preserve-3d;
     transition:transform 1.8s cubic-bezier(.55,0,.2,1); }
-  #door .leaf .face { position:absolute; inset:0; background:#6b4226 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat;
+  #door .leaf .face { position:absolute; inset:0; background:#6b4226 url(assets/flow/door-plain.webp) center/100% 100% no-repeat;
     box-shadow:inset 0 0 0 1px rgba(0,0,0,.35), inset -3px 0 6px rgba(0,0,0,.25); }
   #door .leaf .face::after { content:""; position:absolute; inset:0; background:#000; opacity:0; transition:opacity 1.8s; }
   #door.open .leaf .face::after { opacity:.45; }
@@ -153,7 +153,7 @@
   #door .leaf .edge { position:absolute; top:0; bottom:0; right:0; width:var(--th, 14px); transform-origin:100% 50%; transform:rotateY(-90deg);
     background:linear-gradient(90deg, #8a5a33, #6d4424 40%, #4c2e17); box-shadow:inset 0 0 0 1px rgba(0,0,0,.4); }
   #door .leaf .edge.t { top:0; bottom:auto; left:0; right:0; width:auto; height:var(--th, 14px); transform-origin:50% 0; transform:rotateX(-90deg); background:#3d2512; }   /* âm = dày về phía sau, khớp mép bên + mặt sau, không lòi ra trước */
-  #door .leaf .back { position:absolute; inset:0; transform:translateZ(calc(var(--th, 14px) * -1)) rotateY(180deg); background:#4f3019 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; filter:brightness(.5); backface-visibility:hidden; }
+  #door .leaf .back { position:absolute; inset:0; transform:translateZ(calc(var(--th, 14px) * -1)) rotateY(180deg); background:#4f3019 url(assets/flow/door-plain.webp) center/100% 100% no-repeat; filter:brightness(.5); backface-visibility:hidden; }
   #door .leaf.r { display:none; }
   #door.open .leaf.l { transform:rotateY(78deg); }   /* dương = mép tự do lùi ra xa người xem: cửa mở vào trong, không lòi qua khung/bậc thềm */
   #s1 .step { position:absolute; left:50%; translate:-50% 0; top:calc(56% + min(52vw, 31vh, 300px) * .75 + 12px); width:calc(min(52vw, 31vh, 300px) + 60px); height:10px;
@@ -163,8 +163,8 @@
 
   /* màn 2: tin nhắn — nền xanh giống bức thư */
   #s2 { background:#6c7b50; }
-  #sky { position:absolute; inset:0; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; }
-  @media (min-aspect-ratio: 1/1) { #sky { background-image:url(../assets/letter/bg-wide.webp); } }
+  #sky { position:absolute; inset:0; background:#6c7b50 url(assets/letter/bg.webp) center/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #sky { background-image:url(assets/letter/bg-wide.webp); } }
   .phone { position:absolute; top:0; bottom:0; left:50%; translate:-50% 0; width:min(100%, 460px); background:#fff; display:flex; flex-direction:column;
     font-family:"Quicksand", sans-serif; color:#111; transition:background .8s, box-shadow .8s; box-shadow:0 0 40px rgba(0,0,0,.18); }
   .phone header { display:flex; align-items:center; gap:10px; padding:calc(12px + env(safe-area-inset-top)) 14px 12px; border-bottom:1px solid #eee; transition:opacity .6s; }
@@ -269,7 +269,7 @@
   #dim { position:fixed; inset:0; z-index:19; background:rgba(40,48,30,.5); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 1s; }
   #dim.on { opacity:1; pointer-events:auto; }
   #tapHint { z-index:23; }
-  #night { position:fixed; inset:0; z-index:22; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; opacity:0; pointer-events:none; transition:opacity 1.4s; }
+  #night { position:fixed; inset:0; z-index:22; background:#6c7b50 url(assets/letter/bg.webp) center/cover no-repeat; opacity:0; pointer-events:none; transition:opacity 1.4s; }
   #night.on { opacity:1; pointer-events:auto; }
   #stars { position:fixed; inset:0; width:100%; height:100%; z-index:22; pointer-events:none; }
   #stars.tap { pointer-events:auto; cursor:pointer; }
@@ -312,7 +312,7 @@
   <div class="back"></div>
   <svg class="pocket" viewBox="0 0 150 100" preserveAspectRatio="none" aria-hidden="true">
     <defs>
-      <pattern id="tex" patternUnits="userSpaceOnUse" width="150" height="100"><image href="../assets/letter/envelope2.webp" width="150" height="100" preserveAspectRatio="xMidYMid slice"/></pattern>
+      <pattern id="tex" patternUnits="userSpaceOnUse" width="150" height="100"><image href="assets/letter/envelope2.webp" width="150" height="100" preserveAspectRatio="xMidYMid slice"/></pattern>
       <linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".55" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#6e6553" stop-opacity=".5"/></linearGradient>
       <linearGradient id="gr" x1="1" x2="0"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".55" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#6e6553" stop-opacity=".5"/></linearGradient>
       <linearGradient id="gb" y1="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".6" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#6e6553" stop-opacity=".35"/></linearGradient>
@@ -327,8 +327,8 @@
 <button id="seal" aria-label="Mở thư"></button>
 
 <div id="slot">
-  <div class="photo polaroid" id="pol"><img src="../assets/firstmsg.webp" alt=""><span>30 • 07</span></div>
-  <div class="photo strip" id="strip"><img src="../assets/hoanganh.webp" alt=""><img src="../assets/hoanganh2.webp" alt=""><img src="../assets/cover.jpg" alt=""></div>
+  <div class="photo polaroid" id="pol"><img src="assets/firstmsg.webp" alt=""><span>30 • 07</span></div>
+  <div class="photo strip" id="strip"><img src="assets/hoanganh.webp" alt=""><img src="assets/hoanganh2.webp" alt=""><img src="assets/cover.jpg" alt=""></div>
 </div>
 
 <div id="card"><div class="in">
@@ -339,16 +339,16 @@
   <div class="sign" id="sign">— Qhuy ♡</div>
 </div></div>
 
-<img class="flower" id="fl1" src="../assets/letter/hydrangea-left.webp" alt="" style="--r:-6deg">
-<img class="flower" id="fl2" src="../assets/letter/hydrangea-right.webp" alt="" style="--r:6deg">
+<img class="flower" id="fl1" src="assets/letter/hydrangea-left.webp" alt="" style="--r:-6deg">
+<img class="flower" id="fl2" src="assets/letter/hydrangea-right.webp" alt="" style="--r:6deg">
 
 <div class="note" id="n1">for you ♡<svg viewBox="0 0 34 30" style="left:22px; top:26px"><path d="M4 2 C8 14 16 22 28 24 M22 18 L28 24 L21 28"/></svg></div>
 <div class="note" id="n2">tin nhắn đầu tiên<svg viewBox="0 0 34 30" style="right:8px; top:26px"><path d="M30 2 C26 14 18 22 6 24 M12 18 L6 24 L13 28"/></svg></div>
 
 <!-- shipper mèo (màn 3 + 4) -->
 <div id="dim"></div>
-<img id="hop" src="../assets/flow/cat-hop.webp?v=3" alt="">
-<div id="cat"><img id="catImg" src="../assets/flow/cat-scooter.webp" alt=""><div id="signTxt"><span><small>Chị làm</small><b>người yêu</b><small>em nhé? <i>♥</i></small></span></div></div>
+<img id="hop" src="assets/flow/cat-hop.webp?v=3" alt="">
+<div id="cat"><img id="catImg" src="assets/flow/cat-scooter.webp" alt=""><div id="signTxt"><span><small>Chị làm</small><b>người yêu</b><small>em nhé? <i>♥</i></small></span></div></div>
 <div class="say" id="say"></div>
 <div class="ask" id="ask3"><button class="btn yes" id="co">Có</button><button class="btn no" id="khong">Không</button></div>
 <button class="btn yes" id="nhan">Nhận</button>
@@ -375,10 +375,10 @@
   <div class="phone" id="phone">
     <div id="msgs"></div>
   </div>
-  <div class="car" id="carA"><div class="seat" id="seat"></div><img src="../assets/flow/car-a.webp?v=4" alt="">
+  <div class="car" id="carA"><div class="seat" id="seat"></div><img src="assets/flow/car-a.webp?v=4" alt="">
     <div class="tow" id="tow"><div class="flag">Time flies ✈</div><svg viewBox="0 0 60 30"><path d="M0 15 Q30 26 60 15" fill="none" stroke="#5a4a42" stroke-width="2.5" stroke-linecap="round"/></svg></div></div>
-  <div class="car" id="carB"><img src="../assets/flow/car-b.webp" alt=""></div>
-  <div id="memo"><div class="lbl">First message</div><img src="../assets/firstmsg.webp" alt="">
+  <div class="car" id="carB"><img src="assets/flow/car-b.webp" alt=""></div>
+  <div id="memo"><div class="lbl">First message</div><img src="assets/firstmsg.webp" alt="">
     <div class="count"><div><b id="cD"></b><span>ngày</span></div><div><b id="cH"></b><span>giờ</span></div><div><b id="cM"></b><span>phút</span></div><div><b id="cS"></b><span>giây</span></div></div></div>
   <p class="hint" id="s2hint">(chạm để tiếp nhaa)</p>
 </section>
@@ -387,7 +387,7 @@
 <div id="memes"></div>
 <canvas id="fx"></canvas>
 <div class="player">
-  <button class="disc" id="disc" aria-label="Bật / tắt nhạc"><span class="vinyl"><img alt="" src="../assets/cover.jpg"></span><span class="arm"></span></button>
+  <button class="disc" id="disc" aria-label="Bật / tắt nhạc"><span class="vinyl"><img alt="" src="assets/cover.jpg"></span><span class="arm"></span></button>
   <div class="track"><b>Từng Ngày Yêu Em</b><span id="trackState">chạm đĩa để bật nhạc</span></div>
 </div>
 
@@ -396,13 +396,13 @@
 const LETTER = "Yêu ơi,\nTính tới thời điểm hiện tại thì cta quen nhau cũng lâu phết rồi đấy chứ, chuyện vui có, buồn cũng có. Chị em mình cũng hiểu hơn về tính cách cũng như tình cảm của nhau goy.\n\nHôm nay em muốn nói với chị cái nàyyyyy:";
 const BIG = "EM THÍCH CHỊ";
 const THEN = "Thế nên là....";
-const SONG = "../assets/sound.mp3";
+const SONG = "assets/sound.mp3";
 const FIRST = new Date("2026-07-30T21:54:00+07:00");   // tin nhắn đầu tiên, bộ đếm tính từ đây
-const STORY = "../assets/hoanganh.webp";              // ảnh story của chị (tin nhắn 1 trả lời story này)
-const REF = "../assets/flow/ref.webp";                // ảnh gửi ở tin nhắn 2, cũng là ảnh trên xe thứ hai
+const STORY = "assets/hoanganh.webp";              // ảnh story của chị (tin nhắn 1 trả lời story này)
+const REF = "assets/flow/ref.webp";                // ảnh gửi ở tin nhắn 2, cũng là ảnh trên xe thứ hai
 const NO3 = ["Không", "Hụt rồi", "Bấm lại xem", "Có nhà mà", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"];
 const NO4 = ["No", "Hụt rồi", "Bấm lại xem", "Chắc chưa?", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"];
-const MEMES = 33, PHOTO = "../assets/hoanganh2.webp", CAPTION = "iu thíiiii";
+const MEMES = 33, PHOTO = "assets/hoanganh2.webp", CAPTION = "iu thíiiii";
 const TAPS = 5;   // số lần chạm tim thì nổ
 /* toạ độ trên ảnh mèo (tỉ lệ 0..1 theo khung ảnh): ô chữ trên tấm bảng, chỗ đặt tim, chỗ phong thư trong tay */
 const SIGN = { x: .37, y: .15, w: .56, h: .4, r: -6 };   // vùng chữ trên bảng nghiêng của cat-sign3.webp
@@ -478,15 +478,15 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && au
 $("disc").onclick = () => setMusic(au.paused);
 if ("mediaSession" in navigator) {   // thoát web ra: Dynamic Island / màn khoá hiện ảnh bìa + tên
   navigator.mediaSession.metadata = new MediaMetadata({ title: "HoangAnh", artist: "",
-    artwork: [{ src: new URL("../assets/cover.jpg", location.href).href, sizes: "512x512", type: "image/jpeg" }] });
+    artwork: [{ src: new URL("assets/cover.jpg", location.href).href, sizes: "512x512", type: "image/jpeg" }] });
   navigator.mediaSession.setActionHandler("play", () => setMusic(true));
   navigator.mediaSession.setActionHandler("pause", () => setMusic(false));
 }
 
 /* ---------- tiện ích ---------- */
 const imgs = {};
-for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign3","cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=${n == "car-a" ? 4 : 3}`; imgs[n] = i; }
-for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
+for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign3","cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `assets/flow/${n}.webp?v=${n == "car-a" ? 4 : 3}`; imgs[n] = i; }
+for (let i = 0; i < MEMES; i++) new Image().src = "assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
 const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
 const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
   { duration: dur, easing, fill: "forwards" }).finished;
@@ -562,7 +562,7 @@ $("door").addEventListener("click", async () => {
 const msgs = $("msgs");
 function addRow(side, html) {
   const row = document.createElement("div"); row.className = "row " + side;
-  row.innerHTML = (side === "her" ? `<img class="av" src="../assets/flow/avatar.webp" alt="">` : "") + `<div class="col">${html}</div>`;
+  row.innerHTML = (side === "her" ? `<img class="av" src="assets/flow/avatar.webp" alt="">` : "") + `<div class="col">${html}</div>`;
   msgs.append(row);
   row.animate([{ transform: "translateY(14px) scale(.92)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 380, easing: "cubic-bezier(.3,1.4,.5,1)" });
   return row;
@@ -586,7 +586,7 @@ async function scene2() {
   await wait(1200);
   stamp("22:39 30 THG 7"); await wait(500);
   const t2 = addRow("her", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1500); t2.remove();
-  addRow("her", `<img class="pic dora" src="../assets/flow/dora.webp" alt=""><div class="bub">Oke, lên iem ơi</div>`);
+  addRow("her", `<img class="pic dora" src="assets/flow/dora.webp" alt=""><div class="bub">Oke, lên iem ơi</div>`);
   await wait(1500);
   const cap = document.createElement("p"); cap.className = "s2cap"; cap.textContent = "Đi thôyyy"; msgs.append(cap);
   cap.animate([{ transform: "scale(.3) rotate(-8deg)", opacity: 0 }, { transform: "scale(1.12) rotate(3deg)", opacity: 1, offset: .6 }, { transform: "scale(1) rotate(-2deg)", opacity: 1 }], { duration: 700, easing: "ease-out", fill: "forwards" });
@@ -681,7 +681,7 @@ $("s2").addEventListener("click", () => {
 let K = {};   // vị trí mèo hiện tại
 function placeCat(kind) {
   const cat = $("cat"), img = $("catImg");
-  img.src = `../assets/flow/${kind}.webp?v=3`;
+  img.src = `assets/flow/${kind}.webp?v=3`;
   let w, h;
   if (kind === "cat-scooter" || kind === "scooter-empty") { w = Math.min(W * .8, 440, H * .32 / ratio(kind)); h = w * ratio(kind); K = { x: (W - w) / 2, y: H * .56 - h / 2 }; }
   else { h = Math.min(H * .6, 560); w = h / ratio(kind); if (w > W * .92) { w = W * .92; h = w * ratio(kind); } K = { x: (W - w) / 2, y: Math.max(14, H * .43 - h / 2) }; }
@@ -1006,7 +1006,7 @@ function draw(ms) {
   }
   if (glints.length || flyers.length) requestAnimationFrame(draw); else looping = false;
 }
-const memeSrc = i => "../assets/memes/m" + String(i % MEMES + 1).padStart(2, "0") + ".jpg";
+const memeSrc = i => "assets/memes/m" + String(i % MEMES + 1).padStart(2, "0") + ".jpg";
 function memeWall() {
   const box = $("memes"); box.style.pointerEvents = "auto";
   const WW = innerWidth + 48, HH = innerHeight + 48, cell = Math.max(96, Math.min(170, innerWidth / 4));
