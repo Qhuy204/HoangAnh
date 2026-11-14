@@ -7,9 +7,9 @@
 <meta name="theme-color" content="#5f6e45">
 <title>Thư cho HoangAnh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Patrick+Hand&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { color-scheme:only dark; background:#5f6e45; --paper:#f5f0e5; --ink:#3b4430; --wax:#8e1b1b; }
+  :root { color-scheme:only dark; background:#5f6e45; --paper:#f5f0e5; --ink:#3b4430; --wax:#8e1b1b; --pink:#e2557a; }
   html, body { position:fixed; inset:0; margin:0; width:100%; height:100%; overflow:hidden; overscroll-behavior:none; touch-action:manipulation;
     -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
   body { background:#6c7b50; font-family:"Cormorant Garamond", Georgia, serif; color:#fff; }
@@ -18,17 +18,18 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .32 0 0 0 0 .22 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   #bg { position:fixed; inset:0; z-index:0; background:#6c7b50 url(../assets/letter/bg.webp) center/cover no-repeat; }
   @media (min-aspect-ratio: 1/1) { #bg { background-image:url(../assets/letter/bg-wide.webp); } }
+  button { font:inherit; -webkit-tap-highlight-color:transparent; }
 
   .cap { position:absolute; left:0; right:0; z-index:8; text-align:center; padding:0 20px; transition:opacity .6s; pointer-events:none;
     text-shadow:0 1px 10px rgba(30,40,20,.45); }
-  #capTop { font:italic 600 clamp(20px, 5.4vw, 28px)/1.25 "Cormorant Garamond", serif; }
-  #capBot { font:italic 500 clamp(15px, 4vw, 19px) "Cormorant Garamond", serif; opacity:.92; animation:breath 2.6s ease-in-out infinite; }
+  #capBot { font:italic 600 clamp(16px, 4.4vw, 20px) "Cormorant Garamond", serif; opacity:.95; animation:breath 2.6s ease-in-out infinite; }
   @keyframes breath { 50% { opacity:.55; } }
-  .opened .cap { opacity:0 !important; animation:none; }
+  .opened .cap, body.pre .cap, body:not(.sealReady) .cap { opacity:0 !important; animation:none; }
 
   /* ---------- phong thư ---------- */
   #env { position:absolute; transition:left 1s cubic-bezier(.6,0,.3,1), top 1s cubic-bezier(.6,0,.3,1), width 1s cubic-bezier(.6,0,.3,1), height 1s cubic-bezier(.6,0,.3,1); }
   #env > * { position:absolute; inset:0; }
+  body.pre #env, body.pre #seal { visibility:hidden; }
   .back { z-index:1; border-radius:4px; background:linear-gradient(rgba(150,130,95,.28), rgba(150,130,95,.12)), url(../assets/letter/envelope.webp) center/cover; box-shadow:0 18px 40px rgba(30,40,20,.45), 0 2px 6px rgba(30,40,20,.3); }
   .pocket { z-index:3; width:100%; height:100%; pointer-events:none; filter:drop-shadow(0 -1px 1px rgba(80,70,50,.12)); }
   .flap { z-index:4; transform-origin:50% 0; transform:perspective(900px) rotateX(0deg); transition:transform .9s cubic-bezier(.5,0,.3,1);
@@ -44,6 +45,16 @@
     animation:pulse 2.2s ease-in-out infinite; transition:transform .5s cubic-bezier(.3,1.6,.5,1), opacity .5s; }
   @keyframes pulse { 50% { transform:scale(1.07); filter:drop-shadow(0 4px 14px rgba(255,130,110,.55)); } }
   .opened #seal { animation:none; transform:scale(1.5) rotate(-20deg); opacity:0; pointer-events:none; }
+
+  /* hào quang mở rương */
+  #rays { position:absolute; z-index:0; pointer-events:none; border-radius:50%; translate:-50% -50%; opacity:0; transition:opacity 1.2s;
+    background:repeating-conic-gradient(from 0deg, rgba(255,246,214,.6) 0 7deg, rgba(255,246,214,0) 9deg 22deg);
+    -webkit-mask:radial-gradient(closest-side, #000 18%, transparent 100%); mask:radial-gradient(closest-side, #000 18%, transparent 100%);
+    animation:spin 16s linear infinite; }
+  #glow { position:absolute; z-index:0; pointer-events:none; border-radius:50%; translate:-50% -50%; opacity:0; transition:opacity 1.2s;
+    background:radial-gradient(closest-side, rgba(255,240,190,.85), rgba(255,215,150,.35) 45%, transparent 100%); }
+  #rays.on, #glow.on { opacity:1; }
+  @keyframes spin { to { rotate:360deg; } }
 
   /* khe chứa ảnh: cắt phần thò xuống dưới đáy phong thư */
   #slot { position:absolute; top:0; z-index:2; overflow:hidden; pointer-events:none; transition:left 1s cubic-bezier(.6,0,.3,1), width 1s cubic-bezier(.6,0,.3,1), height 1s cubic-bezier(.6,0,.3,1); }
@@ -65,7 +76,9 @@
     scrollbar-width:none; user-select:text; -webkit-user-select:text; }
   #card .in::-webkit-scrollbar { display:none; }
   #card h2 { margin:0 0 10px; font:700 clamp(26px, 7vw, 34px)/1.1 "Dancing Script", cursive; color:#4a5a35; }
-  #card p { margin:0; white-space:pre-line; font:500 clamp(19px, 5.2vw, 23px)/1.42 "Dancing Script", cursive; }
+  #card p, #card .then { margin:0; white-space:pre-line; font:500 clamp(19px, 5.2vw, 23px)/1.42 "Dancing Script", cursive; }
+  #card .big { margin:.25em 0 .15em; text-align:center; white-space:nowrap; font:700 calc(clamp(19px, 5.2vw, 23px) * 3)/1.15 "Dancing Script", cursive; color:#8e1b1b; }
+  #card .big:empty, #card .then:empty { display:none; }
   #card .sign { margin-top:14px; text-align:right; font:700 clamp(22px, 6vw, 28px) "Dancing Script", cursive; color:#7d1414; opacity:0; transition:opacity 1s; }
   #card .sign.on { opacity:1; }
   .caret { display:inline-block; width:2px; height:1em; margin-left:2px; vertical-align:-.12em; background:#7d1414; animation:blink .9s steps(1) infinite; }
@@ -81,7 +94,7 @@
   .note svg { position:absolute; width:34px; height:30px; fill:none; stroke:#fbf8f1; stroke-width:1.6; stroke-linecap:round; }
 
   /* nút nhạc */
-  #music { position:fixed; left:14px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:15; display:flex; align-items:center; gap:8px; border:0; border-radius:999px;
+  #music { position:fixed; left:14px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:50; display:flex; align-items:center; gap:8px; border:0; border-radius:999px;
     padding:8px 15px 8px 12px; background:var(--wax); color:#fbeee8; font:italic 600 16px "Cormorant Garamond", serif; box-shadow:0 4px 14px rgba(60,0,0,.35); cursor:pointer; }
   #music i { display:flex; align-items:flex-end; gap:2px; height:13px; }
   #music i b { width:3px; height:30%; background:currentColor; border-radius:1px; }
@@ -89,13 +102,148 @@
   #music.on i b:nth-child(2) { animation-delay:-.3s; } #music.on i b:nth-child(3) { animation-delay:-.6s; }
   @keyframes eq { 50% { height:100%; } }
 
-  @media (prefers-reduced-motion: reduce) { #seal, #capBot { animation:none; } }
+  /* ---------- các màn phủ toàn trang ---------- */
+  .scr { position:fixed; inset:0; z-index:30; opacity:0; visibility:hidden; overflow:hidden; transition:opacity .9s, visibility 0s .9s; }
+  .scr.on { opacity:1; visibility:visible; transition:opacity .9s; }
+  .hint { position:absolute; left:0; right:0; text-align:center; font:500 clamp(17px, 4.6vw, 21px) "Patrick Hand", cursive; color:#fff; pointer-events:none;
+    text-shadow:0 1px 8px rgba(60,30,50,.55); opacity:0; transition:opacity .6s; }
+  .hint.on { opacity:1; animation:breath 2.4s ease-in-out infinite; }
+  #flash { position:fixed; inset:0; z-index:45; pointer-events:none; opacity:0; background:radial-gradient(circle at 50% 50%, #fff, #fff6e0 55%, #ffe1ea); }
+
+  /* màn 1: cái cửa */
+  #s1 .dbg { position:absolute; inset:0; background:#f2dfe2 url(../assets/flow/door-bg.webp) center/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #s1 .dbg { background-image:url(../assets/flow/door-bg-wide.webp); } }
+  .knock { position:absolute; left:0; right:0; top:max(5vh, 22px); margin:0; text-align:center; padding:0 16px; pointer-events:none;
+    font:400 clamp(30px, 9vw, 54px)/1.08 "Patrick Hand", cursive; color:#d23f6c;
+    text-shadow:-2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff, 0 3px 0 #fff, 0 6px 16px rgba(80,30,50,.35); transition:opacity .6s; }
+  .knock span { display:inline-block; color:#8a5bd6; animation:knockT 1.6s ease-in-out infinite; }
+  @keyframes knockT { 0%, 60%, 100% { rotate:0deg; } 66% { rotate:-5deg; } 72% { rotate:5deg; } 78% { rotate:-3deg; } 84% { rotate:0deg; } }
+  #door { position:absolute; left:50%; top:56%; width:min(56vw, 33vh, 330px); aspect-ratio:2/3; translate:-50% -50%; cursor:pointer;
+    perspective:900px; border-radius:6px; background:#fff3d6;
+    box-shadow:0 0 0 7px #fbf3e4, 0 0 0 11px #c99a5b, 0 0 0 14px #fbf3e4, 0 22px 60px rgba(70,30,50,.45); transform-origin:50% 50%; }
+  #door .light { position:absolute; inset:0; border-radius:6px; background:radial-gradient(circle at 50% 55%, #fff 0, #fff4cf 35%, #ffc9d8 80%); }
+  #door .leaf { position:absolute; top:0; bottom:0; width:50%; background:url(../assets/flow/door.webp) 0 0/200% 100% no-repeat;
+    transition:transform 1.7s cubic-bezier(.55,0,.2,1), filter 1.7s; backface-visibility:hidden; box-shadow:inset 0 0 0 1px rgba(90,50,30,.15); }
+  #door .leaf.l { left:0; transform-origin:0 50%; border-radius:6px 0 0 6px; }
+  #door .leaf.r { right:0; background-position:100% 0; transform-origin:100% 50%; border-radius:0 6px 6px 0; }
+  #door.open .leaf.l { transform:rotateY(82deg); filter:brightness(.7); }
+  #door.open .leaf.r { transform:rotateY(-82deg); filter:brightness(.7); }
+  .bang { position:absolute; z-index:3; pointer-events:none; font:400 clamp(24px, 7vw, 34px) "Patrick Hand", cursive; color:#fff; text-shadow:0 2px 0 #c2456c, 0 0 12px rgba(194,69,108,.6); }
+  #s1 .hint { top:calc(56% + min(56vw, 33vh, 330px) * .75 + 30px); }
+
+  /* màn 2: tin nhắn */
+  #s2 { background:#bfe3f5; }
+  #sky { position:absolute; inset:0; background:#bfe3f5 url(../assets/flow/sky.webp) center bottom/cover no-repeat; }
+  @media (min-aspect-ratio: 1/1) { #sky { background-image:url(../assets/flow/sky-wide.webp); } }
+  .phone { position:absolute; top:0; bottom:0; left:50%; translate:-50% 0; width:min(100%, 460px); background:#fff; display:flex; flex-direction:column;
+    font-family:"Quicksand", sans-serif; color:#111; transition:background .8s, box-shadow .8s; box-shadow:0 0 40px rgba(0,0,0,.18); }
+  .phone header { display:flex; align-items:center; gap:10px; padding:calc(12px + env(safe-area-inset-top)) 14px 12px; border-bottom:1px solid #eee; transition:opacity .6s; }
+  .phone header img { width:40px; height:40px; border-radius:50%; object-fit:cover; }
+  .phone header b { display:block; font-weight:700; font-size:16px; }
+  .phone header small { color:#8a8d91; font-size:12px; display:flex; align-items:center; gap:5px; }
+  .phone header small::before { content:""; width:8px; height:8px; border-radius:50%; background:#31a24c; }
+  .phone.bare { background:transparent; box-shadow:none; }
+  .phone.bare header { opacity:0; }
+  #msgs { flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:6px; padding:14px 12px 120px; overflow:hidden; }
+  .row { display:flex; align-items:flex-end; gap:8px; max-width:78%; will-change:transform; }
+  .row.me { align-self:flex-end; flex-direction:row-reverse; }
+  .row .av { width:28px; height:28px; border-radius:50%; object-fit:cover; flex:none; }
+  .col { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .me .col { align-items:flex-end; } .her .col { align-items:flex-start; }
+  .rep { font-size:11.5px; color:#65676b; padding:0 4px; }
+  .story { width:96px; aspect-ratio:9/16; object-fit:cover; border-radius:14px; opacity:.85; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .bub { padding:9px 13px; border-radius:20px; font-size:16px; font-weight:600; line-height:1.3; }
+  .me .bub { background:linear-gradient(135deg, #a33bff, #ff4f8b); color:#fff; }
+  .her .bub { background:#f0f0f0; }
+  .pic { width:min(52vw, 210px); border-radius:18px; border:1px solid #e5e5e5; background:#fff; display:block; }
+  .dots { display:flex; gap:4px; padding:13px 14px; background:#f0f0f0; border-radius:20px; }
+  .dots i { width:7px; height:7px; border-radius:50%; background:#9a9da1; animation:dot 1s ease-in-out infinite; }
+  .dots i:nth-child(2) { animation-delay:.15s; } .dots i:nth-child(3) { animation-delay:.3s; }
+  @keyframes dot { 30% { translate:0 -5px; background:#666; } }
+  .s2cap { align-self:center; margin:18px 0 0; font:400 clamp(28px, 8.4vw, 40px)/1.05 "Patrick Hand", cursive; color:#ff4f8b; text-align:center; white-space:nowrap;
+    text-shadow:0 2px 0 #fff, 0 0 14px rgba(255,255,255,.9); will-change:transform; }
+  .phone.bare .bub, .phone.bare .dots { box-shadow:0 4px 14px rgba(40,60,90,.18); }
+  .phone.bare .rep { color:#24425c; font-weight:700; }
+
+  .car { position:absolute; left:0; will-change:transform; z-index:3; visibility:hidden; }
+  .car.show { visibility:visible; }
+  .car > img { display:block; width:100%; height:auto; }
+  .car.go > img { animation:bob .32s ease-in-out infinite alternate; }
+  @keyframes bob { to { translate:0 -2.5px; rotate:-.4deg; } }
+  .seat { position:absolute; z-index:-1; }
+  .seat > * { position:absolute !important; margin:0 !important; max-width:none !important; transform-origin:0 0; pointer-events:none; }
+  .tow { position:absolute; right:96%; display:flex; align-items:center; pointer-events:none; }
+  .tow svg { width:60px; height:30px; flex:none; overflow:visible; }
+  .flag { position:relative; padding:10px 26px 10px 22px; font:400 clamp(28px, 8vw, 40px)/1 "Patrick Hand", cursive; color:#fff; white-space:nowrap;
+    background:linear-gradient(#ff7aa2, #ff4f8b); clip-path:polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%); box-shadow:0 4px 12px rgba(0,0,0,.2);
+    text-shadow:0 2px 0 rgba(150,20,60,.35); transform-origin:100% 50%; animation:flap .5s ease-in-out infinite alternate; }
+  @keyframes flap { from { transform:skewY(-2deg) scaleY(.96); } to { transform:skewY(2deg) scaleY(1.03); } }
+  #memo { position:absolute; left:0; top:0; z-index:4; width:min(64vw, 300px); padding:10px 10px 14px; box-sizing:border-box; background:#fffdf8; border-radius:6px;
+    box-shadow:0 10px 26px rgba(40,60,90,.3); color:#3b2b33; text-align:center; transform-origin:50% 100%; visibility:hidden; font-family:"Quicksand", sans-serif; }
+  #memo img { width:100%; aspect-ratio:1; object-fit:contain; background:#fff; display:block; border-radius:3px; }
+  #memo .lbl { margin-top:8px; font:400 20px "Patrick Hand", cursive; color:#c2456c; }
+  #memo .days { font:700 34px/1.1 "Quicksand", sans-serif; color:#ff4f8b; }
+  #memo .hms { font:700 18px "Quicksand", sans-serif; letter-spacing:.06em; color:#3b2b33; font-variant-numeric:tabular-nums; }
+  #s2 .hint { bottom:calc(22px + env(safe-area-inset-bottom)); color:#24425c; text-shadow:0 0 10px #fff; }
+
+  /* shipper mèo */
+  #cat { position:absolute; z-index:21; left:0; top:0; pointer-events:none; visibility:hidden; will-change:transform; }
+  #cat > img { display:block; width:100%; height:100%; filter:drop-shadow(0 6px 10px rgba(30,40,20,.3)); }
+  #cat.flip > img { transform:scaleX(-1); }
+  #cat.go > img { animation:bob .28s ease-in-out infinite alternate; }
+  #signTxt { position:absolute; display:flex; align-items:center; justify-content:center; text-align:center; color:#2b2b2b; box-sizing:border-box; padding:4%;
+    font:400 clamp(22px, 6.6vw, 36px)/1.08 "Patrick Hand", cursive; opacity:0; transition:opacity .4s; }
+  #signTxt.on { opacity:1; }
+  #heart { position:absolute; z-index:24; width:120px; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; background:none; cursor:pointer; visibility:hidden;
+    filter:drop-shadow(0 0 18px rgba(255,90,150,.85)); transition:scale .35s cubic-bezier(.3,1.8,.5,1); }
+  #heart svg { width:100%; height:100%; display:block; overflow:visible; animation:beat 1s ease-in-out infinite; }
+  @keyframes beat { 0%, 40%, 100% { transform:scale(1); } 12% { transform:scale(1.12); } 24% { transform:scale(1.04); } }
+  .say { position:absolute; z-index:22; max-width:min(80vw, 340px); padding:10px 16px; translate:-50% -100%; background:#fff; color:#2b2b2b; border-radius:18px;
+    border:2.5px solid #222; font:400 clamp(20px, 5.8vw, 26px)/1.15 "Patrick Hand", cursive; text-align:center; pointer-events:none;
+    opacity:0; scale:.6; transform-origin:50% 100%; transition:opacity .3s, scale .4s cubic-bezier(.3,1.7,.5,1); }
+  .say::after { content:""; position:absolute; left:50%; bottom:-11px; width:16px; height:16px; translate:-50% 0; rotate:45deg; background:#fff; border:2.5px solid #222; border-top:0; border-left:0; }
+  .say.on { opacity:1; scale:1; }
+  .ask { position:absolute; z-index:23; left:0; right:0; display:flex; justify-content:center; align-items:center; gap:18px; pointer-events:none; }
+  .btn { border:0; border-radius:999px; padding:12px 32px; font:700 18px "Quicksand", sans-serif; cursor:pointer; touch-action:manipulation;
+    opacity:0; translate:0 10px; transition:opacity .5s, translate .5s, scale .4s cubic-bezier(.34,1.8,.64,1); }
+  .ask.on .btn, .btn.on { opacity:1; translate:0 0; pointer-events:auto; }
+  .btn.yes { background:var(--pink); color:#fff; scale:var(--g, 1); box-shadow:0 8px 26px rgba(226,85,122,.5); }
+  .btn.no { background:#fffdf8; color:#3b2b33; box-shadow:0 0 0 2px #3b2b33; }
+  .btn.no.run { position:fixed; z-index:60; transition:left .28s cubic-bezier(.34,1.4,.64,1), top .28s cubic-bezier(.34,1.4,.64,1), rotate .28s, opacity .3s; }
+  .gap-no { flex:none; height:1px; transition:width 1.4s cubic-bezier(.45,0,.25,1); }
+  #nhan { position:absolute; z-index:23; left:50%; translate:-50% 10px; pointer-events:none; }
+  #nhan.on { translate:-50% 0; pointer-events:auto; }
+  #paw { position:absolute; z-index:22; right:0; pointer-events:none; visibility:hidden; filter:drop-shadow(0 6px 10px rgba(30,40,20,.3)); }
+  .dust { position:absolute; z-index:20; width:26px; height:26px; border-radius:50%; background:#f4f1e8; pointer-events:none; }
+  #dim { position:fixed; inset:0; z-index:19; background:rgba(40,48,30,.5); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 1s; }
+  #dim.on { opacity:1; pointer-events:auto; }
+  #tapHint { z-index:23; }
+
+  /* núi meme cuối cùng */
+  #memes { position:fixed; inset:-24px; z-index:35; overflow:hidden; pointer-events:none; }
+  #memes > img { position:absolute; object-fit:cover; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.5); will-change:transform, opacity;
+    opacity:0; transform:translate(var(--dx, 0), var(--dy, 0)) scale(.06) rotate(var(--r0)); filter:brightness(1.8);
+    transition:transform 1.5s cubic-bezier(.16,.9,.3,1.06), opacity .5s ease, filter 1.5s ease; }
+  #memes > img.up { opacity:1; transform:translate(0, 0) scale(1.1) rotate(var(--r)); filter:none; }
+  #memes > img.hero { left:50%; top:50%; width:min(72vw, 48vh, 380px); aspect-ratio:2/3; translate:-50% -50%; z-index:2; border-radius:28px;
+    box-shadow:0 0 0 4px rgba(255,255,255,.9), 0 24px 70px rgba(0,0,0,.7), 0 0 60px rgba(255,77,109,.45);
+    transition:transform 2.6s cubic-bezier(.16,.84,.3,1), opacity 1.8s ease, filter 2.6s ease; }
+  #memes > img.hero.up { transform:translate(0, 0) scale(1) rotate(-2deg); }
+  #memes .mcap { position:absolute; left:50%; top:calc(50% + min(72vw, 48vh, 380px) * .75 + 10px); translate:-50% 0; z-index:3; white-space:nowrap; pointer-events:auto; cursor:pointer;
+    font:700 clamp(28px, 8vw, 46px) "Quicksand", sans-serif; color:#fff3e6; text-shadow:0 0 14px rgba(255,120,170,.8); padding:4px 26px 8px; border-radius:999px;
+    background:rgba(7,6,11,.72); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:0 0 0 1.5px rgba(255,143,180,.75), 0 0 26px rgba(255,77,140,.35), 0 12px 34px rgba(0,0,0,.55);
+    opacity:0; transform:translateY(24px) scale(.6) rotate(-3deg); transition:transform .9s cubic-bezier(.3,1.6,.5,1), opacity .6s ease; }
+  #memes .mcap.up { opacity:1; transform:rotate(-3deg); }
+  #fx { position:fixed; inset:0; width:100%; height:100%; z-index:40; pointer-events:none; }
+
+  @media (prefers-reduced-motion: reduce) { #seal, #capBot, .knock span { animation:none; } }
 </style>
 </head>
-<body>
+<body class="pre">
 <div id="bg"></div>
+<div id="glow"></div>
+<div id="rays"></div>
 
-<div class="cap" id="capTop">Gửi HoangAnh, có thư của Qhuy nè</div>
 <div class="cap" id="capBot">(chạm vào dấu sáp để mở thư nhé)</div>
 
 <div id="env">
@@ -123,6 +271,8 @@
 <div id="card"><div class="in">
   <h2>Gửi HoangAnh,</h2>
   <p id="text"></p>
+  <div class="big" id="big"></div>
+  <div class="then" id="then"></div>
   <div class="sign" id="sign">— Qhuy ♡</div>
 </div></div>
 
@@ -132,15 +282,71 @@
 <div class="note" id="n1">for you ♡<svg viewBox="0 0 34 30" style="left:22px; top:26px"><path d="M4 2 C8 14 16 22 28 24 M22 18 L28 24 L21 28"/></svg></div>
 <div class="note" id="n2">tin nhắn đầu tiên<svg viewBox="0 0 34 30" style="right:8px; top:26px"><path d="M30 2 C26 14 18 22 6 24 M12 18 L6 24 L13 28"/></svg></div>
 
+<!-- shipper mèo (màn 3 + 4) -->
+<div id="dim"></div>
+<div id="cat"><img id="catImg" src="../assets/flow/cat-scooter.webp" alt=""><div id="signTxt">Chị làm người yêu em nhé 👉👈</div></div>
+<div class="say" id="say"></div>
+<img id="paw" src="../assets/flow/cat-paw.webp" alt="">
+<div class="ask" id="ask3"><button class="btn yes" id="co">Có</button><button class="btn no" id="khong">Không</button></div>
+<button class="btn yes" id="nhan">Nhận</button>
+<div class="ask" id="ask4"><button class="btn yes" id="yes">Yes</button><button class="btn no" id="no">No</button></div>
+<button id="heart" aria-label="Trái tim"><svg viewBox="0 0 64 60"><defs><radialGradient id="hg" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffe0ea"/><stop offset=".4" stop-color="#ff7aa5"/><stop offset="1" stop-color="#d6336c"/></radialGradient></defs>
+  <path d="M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z" fill="url(#hg)" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/>
+  <ellipse cx="17" cy="16" rx="6.5" ry="3.4" transform="rotate(-37 17 16)" fill="rgba(255,255,255,.8)"/><circle cx="26.5" cy="11.5" r="1.8" fill="rgba(255,255,255,.8)"/></svg></button>
+<p class="hint" id="tapHint"></p>
+
+<!-- màn 1: cái cửa -->
+<section class="scr on" id="s1">
+  <div class="dbg"></div>
+  <h1 class="knock"><span>Cốc cốc cốc,</span><br>mở cửa cho em đê</h1>
+  <div id="door" role="button" aria-label="Mở cửa"><div class="light"></div><div class="leaf l"></div><div class="leaf r"></div></div>
+  <p class="hint on">(chạm vào cửa nha)</p>
+</section>
+
+<!-- màn 2: tin nhắn + xe -->
+<section class="scr" id="s2">
+  <div id="sky"></div>
+  <div class="phone" id="phone">
+    <header><img src="../assets/hoanganh.webp" alt=""><div><b>HoangAnh</b><small>Đang hoạt động</small></div></header>
+    <div id="msgs"></div>
+  </div>
+  <div class="car" id="carA"><div class="seat" id="seat"></div><img src="../assets/flow/car-a.webp" alt="">
+    <div class="tow" id="tow"><div class="flag">Time flies ✈</div><svg viewBox="0 0 60 30"><path d="M0 15 Q30 26 60 15" fill="none" stroke="#5a4a42" stroke-width="2.5" stroke-linecap="round"/></svg></div></div>
+  <div class="car" id="carB"><img src="../assets/flow/car-b.webp" alt=""></div>
+  <div id="memo"><img src="../assets/flow/ref.webp" alt=""><div class="lbl">tin nhắn đầu tiên • 30.07.2026</div><div class="days" id="days"></div><div class="hms" id="hms"></div></div>
+  <p class="hint" id="s2hint">(chạm để tiếp nhaa)</p>
+</section>
+
+<div id="flash"></div>
+<div id="memes"></div>
+<canvas id="fx"></canvas>
 <button id="music" aria-label="Bật / tắt nhạc"><i><b></b><b></b><b></b></i>nhạc</button>
 
 <script>
 /* ============ SỬA NỘI DUNG Ở ĐÂY ============ */
-const LETTER = "Yêu ơi,\nTính tới thời điểm hiện tại thì cta quen nhau cũng lâu phết rồi đấy chứ, chuyện vui có, buồn cũng có. Chị em mình cũng hiểu hơn về tính cách cũng như tình cảm của nhau goy.\n\nHôm nay em muốn nói với chị cái nàyyyyy:\nEm thích chị.";
+const LETTER = "Yêu ơi,\nTính tới thời điểm hiện tại thì cta quen nhau cũng lâu phết rồi đấy chứ, chuyện vui có, buồn cũng có. Chị em mình cũng hiểu hơn về tính cách cũng như tình cảm của nhau goy.\n\nHôm nay em muốn nói với chị cái nàyyyyy:";
+const BIG = "EM THÍCH CHỊ";
+const THEN = "Thế nên là....";
 const SONG = "../assets/sound.mp3";
+const FIRST = new Date("2026-07-30T21:54:00+07:00");   // tin nhắn đầu tiên, bộ đếm tính từ đây
+const STORY = "../assets/hoanganh.webp";              // ảnh story của chị (tin nhắn 1 trả lời story này)
+const REF = "../assets/flow/ref.webp";                // ảnh gửi ở tin nhắn 2, cũng là ảnh trên xe thứ hai
+const NO3 = ["Không", "Hụt rồi", "Bấm lại xem", "Có nhà mà", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"];
+const NO4 = ["No", "Hụt rồi", "Bấm lại xem", "Chắc chưa?", "Nghĩ kỹ đi", "Nút kia kìa", "Vẫn cố à?", "Thôi mà"];
+const MEMES = 33, PHOTO = "../assets/hoanganh2.webp", CAPTION = "iu thíiiii";
+const TAPS = 5;   // số lần chạm tim thì nổ
+/* toạ độ trên ảnh mèo (tỉ lệ 0..1 theo khung ảnh): ô chữ trên tấm bảng, chỗ đặt tim, chỗ phong thư trong tay */
+const SIGN = { x: .03, y: .02, w: .94, h: .37 };
+const OFFER = { x: .5, y: .07 };
+const PAWENV = { x: .17, y: .5, w: .31 };
+/* chỗ ngồi trên xe A, thùng xe B (tỉ lệ theo ảnh xe) */
+const SEAT = { x: .24, y: .34, w: .4 };
+const BED = { x: .26, y: .42 };
 /* ============================================ */
 
 const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rnd = a => (Math.random() * 2 - 1) * a;
 const env = $("env"), slot = $("slot"), card = $("card"), pol = $("pol"), strip = $("strip"), seal = $("seal");
 let W, H, portrait, opened = false, E, C, P, S;
 
@@ -154,10 +360,10 @@ function layout() {
   E = { x: ex, y: ey, w: ew, h: eh };
   Object.assign(env.style, { left: ex + "px", top: ey + "px", width: ew + "px", height: eh + "px" });
   Object.assign(seal.style, { left: ex + ew / 2 + "px", top: ey + eh * .58 + "px", width: ew * .27 + "px" });
-  seal.style.setProperty("--sw", ew * .21 + "px");
   Object.assign(slot.style, { left: ex + "px", width: ew + "px", height: ey + eh * .97 + "px" });
-  $("capTop").style.top = Math.max(20, ey - 70) + "px";
   $("capBot").style.top = ey + eh + 26 + "px";
+  const R = Math.max(W, H) * 1.3;
+  for (const id of ["rays", "glow"]) Object.assign($(id).style, { left: ex + ew / 2 + "px", top: ey + eh / 2 + "px", width: (id === "rays" ? R : ew * 2.2) + "px", height: (id === "rays" ? R : ew * 2.2) + "px" });
   // thiệp
   if (portrait) { const cw = Math.min(W * .88, 440), ct = Math.max(16, H * .045); C = { x: (W - cw) / 2, y: ct, w: cw, h: ey - eh * .42 - ct, r: -1.5 }; }
   else { const cw = Math.min(W * .3, 400), ch = Math.min(H * .7, 540); C = { x: ex - cw * .78, y: H * .06, w: cw, h: ch, r: -4 }; }
@@ -177,11 +383,12 @@ function layout() {
   Object.assign($("n1").style, { left: ex + S.x - 24 + "px", top: S.y - 56 + "px" });
   Object.assign($("n2").style, { left: ex + P.x - 10 + "px", top: P.y - 56 + "px" });
   if (opened && card.classList.contains("out")) card.style.transform = `rotate(${C.r}deg)`;
+  fitBig();
 }
 
 /* thiệp nằm trong phong thư -> ánh xạ từ vị trí cuối về lòng phong thư */
 const tucked = (dy) => { const s = E.w * .84 / C.w, cx = E.x + E.w / 2, cy = E.y + E.h * .55 + dy;
-  return `translate(${cx - (C.x + C.w / 2)}px, ${cy - (C.y + C.h / 2) + C.h * (1 - s) / 2 * 0}px) scale(${s})`; };
+  return `translate(${cx - (C.x + C.w / 2)}px, ${cy - (C.y + C.h / 2)}px) scale(${s})`; };
 
 /* ---------- nhạc ---------- */
 const au = new Audio(SONG); au.loop = true;
@@ -190,39 +397,325 @@ const setMusic = on => { on ? au.play().catch(() => {}) : au.pause(); };
 au.addEventListener("play", () => mb.classList.add("on")); au.addEventListener("pause", () => mb.classList.remove("on"));
 mb.onclick = () => setMusic(au.paused);
 
-/* ---------- gõ chữ ---------- */
-let typing = null;
-function typeLetter() {
-  const el = $("text"), caret = document.createElement("span"); caret.className = "caret";
-  let i = 0; el.textContent = ""; el.append(caret);
-  const step = () => {
-    if (i >= LETTER.length) { caret.remove(); $("sign").classList.add("on"); typing = null; return; }
-    caret.before(LETTER[i++]);
-    const inn = card.querySelector(".in"); if (inn.scrollHeight - inn.scrollTop - inn.clientHeight < 80) inn.scrollTop = inn.scrollHeight;
-    const ch = LETTER[i - 1]; typing = setTimeout(step, ch === "\n" ? 380 : /[,.!?:]/.test(ch) ? 220 : 42);
-  };
-  step();
+/* ---------- tiện ích ---------- */
+const imgs = {};
+for (const n of ["cat-scooter", "cat-sign", "cat-offer", "cat-paw", "car-a", "car-b", "sky", "door"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp`; imgs[n] = i; }
+for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
+const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
+const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
+  { duration: dur, easing, fill: "forwards" }).finished;
+function flashOn(dur = 500) { return $("flash").animate([{ opacity: 0 }, { opacity: 1 }], { duration: dur, fill: "forwards", easing: "ease-in" }).finished; }
+function flashOff(dur = 900) { return $("flash").animate([{ opacity: 1 }, { opacity: 0 }], { duration: dur, fill: "forwards", easing: "ease-out" }).finished; }
+function say(text, x, y) { const s = $("say"); s.textContent = text; s.style.left = x + "px"; s.style.top = y + "px"; s.classList.remove("on"); s.getBoundingClientRect(); s.classList.add("on"); }
+const unsay = () => $("say").classList.remove("on");
+function puff(x, y, dir = 1) {             // bụi khói sau bánh xe
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement("div"); d.className = "dust"; d.style.left = x + "px"; d.style.top = y + "px"; document.body.append(d);
+    d.animate([{ transform: "translate(-50%,-50%) scale(.3)", opacity: .95 }, { transform: `translate(${-50 + dir * (40 + i * 18)}%, ${-50 - 30 - i * 14}%) scale(${1.2 + i * .25})`, opacity: 0 }],
+      { duration: 650 + i * 70, delay: i * 45, easing: "ease-out", fill: "both" }).finished.then(() => d.remove());
+  }
 }
-card.addEventListener("click", () => { if (typing) { clearTimeout(typing); typing = null; $("text").textContent = LETTER; $("sign").classList.add("on"); } });
+
+/* ---------- nút "không" chạy trốn (như bản cũ) ---------- */
+let lastDodge = -1e9;
+function dodger(no, yes, texts) {
+  let n = 0;
+  const d = e => {
+    e.preventDefault();
+    const r = no.getBoundingClientRect();
+    if (!no.classList.contains("run")) {
+      no.style.left = r.left + "px"; no.style.top = r.top + "px";
+      const gap = document.createElement("span"); gap.className = "gap-no"; gap.style.width = r.width + "px"; no.after(gap);
+      no.classList.add("run"); no.getBoundingClientRect();
+      requestAnimationFrame(() => requestAnimationFrame(() => { gap.style.width = "0px"; }));
+      gap.addEventListener("transitionend", () => gap.remove(), { once: true });
+    }
+    n++; lastDodge = performance.now();
+    no.textContent = texts[n % texts.length];
+    const w = no.offsetWidth, h = no.offsetHeight, pad = 16, maxX = innerWidth - w - pad, maxY = innerHeight - h - 70;
+    let x, y, t = 0;
+    do { x = pad + Math.random() * (maxX - pad); y = pad + Math.random() * (maxY - pad); } while (Math.hypot(x - r.left, y - r.top) < 160 && ++t < 20);
+    no.style.left = x + "px"; no.style.top = y + "px"; no.style.rotate = rnd(15) + "deg";
+    yes.style.setProperty("--g", Math.min(1 + n * .12, 2.2));
+  };
+  no.addEventListener("pointerdown", d);
+  no.addEventListener("click", e => { e.preventDefault(); if (e.detail === 0) d(e); });
+}
+dodger($("khong"), $("co"), NO3);
+dodger($("no"), $("yes"), NO4);
+const tooSoon = () => performance.now() - lastDodge < 700;   // vừa né No xong thì chạm nhầm vào Yes không tính
+
+/* =================== MÀN 1: cốc cốc, mở cửa =================== */
+let doorBusy = false;
+$("door").addEventListener("click", async () => {
+  if (doorBusy) return; doorBusy = true;
+  setMusic(true);
+  const door = $("door"), r = door.getBoundingClientRect();
+  $("s1").querySelector(".hint").classList.remove("on");
+  for (let i = 0; i < 3; i++) {                     // gõ 3 cái
+    door.animate([{ translate: "-50% -50%" }, { translate: "calc(-50% + 4px) calc(-50% + 1px)" }, { translate: "calc(-50% - 3px) -50%" }, { translate: "-50% -50%" }], { duration: 180 });
+    const b = document.createElement("div"); b.className = "bang"; b.textContent = "cốc!";
+    b.style.left = r.left + (i % 2 ? r.width * .72 : r.width * .02) + "px"; b.style.top = r.top + r.height * (.3 + i * .14) + "px"; $("s1").append(b);
+    b.animate([{ opacity: 0, scale: .4 }, { opacity: 1, scale: 1.15, offset: .3 }, { opacity: 0, scale: 1, translate: "0 -18px" }], { duration: 900, fill: "forwards" }).finished.then(() => b.remove());
+    await wait(330);
+  }
+  await wait(250);
+  $("s1").querySelector(".knock").style.opacity = 0;
+  door.classList.add("open");                         // hai cánh cửa mở vào trong, ánh sáng tràn ra
+  door.animate([{ boxShadow: "0 0 0 7px #fbf3e4, 0 0 0 11px #c99a5b, 0 0 0 14px #fbf3e4, 0 22px 60px rgba(70,30,50,.45)" },
+    { boxShadow: "0 0 0 7px #fbf3e4, 0 0 0 11px #e8c27a, 0 0 0 14px #fbf3e4, 0 0 160px 60px rgba(255,236,190,.95)" }], { duration: 1600, fill: "forwards" });
+  await wait(900);
+  door.animate([{ transform: "scale(1)" }, { transform: "scale(7)" }], { duration: 1500, easing: "cubic-bezier(.6,0,.4,1)", fill: "forwards" });   // lao qua cửa
+  $("s1").querySelector(".dbg").animate([{ transform: "scale(1)", filter: "brightness(1)" }, { transform: "scale(2.4)", filter: "brightness(1.6)" }], { duration: 1500, easing: "cubic-bezier(.6,0,.4,1)", fill: "forwards" });
+  await wait(900);
+  await flashOn(600);
+  $("s1").classList.remove("on");
+  $("s2").classList.add("on"); $("s2").style.transition = "none";
+  flashOff(1000);
+  scene2();
+});
+
+/* =================== MÀN 2: tin nhắn rồi lên xe =================== */
+const msgs = $("msgs");
+function addRow(side, html) {
+  const row = document.createElement("div"); row.className = "row " + side;
+  row.innerHTML = (side === "her" ? `<img class="av" src="../assets/hoanganh.webp" alt="">` : "") + `<div class="col">${html}</div>`;
+  msgs.append(row);
+  row.animate([{ transform: "translateY(14px) scale(.92)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 380, easing: "cubic-bezier(.3,1.4,.5,1)" });
+  return row;
+}
+function carW() { return Math.min(W * .9, 480, H * .42 / ratio("car-a")); }
+let memoRide = null, s2ready = false, ticker = null;
+function tick() {
+  let s = Math.max(0, Math.floor((Date.now() - FIRST) / 1000));
+  const d = Math.floor(s / 86400); s %= 86400;
+  const p = v => String(v).padStart(2, "0");
+  $("days").textContent = d + " ngày";
+  $("hms").textContent = `${p(Math.floor(s / 3600))} giờ ${p(Math.floor(s / 60) % 60)} phút ${p(s % 60)} giây`;
+}
+async function scene2() {
+  layout();
+  await wait(1000);
+  const t1 = addRow("me", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1100); t1.remove();
+  addRow("me", `<small class="rep">Bạn đã trả lời tin của HoangAnh</small><img class="story" src="${STORY}" alt=""><div class="bub">Thích vậy chị em đi với</div>`);
+  await wait(1500);
+  const t2 = addRow("her", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1500); t2.remove();
+  addRow("her", `<img class="pic" src="${REF}" alt=""><div class="bub">Oke, lên iem ơi</div>`);
+  await wait(1500);
+  const cap = document.createElement("p"); cap.className = "s2cap"; cap.textContent = "Vậy thì mìn lên xeeee =)))"; msgs.append(cap);
+  cap.animate([{ transform: "scale(.3) rotate(-8deg)", opacity: 0 }, { transform: "scale(1.12) rotate(3deg)", opacity: 1, offset: .6 }, { transform: "scale(1) rotate(-2deg)", opacity: 1 }], { duration: 700, easing: "ease-out", fill: "forwards" });
+  await wait(2000);
+  $("phone").classList.add("bare");                       // nền chat tan đi, lộ ra bầu trời + con đường
+  await wait(900);
+
+  // xe A chạy vào giữa
+  const carA = $("carA"), cw = carW(), ch = cw * ratio("car-a"), ground = H * .965;
+  Object.assign(carA.style, { width: cw + "px", top: ground - ch + "px" });
+  Object.assign($("seat").style, { left: SEAT.x * 100 + "%", top: SEAT.y * 100 + "%", width: SEAT.w * 100 + "%", height: "1px" });
+  $("tow").style.top = ch * .42 + "px";
+  const towW = $("tow").offsetWidth + 10, mid = (W - cw) / 2;
+  carA.classList.add("go");
+  const inA = moveX(carA, -cw - towW - 20, mid, 1900, "cubic-bezier(.2,.7,.3,1)"); carA.classList.add("show");
+  await inA;
+  carA.classList.remove("go");
+  puff(mid + cw * .1, ground - 6, -1);
+
+  // tất cả chất lên xe
+  const seat = $("seat"), items = [...msgs.children];
+  let stackH = 0;
+  for (const [i, el] of items.entries()) {
+    const r = el.getBoundingClientRect(), sr = seat.getBoundingClientRect();
+    const k = Math.min(1, sr.width * 1.3 / r.width, ch * .55 / r.height);
+    const lx = sr.width * (.04 + Math.random() * .2), ly = -stackH * .6 - r.height * k;   // toạ độ trong ghế xe
+    const tx = sr.left + lx - r.left, ty = sr.top + ly - r.top;
+    const rot = rnd(12);
+    await wait(i ? 160 : 0);
+    el.style.transformOrigin = "0 0";
+    const a = el.animate([{ transform: "none" }, { transform: `translate(${tx * .5}px, ${ty - H * .12}px) scale(${(1 + k) / 2}) rotate(${rot / 2}deg)`, offset: .5 },
+      { transform: `translate(${tx}px, ${ty}px) scale(${k}) rotate(${rot}deg)` }], { duration: 800, easing: "cubic-bezier(.4,0,.4,1)", fill: "forwards" });
+    a.finished.then(() => {
+      const ph = document.createElement("div"); ph.style.cssText = `height:${r.height}px; flex:none`; el.before(ph);   // giữ chỗ để mấy tin còn lại không nhảy
+      seat.append(el); a.cancel();
+      el.style.cssText = `left:${lx}px; top:${ly}px; width:${r.width}px; height:${r.height}px; transform:scale(${k}) rotate(${rot}deg)`;
+      carA.animate([{ transform: `translate(${mid}px, 3px)` }, { transform: `translate(${mid}px, 0)` }], { duration: 200 });
+    });
+    stackH += r.height * k;
+  }
+  await wait(1300);
+  // phóng đi, kéo theo băng rôn
+  carA.classList.add("go"); puff(mid + cw * .05, ground - 6, -1);
+  await moveX(carA, mid, W + towW + 40, 4300, "cubic-bezier(.5,0,.75,1)");
+  carA.style.display = "none";
+
+  // xe B chở ảnh + bộ đếm
+  const carB = $("carB"), bw = cw * .95, bh = bw * ratio("car-b"), memo = $("memo");
+  Object.assign(carB.style, { width: bw + "px", top: ground - bh + "px" });
+  tick(); ticker = setInterval(tick, 1000);
+  const mw = memo.offsetWidth, mh = memo.offsetHeight, ms = Math.min(.42, bw * .34 / mw);
+  memo.style.visibility = "visible";
+  const ride = () => {          // ảnh nằm trên thùng xe, chạy theo xe
+    const r = carB.getBoundingClientRect();
+    memo.style.left = r.left + r.width * BED.x - mw / 2 + "px"; memo.style.top = r.top + r.height * BED.y - mh + "px";
+    memo.style.transform = `scale(${ms}) rotate(-4deg)`;
+    memoRide = requestAnimationFrame(ride);
+  };
+  ride();
+  carB.classList.add("go");
+  const midB = (W - bw) / 2 - bw * .1;
+  const inB = moveX(carB, -bw - 30, midB, 2200, "cubic-bezier(.2,.7,.3,1)"); carB.classList.add("show");
+  await inB;
+  carB.classList.remove("go");
+  // xe nảy lên, hất ảnh bay lên giữa màn
+  cancelAnimationFrame(memoRide);
+  const L = parseFloat(memo.style.left), T = parseFloat(memo.style.top);
+  carB.animate([{ transform: `translate(${midB}px, 0) rotate(0)` }, { transform: `translate(${midB}px, -26px) rotate(-4deg)`, offset: .35 }, { transform: `translate(${midB}px, 0) rotate(1deg)`, offset: .7 }, { transform: `translate(${midB}px, 0)` }],
+    { duration: 520, easing: "ease-out" });
+  puff(midB + bw * .15, ground - 6, -1); puff(midB + bw * .8, ground - 6, 1);
+  await wait(140);
+  const dx = (W - mw) / 2 - L, dy = Math.max(12, (H * .86 - mh) / 2) - T;
+  await memo.animate([
+    { transform: `translate(0, 0) scale(${ms}) rotate(-4deg)` },
+    { transform: `translate(${dx * .5}px, ${dy - H * .18}px) scale(.75) rotate(-200deg)`, offset: .45 },
+    { transform: `translate(${dx}px, ${dy + 16}px) scale(1.04) rotate(-358deg)`, offset: .78 },
+    { transform: `translate(${dx}px, ${dy - 8}px) scale(.99) rotate(-362deg)`, offset: .9 },
+    { transform: `translate(${dx}px, ${dy}px) scale(1) rotate(-363deg)` }], { duration: 1500, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards" }).finished;
+  burst(W / 2, Math.max(12, (H * .86 - mh) / 2) + mh / 2, 70);
+  carB.classList.add("go");
+  moveX(carB, midB, W + 40, 2200, "cubic-bezier(.5,0,.75,1)");
+  await wait(1600);
+  $("s2hint").classList.add("on"); s2ready = true;
+}
+$("s2").addEventListener("click", () => {
+  if (!s2ready) return; s2ready = false;
+  $("s2").style.transition = ""; $("s2").classList.remove("on");
+  setTimeout(() => clearInterval(ticker), 1000);
+  scene3();
+});
+
+/* =================== MÀN 3: shipper mèo giao thư =================== */
+let K = {};   // vị trí mèo hiện tại
+function placeCat(kind) {
+  const cat = $("cat"), img = $("catImg");
+  img.src = `../assets/flow/${kind}.webp`;
+  let w, h;
+  if (kind === "cat-scooter") { w = Math.min(W * .8, 440, H * .32 / ratio(kind)); h = w * ratio(kind); K = { x: (W - w) / 2, y: H * .56 - h / 2 }; }
+  else { h = Math.min(H * .6, 560); w = h / ratio(kind); if (w > W * .92) { w = W * .92; h = w * ratio(kind); } K = { x: (W - w) / 2, y: Math.max(14, H * .43 - h / 2) }; }
+  Object.assign(cat.style, { width: w + "px", height: h + "px", left: K.x + "px", top: K.y + "px" });
+  K.w = w; K.h = h; cat.style.visibility = "visible";
+  return K;
+}
+async function scene3() {
+  await wait(700);
+  const cat = $("cat"), k = placeCat("cat-scooter");
+  cat.classList.add("go");
+  await cat.animate([{ transform: `translateX(${W - k.x + 30}px)` }, { transform: "translateX(-14px)", offset: .85 }, { transform: "none" }], { duration: 1700, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" }).finished;
+  cat.classList.remove("go");
+  puff(k.x + k.w * .85, k.y + k.h * .95, 1);
+  say("Alooo HoangAnh có nhà khônggg?", W / 2, k.y - 12);
+  const ask = $("ask3"); ask.style.top = k.y + k.h + 18 + "px";
+  await wait(500); ask.classList.add("on");
+}
+$("co").addEventListener("click", async () => {
+  if (tooSoon()) return;
+  $("ask3").classList.remove("on"); $("khong").style.opacity = 0; $("khong").style.pointerEvents = "none";
+  say("Đây chính là bức thư nè", W / 2, K.y - 12);
+  await wait(500);
+  const paw = $("paw"), pw = Math.min(W * .95, 560, H * .3 / ratio("cat-paw"));
+  Object.assign(paw.style, { width: pw + "px", top: Math.max(10, K.y - 70 - pw * ratio("cat-paw")) + "px", visibility: "visible" });
+  await paw.animate([{ transform: `translateX(${pw + 20}px)` }, { transform: "translateX(-10px)", offset: .8 }, { transform: "none" }], { duration: 1000, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" }).finished;
+  const n = $("nhan"); n.style.top = K.y + K.h + 18 + "px"; n.classList.add("on");
+});
+$("nhan").addEventListener("click", async () => {
+  const n = $("nhan"); n.classList.remove("on"); n.style.pointerEvents = "none";
+  unsay();
+  // bức thư rời tay mèo, bay ra giữa màn
+  const paw = $("paw"), pr = paw.getBoundingClientRect();
+  const ex = pr.left + pr.width * PAWENV.x, ey = pr.top + pr.height * PAWENV.y, s0 = pr.width * PAWENV.w / E.w;
+  document.body.classList.remove("pre");
+  paw.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" });
+  env.style.zIndex = 25; seal.style.zIndex = 26;
+  const sx = E.x + E.w / 2 - parseFloat(seal.style.left), sy = E.y + E.h / 2 - parseFloat(seal.style.top);   // dấu sáp bay theo tâm phong thư
+  env.animate([{ transform: `translate(${ex - (E.x + E.w / 2)}px, ${ey - (E.y + E.h / 2)}px) scale(${s0}) rotate(-8deg)` },
+    { transform: "translate(0, -30px) scale(1.06) rotate(3deg)", offset: .7 }, { transform: "none" }], { duration: 1000, easing: "cubic-bezier(.3,.7,.3,1)" });
+  seal.animate([{ transform: `translate(${ex - (E.x + E.w / 2)}px, ${ey - (E.y + E.h / 2)}px) translate(${sx}px, ${sy}px) scale(${s0}) translate(${-sx}px, ${-sy}px)` },
+    { transform: "translate(0, -30px) scale(1.06)", offset: .7 }, { transform: "none" }], { duration: 1000, easing: "cubic-bezier(.3,.7,.3,1)" });
+  setTimeout(() => { env.style.zIndex = ""; seal.style.zIndex = ""; }, 2600);
+  // mèo phóng xe đi
+  await wait(400);
+  const cat = $("cat"); cat.classList.add("go");
+  puff(K.x + K.w * .9, K.y + K.h * .95, 1); puff(K.x + K.w * .9, K.y + K.h * .95, 1);
+  cat.animate([{ transform: "none" }, { transform: "translateX(18px)", offset: .2 }, { transform: `translateX(${-K.x - K.w - 40}px)` }], { duration: 900, easing: "cubic-bezier(.6,0,.9,.6)", fill: "forwards" })
+    .finished.then(() => { cat.classList.remove("go"); cat.style.visibility = "hidden"; });
+  await wait(900);
+  // mở rương báu: rung rung, loé sáng, hào quang toả ra
+  for (let i = 0; i < 3; i++) {
+    await env.animate([{ transform: "none" }, { transform: `rotate(${i % 2 ? 4 : -4}deg) scale(${1.02 + i * .02})` }, { transform: `rotate(${i % 2 ? -3 : 3}deg) scale(${1.02 + i * .02})` }, { transform: "none" }],
+      { duration: 420, easing: "ease-in-out" }).finished;
+    seal.animate([{ scale: 1 }, { scale: 1.15 }, { scale: 1 }], { duration: 300 });
+    await wait(220);
+  }
+  env.animate([{ transform: "none" }, { transform: "translateY(-40px) scale(1.12)", offset: .35 }, { transform: "translateY(6px) scale(.98)", offset: .7 }, { transform: "none" }], { duration: 900, easing: "ease-out" });
+  burst(E.x + E.w / 2, E.y + E.h / 2, 140, true);
+  $("rays").classList.add("on"); $("glow").classList.add("on");
+  await wait(900);
+  $("capBot").textContent = "(chạm vào dấu sáp để mở thư nhé)";
+  document.body.classList.add("sealReady");
+  $("capBot").style.opacity = "";
+});
+
+/* ---------- gõ chữ trong thư ---------- */
+let typing = null, typeDone = null;
+function fitBig() {
+  const b = $("big"); if (!b.textContent) return;
+  b.style.fontSize = ""; const max = b.parentElement.clientWidth - 44;
+  let fs = parseFloat(getComputedStyle(b).fontSize);
+  while (b.scrollWidth > max && fs > 20) { fs -= 2; b.style.fontSize = fs + "px"; }
+}
+const SEG = [["text", LETTER], ["big", BIG], ["then", THEN]];
+function finishType() {
+  for (const [id, s] of SEG) $(id).textContent = s;
+  fitBig(); $("sign").classList.add("on"); typing = null; typeDone?.();
+}
+function typeLetter() {
+  return new Promise(res => {
+    typeDone = res;
+    const caret = document.createElement("span"); caret.className = "caret";
+    let seg = 0, i = 0;
+    const inn = card.querySelector(".in");
+    const step = () => {
+      const [id, s] = SEG[seg], el = $(id);
+      if (i === 0) { el.textContent = ""; el.append(caret); if (id === "big") { el.style.fontSize = ""; } }
+      if (i >= s.length) {
+        if (++seg >= SEG.length) { caret.remove(); finishType(); return; }
+        i = 0; typing = setTimeout(step, 700); return;
+      }
+      caret.before(s[i++]);
+      if (id === "big") fitBig();
+      if (inn.scrollHeight - inn.scrollTop - inn.clientHeight < 120) inn.scrollTop = inn.scrollHeight;
+      const ch = s[i - 1]; typing = setTimeout(step, id === "big" ? 140 : ch === "\n" ? 380 : /[,.!?:]/.test(ch) ? 220 : 42);
+    };
+    step();
+  });
+}
+card.addEventListener("click", () => { if (typing) { clearTimeout(typing); finishType(); card.querySelector(".in").scrollTop = 1e6; } });
 
 /* ---------- mở thư ---------- */
-const wait = ms => new Promise(r => setTimeout(r, ms));
 seal.addEventListener("click", async () => {
-  if (opened) return; opened = true;
+  if (opened || !document.body.classList.contains("sealReady")) return; opened = true;
   setMusic(true);
+  burst(E.x + E.w / 2, E.y + E.h * .58, 120, true);
+  $("rays").classList.remove("on"); $("glow").classList.remove("on");
   document.body.classList.add("opened");
   layout();                                 // phong thư trượt xuống chỗ mới
   await wait(1000);
-  env.classList.add("opened"); document.body.classList.add("opened");
+  env.classList.add("opened");
   await wait(450); env.querySelector(".flap").classList.add("behind");
   await wait(350);
-  // ảnh trồi lên từ trong phong thư
   for (const [el, o, d] of [[pol, P, 0], [strip, S, 220]]) {
     el.style.visibility = "visible";
     el.animate([{ transform: `translateY(${o.tuck - o.y}px) rotate(0deg)` }, { transform: `translateY(0) rotate(${o.r}deg)` }],
       { duration: 1300, delay: d, easing: "cubic-bezier(.3,.7,.3,1)", fill: "both" });
   }
-  // thiệp: trồi lên khỏi miệng phong thư rồi bay ra chỗ đọc
   card.style.visibility = "visible";
   const a1 = card.animate([{ transform: tucked(0) }, { transform: tucked(-E.h * .85) }], { duration: 1000, easing: "cubic-bezier(.4,0,.3,1)", fill: "forwards" });
   await a1.finished;
@@ -231,10 +724,153 @@ seal.addEventListener("click", async () => {
   setTimeout(() => { $("fl1").classList.add("on"); }, 300);
   setTimeout(() => { $("fl2").classList.add("on"); }, 500);
   await a2.finished;
-  a1.cancel(); a2.commitStyles?.(); a2.cancel(); card.style.transform = `rotate(${C.r}deg)`;
+  a1.cancel(); a2.cancel(); card.style.transform = `rotate(${C.r}deg)`;
   $("n1").classList.add("on"); setTimeout(() => $("n2").classList.add("on"), 400);
-  typeLetter();
+  await typeLetter();
+  await wait(3200);
+  scene4();
 });
+
+/* =================== MÀN 4: mèo quay lại giơ bảng =================== */
+async function scene4() {
+  $("dim").classList.add("on");
+  await wait(700);
+  const cat = $("cat"); cat.style.transform = ""; cat.getAnimations().forEach(a => a.cancel());
+  let k = placeCat("cat-scooter"); cat.classList.add("flip", "go");
+  await cat.animate([{ transform: `translateX(${-k.x - k.w - 30}px)` }, { transform: "translateX(14px)", offset: .85 }, { transform: "none" }], { duration: 1600, easing: "cubic-bezier(.2,.7,.3,1)" }).finished;
+  cat.classList.remove("go");
+  puff(k.x + k.w * .1, k.y + k.h * .95, -1);
+  await wait(300);
+  // xuống xe, giơ bảng
+  cat.classList.remove("flip");
+  k = placeCat("cat-sign");
+  cat.animate([{ transform: "translateY(30px) scale(.85)", opacity: 0 }, { transform: "translateY(-10px) scale(1.03)", opacity: 1, offset: .6 }, { transform: "none", opacity: 1 }], { duration: 600, easing: "ease-out" });
+  const st = $("signTxt");
+  Object.assign(st.style, { left: SIGN.x * 100 + "%", top: SIGN.y * 100 + "%", width: SIGN.w * 100 + "%", height: SIGN.h * 100 + "%" });
+  setTimeout(() => st.classList.add("on"), 450);
+  const ask = $("ask4"); ask.style.top = Math.min(H - 70, k.y + k.h + 16) + "px";
+  await wait(1100); ask.classList.add("on");
+}
+let taps = 0, heartOn = false;
+$("yes").addEventListener("click", async () => {
+  if (tooSoon()) return;
+  $("ask4").classList.remove("on"); $("no").style.opacity = 0; $("no").style.pointerEvents = "none";
+  $("signTxt").classList.remove("on");
+  const cat = $("cat");
+  burst(W / 2, K.y + K.h * .25, 80);
+  const k = placeCat("cat-offer");
+  cat.animate([{ transform: "scale(.94)" }, { transform: "scale(1.04)", offset: .6 }, { transform: "none" }], { duration: 500, easing: "ease-out" });
+  const h = $("heart"), hs = Math.min(k.w * .5, 170);
+  Object.assign(h.style, { left: k.x + k.w * OFFER.x + "px", top: k.y + k.h * OFFER.y + "px", width: hs + "px", visibility: "visible" });
+  h.animate([{ scale: 0, rotate: "-30deg" }, { scale: 1.2, rotate: "8deg", offset: .6 }, { scale: 1, rotate: "0deg" }], { duration: 800, easing: "ease-out", delay: 300, fill: "backwards" });
+  const th = $("tapHint"); th.textContent = "(chạm vào tim đi)"; th.style.top = Math.min(H - 60, k.y + k.h + 12) + "px";
+  setTimeout(() => { th.classList.add("on"); heartOn = true; }, 1100);
+});
+$("heart").addEventListener("click", () => {
+  if (!heartOn) return;
+  const h = $("heart"), r = h.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  taps++;
+  burst(cx, cy, 30 + taps * 12);
+  if (taps < TAPS) {
+    h.style.scale = 1 + taps * .22;
+    h.animate([{ rotate: "0deg" }, { rotate: "-12deg" }, { rotate: "10deg" }, { rotate: "-6deg" }, { rotate: "0deg" }], { duration: 380 });
+    h.style.filter = `drop-shadow(0 0 ${18 + taps * 10}px rgba(255,90,150,.95))`;
+    $("tapHint").textContent = ["", "nữa nào", "nữa đi", "sắp rồi...", "1 cái nữa thôi!"][taps] || "";
+    return;
+  }
+  heartOn = false; $("tapHint").classList.remove("on");
+  explode(cx, cy);
+});
+async function explode(cx, cy) {
+  const h = $("heart");
+  await h.animate([{ transform: "none" }, { transform: `translate(${W / 2 - cx}px, ${H / 2 - cy}px) scale(1.6)`, offset: .5 },
+    { transform: `translate(${W / 2 - cx + 6}px, ${H / 2 - cy - 4}px) scale(2.1) rotate(6deg)`, offset: .7 }, { transform: `translate(${W / 2 - cx - 6}px, ${H / 2 - cy + 4}px) scale(2.4) rotate(-6deg)`, offset: .85 },
+    { transform: `translate(${W / 2 - cx}px, ${H / 2 - cy}px) scale(2.8)` }], { duration: 1100, easing: "ease-in", fill: "forwards" }).finished;
+  $("flash").animate([{ opacity: 0 }, { opacity: 1, offset: .25 }, { opacity: 0 }], { duration: 1100, easing: "ease-out" });
+  h.style.visibility = "hidden";
+  for (let i = 0; i < 4; i++) setTimeout(() => burst(W / 2 + rnd(60), H / 2 + rnd(60), 130, true), i * 160);
+  secret = [W / 2, H / 2];
+  memeWall();
+}
+
+/* ---------- pháo bụi, tim bay, tường meme (như bản cũ) ---------- */
+const fx = $("fx"), fg = fx.getContext("2d"); let dpr = 1;
+const fitFx = () => { dpr = Math.min(2, devicePixelRatio || 1); fx.width = innerWidth * dpr; fx.height = innerHeight * dpr; };
+fitFx(); addEventListener("resize", fitFx);
+const HEART = new Path2D("M32 56C8 38 4 26 4 18 4 9 11 4 18 4c6 0 11 3 14 8 3-5 8-8 14-8 7 0 14 5 14 14 0 8-4 20-28 38Z");
+const COLORS = ["#fff4c2", "#ffd36b", "#ff8fb4", "#ffffff", "#ffb3cb", "#c9f2ff"];
+let glints = [], flyers = [], secret = [0, 0];
+function burst(x, y, n = 90, big = false) {
+  const now = performance.now() / 1000;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * 6.2832, v = (big ? 80 : 40) + Math.pow(Math.random(), .6) * (big ? 420 : 240);
+    glints.push({ x, y, t: now, life: .9 + Math.random() * 1.1, r: 1.4 + Math.random() * (big ? 3.6 : 2.6), c: COLORS[i % COLORS.length], vx: Math.cos(a) * v, vy: Math.sin(a) * v - 30 });
+  }
+  loop();
+}
+const bez = (p, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * p[0][i] + 3 * u * u * t * p[1][i] + 3 * u * t * t * p[2][i] + t * t * t * p[3][i]); };
+function fly() {
+  const now = performance.now() / 1000, x0 = W * (.1 + Math.random() * .8), x1 = x0 + rnd(W * .35);
+  flyers.push({ t0: now, dur: 3.4 + Math.random() * 1.6, s: 36 + Math.random() * 30, ph: Math.random() * 6, tilt: rnd(.3),
+    p: [[x0, H + 60], [x0 + rnd(W * .5), H * .66], [x1 + rnd(W * .5), H * .33], [x1, -80]] });
+  loop();
+}
+let looping = false;
+function loop() { if (!looping) { looping = true; requestAnimationFrame(draw); } }
+function draw(ms) {
+  const t = ms / 1000;
+  fg.setTransform(dpr, 0, 0, dpr, 0, 0); fg.clearRect(0, 0, innerWidth, innerHeight);
+  glints = glints.filter(q => t - q.t < q.life); flyers = flyers.filter(f => t - f.t0 < f.dur);
+  for (const q of glints) {
+    const a = (t - q.t) / q.life, dt = t - q.t, r = q.r * (1 - a * .5);
+    const x = q.x + q.vx * (1 - Math.exp(-3 * dt)) / 3, y = q.y + q.vy * (1 - Math.exp(-3 * dt)) / 3 + 40 * dt * dt;
+    fg.globalAlpha = (1 - a) * .95; fg.fillStyle = q.c; fg.shadowColor = q.c; fg.shadowBlur = 8;
+    fg.beginPath(); fg.arc(x, y, r, 0, 6.283); fg.fill();
+  }
+  fg.globalAlpha = 1; fg.shadowBlur = 0;
+  for (const f of flyers) {
+    const u = (t - f.t0) / f.dur, [x, y] = bez(f.p, u), beat = 1 + Math.pow(Math.max(0, Math.sin(t * 6 + f.ph)), 8) * .16, k = f.s / 64 * beat;
+    fg.save(); fg.translate(x, y); fg.rotate(f.tilt + Math.sin(t * 2.2 + f.ph) * .2); fg.scale(k, k); fg.translate(-32, -30);
+    const gr = fg.createRadialGradient(22, 18, 2, 32, 30, 42); gr.addColorStop(0, "#ffe0ea"); gr.addColorStop(.4, "#ff7aa5"); gr.addColorStop(1, "#d6336c");
+    fg.shadowColor = "rgba(255,90,150,.9)"; fg.shadowBlur = 24 * k; fg.fillStyle = gr; fg.fill(HEART);
+    fg.shadowBlur = 0; fg.strokeStyle = "rgba(255,255,255,.55)"; fg.lineWidth = 1.5; fg.stroke(HEART);
+    fg.restore();
+  }
+  if (glints.length || flyers.length) requestAnimationFrame(draw); else looping = false;
+}
+const memeSrc = i => "../assets/memes/m" + String(i % MEMES + 1).padStart(2, "0") + ".jpg";
+function memeWall() {
+  const box = $("memes"); box.style.pointerEvents = "auto";
+  const WW = innerWidth + 48, HH = innerHeight + 48, cell = Math.max(96, Math.min(170, innerWidth / 4));
+  const nx = Math.ceil(WW / cell), ny = Math.ceil(HH / cell), w = WW / nx, h = HH / ny, total = nx * ny;
+  const cells = [...Array(total).keys()].sort(() => Math.random() - .5), pics = [...Array(MEMES).keys()].sort(() => Math.random() - .5);
+  let n = 0;
+  const timer = setInterval(() => {
+    if (n >= total) {
+      clearInterval(timer);
+      setTimeout(() => {
+        const hero = new Image(); hero.className = "hero"; hero.alt = ""; hero.style.setProperty("--r0", "-30deg");
+        hero.onload = () => { box.append(hero); hero.getBoundingClientRect(); hero.classList.add("up");
+          setTimeout(() => {
+            const cap = document.createElement("div"); cap.className = "mcap"; cap.textContent = CAPTION;
+            cap.addEventListener("click", () => { cap.animate([{ scale: 1 }, { scale: 1.18 }, { scale: 1 }], { duration: 260 }); fly(); if (Math.random() < .5) setTimeout(fly, 180); });
+            box.append(cap); cap.getBoundingClientRect(); cap.classList.add("up");
+            for (let i = 0; i < 6; i++) setTimeout(fly, i * 350);
+          }, 2200);
+        };
+        hero.src = PHOTO;
+      }, 900);
+      return;
+    }
+    const c = cells[n], img = new Image();
+    img.src = memeSrc(pics[n % pics.length]); img.alt = "";
+    Object.assign(img.style, { width: 100 / nx + "%", height: 100 / ny + "%", left: (c % nx) * 100 / nx + "%", top: Math.floor(c / nx) * 100 / ny + "%" });
+    img.style.setProperty("--r0", rnd(200) + "deg"); img.style.setProperty("--r", rnd(5) + "deg");
+    img.style.setProperty("--dx", secret[0] + 24 - ((c % nx) + .5) * w + "px"); img.style.setProperty("--dy", secret[1] + 24 - (Math.floor(c / nx) + .5) * h + "px");
+    box.append(img); img.getBoundingClientRect(); img.classList.add("up");
+    n++;
+  }, Math.max(28, 2600 / total));
+}
 
 addEventListener("resize", layout);
 layout();
