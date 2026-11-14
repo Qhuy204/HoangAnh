@@ -113,7 +113,7 @@
   /* màn 1: cái cửa */
   #s1 { background:#000; }
   #s1 .dbg { position:absolute; inset:0; background:radial-gradient(ellipse 60% 45% at 50% 58%, #1c1712 0, #000 70%); }
-  .knock { position:absolute; left:0; right:0; top:max(6vh, 26px); margin:0; text-align:center; padding:0 16px; pointer-events:none;
+  .knock { position:absolute; left:0; right:0; bottom:calc(44% + min(52vw, 31vh, 300px) * .75 + 30px); margin:0; text-align:center; padding:0 16px; pointer-events:none;
     font:400 clamp(30px, 9vw, 54px)/1.08 "Patrick Hand", cursive; color:#f6efe6; text-shadow:0 4px 18px rgba(0,0,0,.8); transition:opacity .6s; }
   .knock span { display:inline-block; color:#ffb3c7; animation:knockT 1.6s ease-in-out infinite; }
   @keyframes knockT { 0%, 60%, 100% { rotate:0deg; } 66% { rotate:-5deg; } 72% { rotate:5deg; } 78% { rotate:-3deg; } 84% { rotate:0deg; } }
@@ -123,10 +123,23 @@
     box-shadow:0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 30px 80px rgba(255,220,170,.08); transform-origin:50% 50%; }
   #door .light { position:absolute; inset:0; background:radial-gradient(circle at 50% 50%, rgba(255,250,225,.55), rgba(255,240,200,0) 70%); opacity:0; transition:opacity 1.4s; }
   #door.open .light { opacity:1; }
-  #door .leaf { position:absolute; inset:0; background:#6b4226 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; transform-origin:0 50%;
-    transition:transform 1.8s cubic-bezier(.55,0,.2,1), filter 1.8s; box-shadow:inset 0 0 0 1px rgba(0,0,0,.35); }
+  #door { box-shadow:inset 0 0 0 1px #000, inset 10px 0 18px rgba(0,0,0,.55), inset -10px 0 18px rgba(0,0,0,.45), inset 0 12px 20px rgba(0,0,0,.5) !important; }
+  #door::before { content:""; position:absolute; inset:-14px; z-index:-1; border:14px solid #3b2416; pointer-events:none;   /* khung gỗ */
+    border-image:linear-gradient(90deg, #24140a, #523320 10%, #3b2416 50%, #523320 90%, #24140a) 1;
+    box-shadow:0 0 0 1px #000, 0 30px 80px rgba(0,0,0,.6); }
+  #door .leaf { position:absolute; inset:0; transform-origin:0 50%; transform-style:preserve-3d;
+    transition:transform 1.8s cubic-bezier(.55,0,.2,1); }
+  #door .leaf .face { position:absolute; inset:0; background:#6b4226 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.35), inset -3px 0 6px rgba(0,0,0,.25); }
+  #door .leaf .face::after { content:""; position:absolute; inset:0; background:#000; opacity:0; transition:opacity 1.8s; }
+  #door.open .leaf .face::after { opacity:.45; }
+  /* bề dày cánh cửa: mép tự do + mặt sau */
+  #door .leaf .edge { position:absolute; top:0; bottom:0; right:0; width:var(--th, 14px); transform-origin:100% 50%; transform:rotateY(-90deg);
+    background:linear-gradient(90deg, #8a5a33, #6d4424 40%, #4c2e17); box-shadow:inset 0 0 0 1px rgba(0,0,0,.4); }
+  #door .leaf .edge.t { top:0; bottom:auto; left:0; right:0; width:auto; height:var(--th, 14px); transform-origin:50% 0; transform:rotateX(90deg); background:#3d2512; }
+  #door .leaf .back { position:absolute; inset:0; transform:translateZ(calc(var(--th, 14px) * -1)) rotateY(180deg); background:#4f3019 url(../assets/flow/door-plain.webp) center/100% 100% no-repeat; filter:brightness(.5); backface-visibility:hidden; }
   #door .leaf.r { display:none; }
-  #door.open .leaf.l { transform:rotateY(78deg); filter:brightness(.55); }
+  #door.open .leaf.l { transform:rotateY(78deg); }
   #s1 .step { position:absolute; left:50%; translate:-50% 0; top:calc(56% + min(52vw, 31vh, 300px) * .75 + 12px); width:calc(min(52vw, 31vh, 300px) + 60px); height:10px;
     border-radius:3px; background:linear-gradient(#4a2e1b, #24150c); box-shadow:0 10px 30px rgba(0,0,0,.6); }
   .bang { position:absolute; z-index:3; pointer-events:none; font:400 clamp(24px, 7vw, 34px) "Patrick Hand", cursive; color:#fff; text-shadow:0 2px 0 #c2456c, 0 0 12px rgba(194,69,108,.6); }
@@ -143,6 +156,15 @@
   .phone header b { display:block; font-weight:700; font-size:16px; }
   .phone header small { color:#8a8d91; font-size:12px; display:flex; align-items:center; gap:5px; }
   .phone header small::before { content:""; width:8px; height:8px; border-radius:50%; background:#31a24c; }
+  /* tin nhắn hiện thẳng trên màn như trong phim, không có khung điện thoại */
+  .phone { background:transparent !important; box-shadow:none !important; }
+  .stamp { align-self:center; margin:14px 0 4px; font:600 13px "Quicksand", sans-serif; letter-spacing:.04em; color:rgba(255,255,255,.85); text-shadow:0 1px 6px rgba(0,0,0,.55); }
+  .rep::before { content:"↩ "; }
+  .me .bub { background:#0a7cff !important; color:#fff; }
+  .her .bub, .dots { background:#303030 !important; color:#fff; }
+  .dots i { background:#bbb !important; }
+  .bub, .dots, .pic, .story { box-shadow:0 6px 20px rgba(0,0,0,.35); }
+  .pic { border:0 !important; }
   .phone.bare { background:transparent; box-shadow:none; }
   .phone.bare header { opacity:0; }
   #msgs { flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:6px; padding:14px 12px 120px; overflow:hidden; }
@@ -164,7 +186,7 @@
   .s2cap { align-self:center; margin:18px 0 0; font:400 clamp(28px, 8.4vw, 40px)/1.05 "Patrick Hand", cursive; color:#ff4f8b; text-align:center; white-space:nowrap;
     text-shadow:0 2px 0 #fff, 0 0 14px rgba(255,255,255,.9); will-change:transform; }
   .phone.bare .bub, .phone.bare .dots { box-shadow:0 4px 14px rgba(40,60,90,.18); }
-  .phone.bare .rep { color:#fff; font-weight:700; text-shadow:0 1px 6px rgba(0,0,0,.5); }
+  .rep { color:#fff !important; font-weight:600; text-shadow:0 1px 6px rgba(0,0,0,.55); }
 
   .car { position:absolute; left:0; will-change:transform; z-index:3; visibility:hidden; }
   .car.show { visibility:visible; }
@@ -300,7 +322,7 @@
 <section class="scr on" id="s1">
   <div class="dbg"></div>
   <h1 class="knock"><span>Cốc cốc cốc,</span><br>mở cửa cho em đê</h1>
-  <div id="door" role="button" aria-label="Mở cửa"><div class="light"></div><div class="leaf l"></div><div class="leaf r"></div></div>
+  <div id="door" role="button" aria-label="Mở cửa"><div class="light"></div><div class="leaf l"><div class="back"></div><div class="edge"></div><div class="edge t"></div><div class="face"></div></div><div class="leaf r"></div></div>
   <div class="step"></div>
   <p class="hint on">(chạm vào cửa nha)</p>
 </section>
@@ -309,7 +331,6 @@
 <section class="scr" id="s2">
   <div id="sky"></div>
   <div class="phone" id="phone">
-    <header><img src="../assets/hoanganh.webp" alt=""><div><b>HoangAnh</b><small>Đang hoạt động</small></div></header>
     <div id="msgs"></div>
   </div>
   <div class="car" id="carA"><div class="seat" id="seat"></div><img src="../assets/flow/car-a.webp" alt="">
@@ -464,8 +485,6 @@ $("door").addEventListener("click", async () => {
   await wait(250);
   $("s1").querySelector(".knock").style.opacity = 0;
   door.classList.add("open");                         // hai cánh cửa mở vào trong, ánh sáng tràn ra
-  door.animate([{ boxShadow: "0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 30px 80px rgba(255,220,170,.08)" },
-    { boxShadow: "0 0 0 12px #3b2416, 0 0 0 14px #24150c, 0 0 140px 50px rgba(190,220,150,.45)" }], { duration: 1600, fill: "forwards" });
   await wait(1300);
   const zoom = { duration: 1600, easing: "cubic-bezier(.6,0,.4,1)", fill: "forwards" };   // lao qua khung cửa vào nền xanh
   door.animate([{ transform: "scale(1)" }, { transform: `scale(${Math.max(W / r.width, H / r.height) * 1.6})` }], zoom);
@@ -497,9 +516,13 @@ function tick() {
 async function scene2() {
   layout();
   await wait(1000);
+  const stamp = t => { const s = document.createElement("p"); s.className = "stamp"; s.textContent = t; msgs.append(s);
+    s.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500 }); };
+  stamp("21:54 30 THG 7"); await wait(400);
   const t1 = addRow("me", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1100); t1.remove();
-  addRow("me", `<small class="rep">Bạn đã trả lời tin của HoangAnh</small><img class="story" src="${STORY}" alt=""><div class="bub">Thích vậy chị em đi với</div>`);
-  await wait(1500);
+  addRow("me", `<small class="rep">Bạn đã trả lời tin của HoangAnh</small><div class="bub">Thích vậy chị em đi với</div>`);
+  await wait(1200);
+  stamp("22:39 30 THG 7"); await wait(500);
   const t2 = addRow("her", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1500); t2.remove();
   addRow("her", `<img class="pic" src="${REF}" alt=""><div class="bub">Oke, lên iem ơi</div>`);
   await wait(1500);
