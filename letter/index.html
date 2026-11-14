@@ -222,14 +222,16 @@
   #cat > img { display:block; width:100%; height:100%; filter:drop-shadow(0 6px 10px rgba(30,40,20,.3)); }
   #cat.flip > img { transform:scaleX(-1); }
   #cat.go > img { animation:bob .28s ease-in-out infinite alternate; }
+  #hop { position:absolute; z-index:22; left:0; top:0; pointer-events:none; visibility:hidden; will-change:transform; filter:drop-shadow(0 6px 10px rgba(30,40,20,.3)); }
   #signTxt { position:absolute; display:flex; align-items:center; justify-content:center; text-align:center; color:#2b2b2b; box-sizing:border-box; padding:4%;
     font:400 clamp(22px, 6.6vw, 36px)/1.08 "Patrick Hand", cursive; opacity:0; transition:opacity .4s; }
   #signTxt.on { opacity:1; }
+  #signTxt span { white-space:nowrap; }
   #heart { position:absolute; z-index:24; width:120px; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; background:none; cursor:pointer; visibility:hidden;
     filter:drop-shadow(0 0 18px rgba(255,90,150,.85)); transition:scale .35s cubic-bezier(.3,1.8,.5,1); }
   #heart svg { width:100%; height:100%; display:block; overflow:visible; animation:beat 1s ease-in-out infinite; }
   @keyframes beat { 0%, 40%, 100% { transform:scale(1); } 12% { transform:scale(1.12); } 24% { transform:scale(1.04); } }
-  .say { position:absolute; z-index:22; max-width:min(80vw, 340px); padding:10px 16px; translate:-50% -100%; background:#fff; color:#2b2b2b; border-radius:18px;
+  .say { position:absolute; z-index:22; white-space:nowrap; padding:10px 18px; translate:-50% -100%; background:#fff; color:#2b2b2b; border-radius:18px;
     border:2.5px solid #222; font:400 clamp(20px, 5.8vw, 26px)/1.15 "Patrick Hand", cursive; text-align:center; pointer-events:none;
     opacity:0; scale:.6; transform-origin:50% 100%; transition:opacity .3s, scale .4s cubic-bezier(.3,1.7,.5,1); }
   .say::after { content:""; position:absolute; left:50%; bottom:-11px; width:16px; height:16px; translate:-50% 0; rotate:45deg; background:#fff; border:2.5px solid #222; border-top:0; border-left:0; }
@@ -316,7 +318,8 @@
 
 <!-- shipper mèo (màn 3 + 4) -->
 <div id="dim"></div>
-<div id="cat"><img id="catImg" src="../assets/flow/cat-scooter.webp" alt=""><div id="signTxt">Chị làm người yêu em nhé 👉👈</div></div>
+<img id="hop" src="../assets/flow/cat-hop.webp?v=3" alt="">
+<div id="cat"><img id="catImg" src="../assets/flow/cat-scooter.webp" alt=""><div id="signTxt"><span>Chị làm người yêu<br>em nhé 👉👈</span></div></div>
 <div class="say" id="say"></div>
 <div class="ask" id="ask3"><button class="btn yes" id="co">Có</button><button class="btn no" id="khong">Không</button></div>
 <button class="btn yes" id="nhan">Nhận</button>
@@ -370,6 +373,10 @@ const TAPS = 5;   // số lần chạm tim thì nổ
 /* toạ độ trên ảnh mèo (tỉ lệ 0..1 theo khung ảnh): ô chữ trên tấm bảng, chỗ đặt tim, chỗ phong thư trong tay */
 const SIGN = { x: .03, y: .02, w: .94, h: .37 };
 const OFFER = { x: .5, y: .07 };
+const HOP = {   // mèo đứng (cat-hop): sp = lúc ngồi trên yên xe, gp = lúc đứng dưới đất cạnh xe
+  sp: s => { const h = s.h * .82, w = h / ratio("cat-hop"); return { x: s.x + s.w * .5 - w / 2, y: s.y - s.h * .02, w, h }; },
+  gp: s => { const h = s.h * .82, w = h / ratio("cat-hop"); return { x: Math.max(6, s.x - w * .55), y: s.y + s.h - h, w, h }; },
+};
 const CATENV = { x: .62, y: .35, w: .6 };   // tâm + bề rộng phong thư trong cat-env.webp (tỉ lệ ảnh)
 /* chỗ ngồi trên xe A, thùng xe B (tỉ lệ theo ảnh xe) */
 const SEAT = { x: .24, y: .34, w: .4 };
@@ -380,7 +387,7 @@ const $ = id => document.getElementById(id);
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const rnd = a => (Math.random() * 2 - 1) * a;
 const env = $("env"), slot = $("slot"), card = $("card"), pol = $("pol"), strip = $("strip"), seal = $("seal");
-let W, H, portrait, opened = false, E, C, P, S;
+let W, H, portrait, opened = false, envIn = false, E, C, P, S;
 
 /* ---------- bố cục: phong thư lúc đóng / mở, thiệp, ảnh, hoa ---------- */
 function layout() {
@@ -421,6 +428,8 @@ function layout() {
 /* thiệp nằm trong phong thư -> ánh xạ từ vị trí cuối về lòng phong thư */
 const tucked = (dy) => { const s = E.w * .84 / C.w, cx = E.x + E.w / 2, cy = E.y + E.h * .55 + dy;
   return `translate(${cx - (C.x + C.w / 2)}px, ${cy - (C.y + C.h / 2)}px) scale(${s})`; };
+const tuckClip = (dy) => { const s = E.w * .84 / C.w, bot = E.y + E.h * .55 + dy + C.h * s / 2;   // cắt phần thư thò ra dưới đáy phong bì
+  return `inset(-30px -30px ${Math.max(0, (bot - (E.y + E.h * .97)) / s)}px -30px)`; };
 
 /* ---------- nhạc ---------- */
 const au = new Audio(SONG); au.loop = true;
@@ -431,7 +440,7 @@ mb.onclick = () => setMusic(au.paused);
 
 /* ---------- tiện ích ---------- */
 const imgs = {};
-for (const n of ["cat-scooter", "cat-sign", "cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=3`; imgs[n] = i; }
+for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign2", "cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=3`; imgs[n] = i; }
 for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
 const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
 const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
@@ -534,7 +543,7 @@ async function scene2() {
   const t2 = addRow("her", `<div class="dots"><i></i><i></i><i></i></div>`); await wait(1500); t2.remove();
   addRow("her", `<img class="pic dora" src="../assets/flow/dora.webp" alt=""><div class="bub">Oke, lên iem ơi</div>`);
   await wait(1500);
-  const cap = document.createElement("p"); cap.className = "s2cap"; cap.textContent = "Vậy thì mìn lên xeeee =)))"; msgs.append(cap);
+  const cap = document.createElement("p"); cap.className = "s2cap"; cap.textContent = "Đi thôyyy"; msgs.append(cap);
   cap.animate([{ transform: "scale(.3) rotate(-8deg)", opacity: 0 }, { transform: "scale(1.12) rotate(3deg)", opacity: 1, offset: .6 }, { transform: "scale(1) rotate(-2deg)", opacity: 1 }], { duration: 700, easing: "ease-out", fill: "forwards" });
   await wait(2000);
   $("phone").classList.add("bare");                       // nền chat tan đi, lộ ra bầu trời + con đường
@@ -629,7 +638,7 @@ function placeCat(kind) {
   const cat = $("cat"), img = $("catImg");
   img.src = `../assets/flow/${kind}.webp?v=3`;
   let w, h;
-  if (kind === "cat-scooter") { w = Math.min(W * .8, 440, H * .32 / ratio(kind)); h = w * ratio(kind); K = { x: (W - w) / 2, y: H * .56 - h / 2 }; }
+  if (kind === "cat-scooter" || kind === "scooter-empty") { w = Math.min(W * .8, 440, H * .32 / ratio(kind)); h = w * ratio(kind); K = { x: (W - w) / 2, y: H * .56 - h / 2 }; }
   else { h = Math.min(H * .6, 560); w = h / ratio(kind); if (w > W * .92) { w = W * .92; h = w * ratio(kind); } K = { x: (W - w) / 2, y: Math.max(14, H * .43 - h / 2) }; }
   Object.assign(cat.style, { width: w + "px", height: h + "px", left: K.x + "px", top: K.y + "px" });
   K.w = w; K.h = h; cat.style.visibility = "visible";
@@ -650,9 +659,26 @@ $("co").addEventListener("click", async () => {
   if (tooSoon()) return;
   $("ask3").classList.remove("on"); $("khong").style.opacity = 0; $("khong").style.pointerEvents = "none";
   unsay();
-  // mèo xuống xe, giơ cao bức thư (như ảnh tấm biển số 1)
-  const cat = $("cat");
-  await cat.animate([{ transform: "none", opacity: 1 }, { transform: "scale(.6)", opacity: 0 }], { duration: 220, fill: "forwards" }).finished;
+  // mèo nhảy xuống xe: xe trống đứng lại, mèo bật lên rồi đáp xuống đất cạnh xe
+  const cat = $("cat"), hop = $("hop");
+  cat.getAnimations().forEach(a => a.cancel());
+  const S0 = placeCat("scooter-empty"), sp = HOP.sp(S0), gp = HOP.gp(S0);
+  Object.assign(hop.style, { width: sp.w + "px", height: sp.h + "px", left: sp.x + "px", top: sp.y + "px", visibility: "visible" });
+  const dx = gp.x - sp.x, dy = gp.y - sp.y;
+  cat.animate([{ transform: "none" }, { transform: "translateY(5px)", offset: .25 }, { transform: "none" }], { duration: 420, delay: 120 });   // xe nhún khi mèo bật
+  await hop.animate([
+    { transform: "none" },
+    { transform: "translateY(10px) scale(1.06,.9)", offset: .14 },
+    { transform: `translate(${dx * .55}px, ${Math.min(dy, 0) - H * .1}px) rotate(-14deg)`, offset: .55 },
+    { transform: `translate(${dx}px, ${dy + 6}px) scale(1.08,.88) rotate(0)`, offset: .86 },
+    { transform: `translate(${dx}px, ${dy}px)` }], { duration: 900, easing: "cubic-bezier(.35,.6,.4,1)", fill: "forwards" }).finished;
+  puff(gp.x + gp.w * .5, gp.y + gp.h, -1); puff(gp.x + gp.w * .5, gp.y + gp.h, 1);
+  await wait(350);
+  // dắt xe sang bên, mèo lôi thư ra giơ cao
+  cat.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(40px)" }], { duration: 400, fill: "forwards" });
+  await hop.animate([{ opacity: 1, transform: `translate(${dx}px, ${dy}px)` }, { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(.7)` }], { duration: 260, fill: "forwards" }).finished;
+  hop.getAnimations().forEach(a => a.cancel()); hop.style.visibility = "hidden";
+  cat.getAnimations().forEach(a => a.cancel());
   placeCat("cat-env");
   puff(K.x + K.w * .2, K.y + K.h * .9, 1);
   await cat.animate([{ transform: "translateY(40px) scale(.5)", opacity: 0 }, { transform: "translateY(-12px) scale(1.04)", opacity: 1, offset: .7 }, { transform: "none", opacity: 1 }],
@@ -674,23 +700,40 @@ $("nhan").addEventListener("click", async () => {
   seal.animate([{ transform: `translate(${ex - (E.x + E.w / 2)}px, ${ey - (E.y + E.h / 2)}px) translate(${sx}px, ${sy}px) scale(${s0}) translate(${-sx}px, ${-sy}px)` },
     { transform: "translate(0, -30px) scale(1.06)", offset: .7 }, { transform: "none" }], { duration: 1000, easing: "cubic-bezier(.3,.7,.3,1)" });
   setTimeout(() => { env.style.zIndex = ""; seal.style.zIndex = ""; }, 2600);
-  // mèo phóng xe đi
+  setTimeout(() => { envIn = true; }, 1000);   // thư tới nơi là bấm dấu sáp được luôn
+  // mèo nhảy lại lên xe rồi phóng đi
   await wait(400);
-  const cat = $("cat"); cat.getAnimations().forEach(a => a.cancel()); placeCat("cat-scooter"); cat.classList.add("go");
+  const cat = $("cat"), hop = $("hop"); cat.getAnimations().forEach(a => a.cancel());
+  const S0 = placeCat("scooter-empty"), sp = HOP.sp(S0), gp = HOP.gp(S0);
+  cat.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
+  Object.assign(hop.style, { width: sp.w + "px", height: sp.h + "px", left: gp.x + "px", top: gp.y + "px", visibility: "visible" });
+  await hop.animate([{ opacity: 0, transform: "scale(.7)" }, { opacity: 1, transform: "none" }], { duration: 260, fill: "forwards" }).finished;
+  const bx = sp.x - gp.x, by = sp.y - gp.y;
+  await hop.animate([
+    { transform: "none" },
+    { transform: "translateY(8px) scale(1.06,.9)", offset: .15 },
+    { transform: `translate(${bx * .5}px, ${Math.min(by, 0) - H * .1}px) rotate(10deg)`, offset: .55 },
+    { transform: `translate(${bx}px, ${by}px)` }], { duration: 750, easing: "cubic-bezier(.35,.6,.4,1)", fill: "forwards" }).finished;
+  hop.getAnimations().forEach(a => a.cancel()); hop.style.visibility = "hidden";
+  placeCat("cat-scooter");
+  cat.animate([{ transform: "none" }, { transform: "translateY(6px)", offset: .3 }, { transform: "none" }], { duration: 300 });
+  await wait(250);
+  cat.classList.add("go");
   puff(K.x + K.w * .9, K.y + K.h * .95, 1); puff(K.x + K.w * .9, K.y + K.h * .95, 1);
   cat.animate([{ transform: "none" }, { transform: "translateX(18px)", offset: .2 }, { transform: `translateX(${-K.x - K.w - 40}px)` }], { duration: 900, easing: "cubic-bezier(.6,0,.9,.6)", fill: "forwards" })
     .finished.then(() => { cat.classList.remove("go"); cat.style.visibility = "hidden"; });
   await wait(900);
   // mở rương báu: rung rung, loé sáng, hào quang toả ra
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3 && !opened; i++) {
     await env.animate([{ transform: "none" }, { transform: `rotate(${i % 2 ? 4 : -4}deg) scale(${1.02 + i * .02})` }, { transform: `rotate(${i % 2 ? -3 : 3}deg) scale(${1.02 + i * .02})` }, { transform: "none" }],
       { duration: 420, easing: "ease-in-out" }).finished;
     await wait(220);
   }
+  if (opened) return;
   env.animate([{ transform: "none" }, { transform: "translateY(-40px) scale(1.12)", offset: .35 }, { transform: "translateY(6px) scale(.98)", offset: .7 }, { transform: "none" }], { duration: 900, easing: "ease-out" });
-  burst(E.x + E.w / 2, E.y + E.h / 2, 140, true);
   $("glow").classList.add("on");
   await wait(900);
+  if (opened) return;
   $("capBot").textContent = "(chạm vào dấu sáp để mở thư nhé)";
   document.body.classList.add("sealReady");
   $("capBot").style.opacity = "";
@@ -734,9 +777,9 @@ card.addEventListener("click", () => { if (typing) { clearTimeout(typing); finis
 
 /* ---------- mở thư ---------- */
 seal.addEventListener("click", async () => {
-  if (opened || !document.body.classList.contains("sealReady")) return; opened = true;
+  if (opened || !envIn) return; opened = true;
+  env.getAnimations().forEach(a => a.cancel()); document.body.classList.add("sealReady");
   setMusic(true);
-  burst(E.x + E.w / 2, E.y + E.h * .58, 120, true);
   $("rays").classList.remove("on"); $("glow").classList.remove("on");
   document.body.classList.add("opened");
   layout();                                 // phong thư trượt xuống chỗ mới
@@ -744,16 +787,16 @@ seal.addEventListener("click", async () => {
   env.classList.add("opened");
   await wait(450); env.querySelector(".flap").classList.add("behind");
   await wait(350);
-  for (const [el, o, d] of [[pol, P, 0], [strip, S, 220]]) {
+  for (const [el, o, d] of [[strip, S, 0]]) {
     el.style.visibility = "visible";
     el.animate([{ transform: `translateY(${o.tuck - o.y}px) rotate(0deg)` }, { transform: `translateY(0) rotate(${o.r}deg)` }],
       { duration: 1300, delay: d, easing: "cubic-bezier(.3,.7,.3,1)", fill: "both" });
   }
   card.style.visibility = "visible";
-  const a1 = card.animate([{ transform: tucked(0) }, { transform: tucked(-E.h * .85) }], { duration: 1000, easing: "cubic-bezier(.4,0,.3,1)", fill: "forwards" });
+  const a1 = card.animate([{ transform: tucked(0), clipPath: tuckClip(0) }, { transform: tucked(-E.h * .85), clipPath: tuckClip(-E.h * .85) }], { duration: 1000, easing: "cubic-bezier(.4,0,.3,1)", fill: "forwards" });
   await a1.finished;
   card.classList.add("out");
-  const a2 = card.animate([{ transform: tucked(-E.h * .85) }, { transform: `rotate(${C.r}deg)` }], { duration: 1100, easing: "cubic-bezier(.3,.8,.3,1)", fill: "forwards" });
+  const a2 = card.animate([{ transform: tucked(-E.h * .85), clipPath: tuckClip(-E.h * .85) }, { clipPath: "inset(-30px -30px 0px -30px)", offset: .35 }, { transform: `rotate(${C.r}deg)`, clipPath: "inset(-30px -30px 0px -30px)" }], { duration: 1100, easing: "cubic-bezier(.3,.8,.3,1)", fill: "forwards" });
   setTimeout(() => { $("fl1").classList.add("on"); }, 300);
   setTimeout(() => { $("fl2").classList.add("on"); }, 500);
   await a2.finished;
@@ -776,10 +819,12 @@ async function scene4() {
   await wait(300);
   // xuống xe, giơ bảng
   cat.classList.remove("flip");
-  k = placeCat("cat-sign");
+  k = placeCat("cat-sign2");
   cat.animate([{ transform: "translateY(30px) scale(.85)", opacity: 0 }, { transform: "translateY(-10px) scale(1.03)", opacity: 1, offset: .6 }, { transform: "none", opacity: 1 }], { duration: 600, easing: "ease-out" });
   const st = $("signTxt");
   Object.assign(st.style, { left: SIGN.x * 100 + "%", top: SIGN.y * 100 + "%", width: SIGN.w * 100 + "%", height: SIGN.h * 100 + "%" });
+  st.style.fontSize = ""; const sp = st.firstElementChild;   // chữ to nhất mà vẫn vừa bảng, không xuống dòng lung tung
+  for (let fs = parseFloat(getComputedStyle(st).fontSize); sp.offsetWidth > st.clientWidth * .9 && fs > 14; fs -= 1) st.style.fontSize = fs + "px";
   setTimeout(() => st.classList.add("on"), 450);
   const ask = $("ask4"); ask.style.top = Math.min(H - 70, k.y + k.h + 16) + "px";
   await wait(1100); ask.classList.add("on");
