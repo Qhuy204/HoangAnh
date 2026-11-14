@@ -431,7 +431,7 @@ mb.onclick = () => setMusic(au.paused);
 
 /* ---------- tiện ích ---------- */
 const imgs = {};
-for (const n of ["cat-scooter", "cat-sign", "cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp`; imgs[n] = i; }
+for (const n of ["cat-scooter", "cat-sign", "cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=3`; imgs[n] = i; }
 for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
 const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
 const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
@@ -627,7 +627,7 @@ $("s2").addEventListener("click", () => {
 let K = {};   // vị trí mèo hiện tại
 function placeCat(kind) {
   const cat = $("cat"), img = $("catImg");
-  img.src = `../assets/flow/${kind}.webp`;
+  img.src = `../assets/flow/${kind}.webp?v=3`;
   let w, h;
   if (kind === "cat-scooter") { w = Math.min(W * .8, 440, H * .32 / ratio(kind)); h = w * ratio(kind); K = { x: (W - w) / 2, y: H * .56 - h / 2 }; }
   else { h = Math.min(H * .6, 560); w = h / ratio(kind); if (w > W * .92) { w = W * .92; h = w * ratio(kind); } K = { x: (W - w) / 2, y: Math.max(14, H * .43 - h / 2) }; }
