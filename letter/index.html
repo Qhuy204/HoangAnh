@@ -319,7 +319,7 @@
 <!-- shipper mèo (màn 3 + 4) -->
 <div id="dim"></div>
 <img id="hop" src="../assets/flow/cat-hop.webp?v=3" alt="">
-<div id="cat"><img id="catImg" src="../assets/flow/cat-scooter.webp" alt=""><div id="signTxt"><span>Chị làm người yêu<br>em nhé 👉👈</span></div></div>
+<div id="cat"><img id="catImg" src="../assets/flow/cat-scooter.webp" alt=""><div id="signTxt"><span>Chị làm<br>người yêu<br>em nhé 👉👈</span></div></div>
 <div class="say" id="say"></div>
 <div class="ask" id="ask3"><button class="btn yes" id="co">Có</button><button class="btn no" id="khong">Không</button></div>
 <button class="btn yes" id="nhan">Nhận</button>
@@ -371,7 +371,7 @@ const NO4 = ["No", "Hụt rồi", "Bấm lại xem", "Chắc chưa?", "Nghĩ k�
 const MEMES = 33, PHOTO = "../assets/hoanganh2.webp", CAPTION = "iu thíiiii";
 const TAPS = 5;   // số lần chạm tim thì nổ
 /* toạ độ trên ảnh mèo (tỉ lệ 0..1 theo khung ảnh): ô chữ trên tấm bảng, chỗ đặt tim, chỗ phong thư trong tay */
-const SIGN = { x: .03, y: .02, w: .94, h: .37 };
+const SIGN = { x: .405, y: .17, w: .5, h: .36, r: -9 };   // vùng chữ trên bảng nghiêng của cat-sign3.webp
 const OFFER = { x: .5, y: .07 };
 const HOP = {   // mèo đứng (cat-hop): sp = lúc ngồi trên yên xe, gp = lúc đứng dưới đất cạnh xe
   sp: s => { const h = s.h * .82, w = h / ratio("cat-hop"); return { x: s.x + s.w * .5 - w / 2, y: s.y - s.h * .02, w, h }; },
@@ -440,7 +440,7 @@ mb.onclick = () => setMusic(au.paused);
 
 /* ---------- tiện ích ---------- */
 const imgs = {};
-for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign2", "cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=3`; imgs[n] = i; }
+for (const n of ["cat-scooter", "scooter-empty", "cat-hop", "cat-sign3","cat-offer", "cat-env", "car-a", "car-b", "door-plain"]) { const i = new Image(); i.src = `../assets/flow/${n}.webp?v=3`; imgs[n] = i; }
 for (let i = 0; i < MEMES; i++) new Image().src = "../assets/memes/m" + String(i + 1).padStart(2, "0") + ".jpg";
 const ratio = n => imgs[n].naturalWidth ? imgs[n].naturalHeight / imgs[n].naturalWidth : .66;
 const moveX = (el, x0, x1, dur, easing, y = 0) => el.animate([{ transform: `translate(${x0}px, ${y}px)` }, { transform: `translate(${x1}px, ${y}px)` }],
@@ -819,12 +819,12 @@ async function scene4() {
   await wait(300);
   // xuống xe, giơ bảng
   cat.classList.remove("flip");
-  k = placeCat("cat-sign2");
+  k = placeCat("cat-sign3");
   cat.animate([{ transform: "translateY(30px) scale(.85)", opacity: 0 }, { transform: "translateY(-10px) scale(1.03)", opacity: 1, offset: .6 }, { transform: "none", opacity: 1 }], { duration: 600, easing: "ease-out" });
   const st = $("signTxt");
-  Object.assign(st.style, { left: SIGN.x * 100 + "%", top: SIGN.y * 100 + "%", width: SIGN.w * 100 + "%", height: SIGN.h * 100 + "%" });
-  st.style.fontSize = ""; const sp = st.firstElementChild;   // chữ to nhất mà vẫn vừa bảng, không xuống dòng lung tung
-  for (let fs = parseFloat(getComputedStyle(st).fontSize); sp.offsetWidth > st.clientWidth * .9 && fs > 14; fs -= 1) st.style.fontSize = fs + "px";
+  Object.assign(st.style, { left: SIGN.x * 100 + "%", top: SIGN.y * 100 + "%", width: SIGN.w * 100 + "%", height: SIGN.h * 100 + "%", transform: `rotate(${SIGN.r}deg)` });
+  st.style.fontSize = "44px"; const sp = st.firstElementChild;   // chữ to nhất mà vẫn vừa bảng, không xuống dòng lung tung
+  for (let fs = 44; (sp.offsetWidth > st.clientWidth * .9 || sp.offsetHeight > st.clientHeight * .92) && fs > 14; fs -= 1) st.style.fontSize = fs + "px";
   setTimeout(() => st.classList.add("on"), 450);
   const ask = $("ask4"); ask.style.top = Math.min(H - 70, k.y + k.h + 16) + "px";
   await wait(1100); ask.classList.add("on");
