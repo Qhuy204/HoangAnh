@@ -43,7 +43,7 @@
   /* dấu sáp */
   #seal { position:absolute; z-index:9; left:50%; top:58%; width:21%; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; cursor:pointer;
     background:url(../assets/letter/seal.webp) center/contain no-repeat; filter:drop-shadow(0 5px 6px rgba(40,10,0,.45));
-    animation:pulse 2.2s ease-in-out infinite; transition:transform .5s cubic-bezier(.3,1.6,.5,1), opacity .5s; }
+    transition:transform .5s cubic-bezier(.3,1.6,.5,1), opacity .5s; }
   @keyframes pulse { 50% { transform:scale(1.07); filter:drop-shadow(0 4px 14px rgba(255,130,110,.55)); } }
   .opened #seal { animation:none; transform:scale(1.5) rotate(-20deg); opacity:0; pointer-events:none; }
 
@@ -169,6 +169,7 @@
   .pic.dora { width:min(66vw, 300px); aspect-ratio:698/386; object-fit:cover; background:#223; }
   .phone.bare { background:transparent; box-shadow:none; }
   .phone.bare header { opacity:0; }
+  #s2 #msgs { justify-content:center !important; padding:14px 12px 40px !important; }   /* tin nhắn nằm giữa màn */
   #msgs { flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:6px; padding:14px 12px 120px; overflow:hidden; }
   .row { display:flex; align-items:flex-end; gap:8px; max-width:78%; will-change:transform; }
   .row.me { align-self:flex-end; flex-direction:row-reverse; }
@@ -208,7 +209,7 @@
     text-align:center; transform-origin:50% 100%; visibility:hidden; font-family:"Quicksand", sans-serif; color:#f3ead9; }
   #memo .lbl { font-size:12px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:#ffd6e2; text-shadow:0 1px 6px rgba(0,0,0,.5); }
   #memo img { width:100%; height:auto; display:block; border-radius:22px;
-    box-shadow:0 0 0 1px rgba(243,234,217,.25), 0 20px 50px rgba(0,0,0,.45), 0 0 40px rgba(255,77,109,.22); }
+    box-shadow:0 20px 50px rgba(0,0,0,.4); }
   #memo .count { display:flex; gap:clamp(12px, 4vw, 26px); }
   #memo .count div { display:flex; flex-direction:column; align-items:center; gap:8px; }
   #memo .count b { font-weight:700; font-size:clamp(30px, 8.5vw, 52px); line-height:1; font-variant-numeric:tabular-nums; color:#fff4e6;
@@ -608,9 +609,8 @@ async function scene2() {
     { transform: `translate(0, 0) scale(${ms}) rotate(-4deg)` },
     { transform: `translate(${dx * .5}px, ${dy - H * .18}px) scale(.75) rotate(-200deg)`, offset: .45 },
     { transform: `translate(${dx}px, ${dy + 16}px) scale(1.04) rotate(-358deg)`, offset: .78 },
-    { transform: `translate(${dx}px, ${dy - 8}px) scale(.99) rotate(-362deg)`, offset: .9 },
-    { transform: `translate(${dx}px, ${dy}px) scale(1) rotate(-363deg)` }], { duration: 1500, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards" }).finished;
-  burst(W / 2, Math.max(12, (H * .86 - mh) / 2) + mh / 2, 70);
+    { transform: `translate(${dx}px, ${dy - 8}px) scale(.99) rotate(-360deg)`, offset: .9 },
+    { transform: `translate(${dx}px, ${dy}px) scale(1) rotate(-360deg)` }], { duration: 1500, easing: "cubic-bezier(.3,.6,.4,1)", fill: "forwards" }).finished;
   carB.classList.add("go");
   moveX(carB, midB, W + 40, 2200, "cubic-bezier(.5,0,.75,1)");
   await wait(1600);
@@ -685,7 +685,6 @@ $("nhan").addEventListener("click", async () => {
   for (let i = 0; i < 3; i++) {
     await env.animate([{ transform: "none" }, { transform: `rotate(${i % 2 ? 4 : -4}deg) scale(${1.02 + i * .02})` }, { transform: `rotate(${i % 2 ? -3 : 3}deg) scale(${1.02 + i * .02})` }, { transform: "none" }],
       { duration: 420, easing: "ease-in-out" }).finished;
-    seal.animate([{ scale: 1 }, { scale: 1.15 }, { scale: 1 }], { duration: 300 });
     await wait(220);
   }
   env.animate([{ transform: "none" }, { transform: "translateY(-40px) scale(1.12)", offset: .35 }, { transform: "translateY(6px) scale(.98)", offset: .7 }, { transform: "none" }], { duration: 900, easing: "ease-out" });
