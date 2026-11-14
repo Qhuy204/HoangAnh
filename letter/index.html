@@ -44,7 +44,9 @@
   #seal { position:absolute; z-index:9; left:50%; top:58%; width:21%; aspect-ratio:1; translate:-50% -50%; border:0; padding:0; cursor:pointer;
     background:url(../assets/letter/seal.webp) center/contain no-repeat; filter:drop-shadow(0 5px 6px rgba(40,10,0,.45));
     transition:transform .5s cubic-bezier(.3,1.6,.5,1), opacity .5s; }
-  @keyframes pulse { 50% { transform:scale(1.07); filter:drop-shadow(0 4px 14px rgba(255,130,110,.55)); } }
+  @keyframes pulse { 0%, 100% { transform:scale(1); filter:drop-shadow(0 5px 6px rgba(40,10,0,.45)) drop-shadow(0 0 6px rgba(255,200,150,.35)); }
+    50% { transform:scale(1.08); filter:drop-shadow(0 4px 8px rgba(40,10,0,.35)) drop-shadow(0 0 22px rgba(255,214,150,.95)) drop-shadow(0 0 40px rgba(255,150,120,.6)); } }
+  .sealReady:not(.opened) #seal { animation:pulse 1.8s ease-in-out infinite; }
   .opened #seal { animation:none; transform:scale(1.5) rotate(-20deg); opacity:0; pointer-events:none; }
 
   /* hào quang mở rương */
@@ -53,8 +55,10 @@
     -webkit-mask:radial-gradient(closest-side, #000 18%, transparent 100%); mask:radial-gradient(closest-side, #000 18%, transparent 100%);
     animation:spin 16s linear infinite; }
   #glow { position:absolute; z-index:0; pointer-events:none; border-radius:50%; translate:-50% -50%; opacity:0; transition:opacity 1.2s;
-    background:radial-gradient(closest-side, rgba(255,240,190,.85), rgba(255,215,150,.35) 45%, transparent 100%); }
+    background:radial-gradient(closest-side, rgba(255,246,210,1), rgba(255,226,160,.7) 38%, rgba(255,205,140,.25) 65%, transparent 100%); }
   #rays.on, #glow.on { opacity:1; }
+  #glow.on { animation:glowB 1.8s ease-in-out infinite; }
+  @keyframes glowB { 50% { scale:1.12; filter:brightness(1.15); } }
   @keyframes spin { to { rotate:360deg; } }
 
   /* khe chứa ảnh: cắt phần thò xuống dưới đáy phong thư */
@@ -76,11 +80,11 @@
   #card .in { position:absolute; inset:0; padding:22px 22px 26px; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; overscroll-behavior:contain;
     scrollbar-width:none; user-select:text; -webkit-user-select:text; }
   #card .in::-webkit-scrollbar { display:none; }
-  #card h2 { margin:0 0 10px; font:700 clamp(26px, 7vw, 34px)/1.1 "Dancing Script", cursive; color:#4a5a35; }
-  #card p, #card .then { margin:0; white-space:pre-line; font:500 clamp(19px, 5.2vw, 23px)/1.42 "Dancing Script", cursive; }
-  #card .big { margin:.25em 0 .15em; text-align:center; white-space:nowrap; font:700 calc(clamp(19px, 5.2vw, 23px) * 3)/1.15 "Dancing Script", cursive; color:#8e1b1b; }
+  #card h2 { margin:0 0 10px; font:700 calc(clamp(26px, 7vw, 34px) * var(--k, 1))/1.1 "Dancing Script", cursive; color:#4a5a35; }
+  #card p, #card .then { margin:0; white-space:pre-line; font:500 calc(clamp(19px, 5.2vw, 23px) * var(--k, 1))/1.42 "Dancing Script", cursive; }
+  #card .big { margin:.25em 0 .15em; text-align:center; white-space:nowrap; font:700 calc(clamp(19px, 5.2vw, 23px) * 3 * var(--k, 1))/1.15 "Dancing Script", cursive; color:#8e1b1b; }
   #card .big:empty, #card .then:empty { display:none; }
-  #card .sign { margin-top:14px; text-align:right; font:700 clamp(22px, 6vw, 28px) "Dancing Script", cursive; color:#7d1414; opacity:0; transition:opacity 1s; }
+  #card .sign { margin-top:14px; text-align:right; font:700 calc(clamp(22px, 6vw, 28px) * var(--k, 1)) "Dancing Script", cursive; color:#7d1414; opacity:0; transition:opacity 1s; }
   #card .sign.on { opacity:1; }
   .caret { display:inline-block; width:2px; height:1em; margin-left:2px; vertical-align:-.12em; background:#7d1414; animation:blink .9s steps(1) infinite; }
   @keyframes blink { 50% { opacity:0; } }
@@ -694,54 +698,16 @@ $("co").addEventListener("click", async () => {
 $("nhan").addEventListener("click", async () => {
   const n = $("nhan"); n.classList.remove("on"); n.style.pointerEvents = "none";
   unsay();
-  // bức thư rời tay mèo, bay ra giữa màn
-  const ex = K.x + K.w * CATENV.x, ey = K.y + K.h * CATENV.y, s0 = K.w * CATENV.w / E.w;
   document.body.classList.remove("pre");
-  $("cat").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" });   // thư rời tay mèo
-  env.style.zIndex = 25; seal.style.zIndex = 26;
-  const sx = E.x + E.w / 2 - parseFloat(seal.style.left), sy = E.y + E.h / 2 - parseFloat(seal.style.top);   // dấu sáp bay theo tâm phong thư
-  env.animate([{ transform: `translate(${ex - (E.x + E.w / 2)}px, ${ey - (E.y + E.h / 2)}px) scale(${s0}) rotate(-8deg)` },
-    { transform: "translate(0, -30px) scale(1.06) rotate(3deg)", offset: .7 }, { transform: "none" }], { duration: 1000, easing: "cubic-bezier(.3,.7,.3,1)" });
-  seal.animate([{ transform: `translate(${ex - (E.x + E.w / 2)}px, ${ey - (E.y + E.h / 2)}px) translate(${sx}px, ${sy}px) scale(${s0}) translate(${-sx}px, ${-sy}px)` },
-    { transform: "translate(0, -30px) scale(1.06)", offset: .7 }, { transform: "none" }], { duration: 1000, easing: "cubic-bezier(.3,.7,.3,1)" });
-  setTimeout(() => { env.style.zIndex = ""; seal.style.zIndex = ""; }, 2600);
-  setTimeout(() => { envIn = true; }, 1000);   // thư tới nơi là bấm dấu sáp được luôn
-  // mèo nhảy lại lên xe rồi phóng đi
-  await wait(400);
-  const cat = $("cat"), hop = $("hop"); cat.getAnimations().forEach(a => a.cancel());
-  const S0 = placeCat("scooter-empty"), sp = HOP.sp(S0), gp = HOP.gp(S0);
-  cat.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
-  Object.assign(hop.style, { width: sp.w + "px", height: sp.h + "px", left: gp.x + "px", top: gp.y + "px", visibility: "visible" });
-  await hop.animate([{ opacity: 0, transform: "scale(.7)" }, { opacity: 1, transform: "none" }], { duration: 260, fill: "forwards" }).finished;
-  const bx = sp.x - gp.x, by = sp.y - gp.y;
-  await hop.animate([
-    { transform: "none" },
-    { transform: "translateY(8px) scale(1.06,.9)", offset: .15 },
-    { transform: `translate(${bx * .5}px, ${Math.min(by, 0) - H * .1}px) rotate(10deg)`, offset: .55 },
-    { transform: `translate(${bx}px, ${by}px)` }], { duration: 750, easing: "cubic-bezier(.35,.6,.4,1)", fill: "forwards" }).finished;
-  hop.getAnimations().forEach(a => a.cancel()); hop.style.visibility = "hidden";
-  placeCat("cat-scooter");
-  cat.animate([{ transform: "none" }, { transform: "translateY(6px)", offset: .3 }, { transform: "none" }], { duration: 300 });
-  await wait(250);
-  cat.classList.add("go");
-  puff(K.x + K.w * .9, K.y + K.h * .95, 1); puff(K.x + K.w * .9, K.y + K.h * .95, 1);
-  cat.animate([{ transform: "none" }, { transform: "translateX(18px)", offset: .2 }, { transform: `translateX(${-K.x - K.w - 40}px)` }], { duration: 900, easing: "cubic-bezier(.6,0,.9,.6)", fill: "forwards" })
-    .finished.then(() => { cat.classList.remove("go"); cat.style.visibility = "hidden"; });
-  await wait(900);
-  // mở rương báu: rung rung, loé sáng, hào quang toả ra
-  for (let i = 0; i < 3 && !opened; i++) {
-    await env.animate([{ transform: "none" }, { transform: `rotate(${i % 2 ? 4 : -4}deg) scale(${1.02 + i * .02})` }, { transform: `rotate(${i % 2 ? -3 : 3}deg) scale(${1.02 + i * .02})` }, { transform: "none" }],
-      { duration: 420, easing: "ease-in-out" }).finished;
-    await wait(220);
-  }
-  if (opened) return;
-  env.animate([{ transform: "none" }, { transform: "translateY(-40px) scale(1.12)", offset: .35 }, { transform: "translateY(6px) scale(.98)", offset: .7 }, { transform: "none" }], { duration: 900, easing: "ease-out" });
-  $("glow").classList.add("on");
-  await wait(900);
-  if (opened) return;
-  $("capBot").textContent = "(chạm vào dấu sáp để mở thư nhé)";
-  document.body.classList.add("sealReady");
-  $("capBot").style.opacity = "";
+  $("cat").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }).finished.then(() => { const c = $("cat"); c.getAnimations().forEach(a => a.cancel()); c.style.visibility = "hidden"; });
+  env.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });   // thư hiện ra tại chỗ, không bay nhảy
+  seal.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });
+  setTimeout(() => {   // thư tới nơi: dấu sáp phát sáng, bấm mở được luôn
+    envIn = true; if (opened) return;
+    $("glow").classList.add("on");
+    $("capBot").textContent = "(chạm vào dấu sáp để mở thư nhé)";
+    document.body.classList.add("sealReady"); $("capBot").style.opacity = "";
+  }, 500);
 });
 
 /* ---------- gõ chữ trong thư ---------- */
@@ -753,6 +719,16 @@ function fitBig() {
   while (b.scrollWidth > max && fs > 20) { fs -= 2; b.style.fontSize = fs + "px"; }
 }
 const SEG = [["text", LETTER], ["big", BIG], ["then", THEN]];
+// co chữ để cả bức thư (kể cả chữ ký) nằm gọn trong thiệp, khỏi phải cuộn
+function fitCard() {
+  if (typing) return;
+  const inn = card.querySelector(".in"), saved = SEG.map(([id]) => $(id).textContent);
+  for (const [id, s] of SEG) $(id).textContent = s;
+  let k = 1; card.style.setProperty("--k", 1); fitBig();
+  while (inn.scrollHeight > inn.clientHeight + 1 && k > .5) { k -= .02; card.style.setProperty("--k", k); fitBig(); }
+  SEG.forEach(([id], i) => $(id).textContent = saved[i]); fitBig();
+}
+addEventListener("resize", () => setTimeout(fitCard, 50));
 function finishType() {
   for (const [id, s] of SEG) $(id).textContent = s;
   fitBig(); $("sign").classList.add("on"); typing = null; typeDone?.();
@@ -792,11 +768,6 @@ seal.addEventListener("click", async () => {
   env.classList.add("opened");
   await wait(450); env.querySelector(".flap").classList.add("behind");
   await wait(350);
-  for (const [el, o, d] of [[strip, S, 0]]) {
-    el.style.visibility = "visible";
-    el.animate([{ transform: `translateY(${o.tuck - o.y}px) rotate(0deg)` }, { transform: `translateY(0) rotate(${o.r}deg)` }],
-      { duration: 1300, delay: d, easing: "cubic-bezier(.3,.7,.3,1)", fill: "both" });
-  }
   card.style.visibility = "visible";
   const a1 = card.animate([{ transform: tucked(0), clipPath: tuckClip(0) }, { transform: tucked(-E.h * .85), clipPath: tuckClip(-E.h * .85) }], { duration: 1000, easing: "cubic-bezier(.4,0,.3,1)", fill: "forwards" });
   await a1.finished;
@@ -806,7 +777,7 @@ seal.addEventListener("click", async () => {
   setTimeout(() => { $("fl2").classList.add("on"); }, 500);
   await a2.finished;
   a1.cancel(); a2.cancel(); card.style.transform = `rotate(${C.r}deg)`;
-  $("n1").classList.add("on"); setTimeout(() => $("n2").classList.add("on"), 400);
+  await document.fonts.ready; fitCard();
   await typeLetter();
   await wait(3200);
   scene4();
