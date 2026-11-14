@@ -110,6 +110,7 @@
   /* ---------- các màn phủ toàn trang ---------- */
   .scr { position:fixed; inset:0; z-index:30; opacity:0; visibility:hidden; overflow:hidden; transition:opacity .9s, visibility 0s .9s; }
   .scr.on { opacity:1; visibility:visible; transition:opacity .9s; }
+  .scr:not(.on), .scr:not(.on) * { pointer-events:none !important; }   /* cánh cửa 3D vẫn bắt chạm dù màn đã ẩn → chặn mất dấu sáp */
   .hint { position:absolute; left:0; right:0; text-align:center; font:500 clamp(17px, 4.6vw, 21px) "Patrick Hand", cursive; color:#fff; pointer-events:none;
     text-shadow:0 1px 8px rgba(60,30,50,.55); opacity:0; transition:opacity .6s; }
   .hint.on { opacity:1; animation:breath 2.4s ease-in-out infinite; }
