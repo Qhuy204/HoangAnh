@@ -1,0 +1,10 @@
+# Cấu hình tunnel khi chạy trong Docker (service "tunnel" trong docker-compose.yml).
+# File credentials KHÔNG nằm trong repo: được mount từ %USERPROFILE%\.cloudflared vào /etc/cloudflared/creds.json
+tunnel: f356703b-d597-4cac-a0f3-8b5915575445
+credentials-file: /etc/cloudflared/creds.json
+no-autoupdate: true
+
+ingress:
+  - hostname: hoanganh.qhuy204.id.vn
+    service: http://web:80          # container trang chính, gọi qua mạng nội bộ của docker compose
+  - service: http_status:404

@@ -17,3 +17,14 @@ services:
     ports:
       - "8124:80"
     restart: unless-stopped
+
+  tunnel:                     # cloudflared: đưa trang chính ra hoanganh.qhuy204.id.vn, tự chạy lại cùng Docker
+    image: cloudflare/cloudflared:2024.12.2
+    container_name: hoanganh-tunnel
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      - ${USERPROFILE}/.cloudflared/f356703b-d597-4cac-a0f3-8b5915575445.json:/etc/cloudflared/creds.json:ro   # credentials ở ngoài repo
+    depends_on:
+      - web
+    restart: unless-stopped
